@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl =
-      'http://localhost:3000'; // Substitua pela sua URL.
+      'dailytraining.fluxocar.com.br/api'; // Substitua pela sua URL.
 
   Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {

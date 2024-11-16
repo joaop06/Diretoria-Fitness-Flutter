@@ -36873,7 +36873,7 @@ A.E9.prototype={
 xz(a,b){return this.ag6(a,b)},
 ag6(a,b){var s=0,r=A.O(t.a),q,p=2,o,n,m,l,k,j,i
 var $async$xz=A.P(function(c,d){if(c===1){o=d
-s=p}while(true)switch(s){case 0:j=A.hc("http://localhost:3000"+a)
+s=p}while(true)switch(s){case 0:j=A.hc("dailytraining.fluxocar.com.br/api"+a)
 p=4
 l=t.N
 s=7
