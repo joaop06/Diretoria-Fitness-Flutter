@@ -1,9 +1,8 @@
-import 'package:daily_training_flutter/screens/bets.dart';
-
 import '../services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'package:daily_training_flutter/screens/bets.dart';
 
 // class LoginScreen extends StatelessWidget {
 final TextEditingController emailController = TextEditingController();
@@ -27,7 +26,7 @@ class LoginScreen extends StatelessWidget {
             children: [
               // Logo da aplicação
               Image.asset(
-                'logo-diretoria-fitness.jpg', // Substitua pelo caminho da sua imagem
+                'images/logo-diretoria-fitness.jpg', // Substitua pelo caminho da sua imagem
                 height: 200,
               ),
               const SizedBox(height: 40),

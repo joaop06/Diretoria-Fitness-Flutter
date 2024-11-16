@@ -36831,7 +36831,7 @@ A.pj.prototype={
 L(a){var s=null
 return A.arh(new A.uc(B.Pr,new A.PC(s,s,1/0,56),s),s,A.mP(A.iU("Bem-vindo \xe0 tela de apostas!",s,s,s,s,s,s),s,s))}}
 A.qi.prototype={
-L(a){var s,r=null,q=4291600979,p=A.aC5(a,t.W0),o=A.aCo(r,r,new A.uf("logo-diretoria-fitness.jpg",r,r)),n=A.i_(r,r,B.j,r,r,r,r,r,r,r,r,r,r,r,r,r,r,!0,r,r,r,r,r,r,r,r)
+L(a){var s,r=null,q=4291600979,p=A.aC5(a,t.W0),o=A.aCo(r,r,new A.uf("images/logo-diretoria-fitness.jpg",r,r)),n=A.i_(r,r,B.j,r,r,r,r,r,r,r,r,r,r,r,r,r,r,!0,r,r,r,r,r,r,r,r)
 n=A.arL(this.c,A.alR(r,new A.h1(4,A.uo(12),B.p),r,r,r,r,r,r,!0,r,r,r,r,r,r,B.kG,!0,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,n,"E-mail",r,A.a0s(B.BW,new A.n(q),r),r,r,r,r,r,r,r,r,r,r,r),B.Lb,!1,B.x3)
 s=A.i_(r,r,B.j,r,r,r,r,r,r,r,r,r,r,r,r,r,r,!0,r,r,r,r,r,r,r,r)
 s=A.b([new A.w_(o,200,r),B.Kd,n,B.Kb,A.arL(this.d,A.alR(r,new A.h1(4,A.uo(12),B.p),r,r,r,r,r,r,!0,r,r,r,r,r,r,B.kG,!0,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,s,"Senha",r,A.a0s(B.BX,new A.n(q),r),r,r,r,r,r,r,r,r,r,r,r),r,!0,B.x3),B.Kc],t.F)
