@@ -2,23 +2,9 @@ import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class AuthProvider with ChangeNotifier {
-  String? _token;
-
-  String? get token => _token;
-
-  void setToken(String token) {
-    _token = token;
-    notifyListeners();
-  }
-
-  void clearToken() {
-    _token = null;
-    notifyListeners();
-  }
-
   final AuthService _authService = AuthService();
-  bool _isLoading = false;
   String? _errorMessage;
+  bool _isLoading = false;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;

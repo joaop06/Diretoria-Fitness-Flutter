@@ -1,21 +1,27 @@
-import 'screens/login.dart';
-import 'providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:daily_training_flutter/screens/bets.dart';
 
-void main() {
+import 'package:daily_training_flutter/screens/bets.dart';
+import 'package:daily_training_flutter/screens/signup.dart';
+import 'package:daily_training_flutter/screens/signin.dart';
+import 'package:daily_training_flutter/providers/auth_provider.dart';
+import 'package:daily_training_flutter/providers/users_provider.dart';
+
+void main() async {
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => UsersProvider()),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -24,11 +30,12 @@ class MyApp extends StatelessWidget {
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Login App',
+          title: 'Diretoria Fitness',
           initialRoute: '/',
           routes: {
-            '/': (context) => LoginScreen(),
+            '/': (context) => SignInScreen(),
             '/bets': (context) => BetsScreen(),
+            '/signup': (context) => const SignUpScreen(),
           },
         ));
   }

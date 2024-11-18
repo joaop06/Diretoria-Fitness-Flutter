@@ -1,9 +1,13 @@
 import 'api_service.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final ApiService _apiService = ApiService();
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  static Future<String?> getAccessToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("accessToken");
+  }
 
   Future<void> login(String email, String password) async {
     final response = await _apiService.post("/auth/login", {
@@ -12,13 +16,14 @@ class AuthService {
     });
 
     if (response.containsKey("accessToken")) {
-      await _storage.write(key: "accessToken", value: response["accessToken"]);
+      try {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("accessToken", response["accessToken"]);
+      } catch (e) {
+        throw Exception("Erro ao salvar o token");
+      }
     } else {
       throw Exception("Token de acesso não encontrado");
     }
-  }
-
-  Future<String?> getAccessToken() async {
-    return await _storage.read(key: "accessToken");
   }
 }

@@ -5,9 +5,19 @@ class BetsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Apostas"),
+        backgroundColor: const Color(0xFF282624),
+        title: const Text(
+          'Apostas',
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/');
+          },
+        ),
       ),
-      body: Center(
+      body: const Center(
         child: Text("Bem-vindo à tela de apostas!"),
       ),
     );
