@@ -176,191 +176,201 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1e1c1b),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF282624),
-        title: const Text(
-          'Cadastro',
-          style: TextStyle(color: Colors.white),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, '/');
-          },
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _nameController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Nome *',
-                    hintText: 'João Borges',
-                    hintStyle: TextStyle(color: Colors.white70),
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFcca253)),
-                    ),
-                  ),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Nome é obrigatório'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'E-mail *',
-                    hintText: 'joaoborges@gmail.com',
-                    hintStyle: TextStyle(color: Colors.white70),
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFcca253)),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'E-mail é obrigatório';
-                    }
-                    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-                    if (!emailRegex.hasMatch(value)) {
-                      return 'E-mail inválido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Senha *',
-                    hintText: 'Mínimo de 6 caracteres',
-                    hintStyle: TextStyle(color: Colors.white70),
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFFcca253)),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Senha é obrigatória';
-                    }
-                    if (value.length < 6) {
-                      return 'A senha deve ter pelo menos 6 caracteres';
-                    }
-                    return null;
-                  },
-                ),
-                Stack(
-                  children: [
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _weightController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly, // Permite apenas dígitos
-                      ],
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'Peso (opcional)',
-                        hintText: 'Ex.: 71.2',
-                        hintStyle: TextStyle(color: Colors.white70),
-                        labelStyle: TextStyle(color: Colors.white),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFcca253)),
-                        ),
-                      ),
-                    ),
-                    const Positioned(
-                      right: 10, // Ajuste de posição
-                      top:
-                          20, // Alinhamento vertical, ajustado conforme necessário
-                      child: Text(
-                        'kg',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  ],
-                ),
-                Stack(
-                  children: [
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _heightController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly, // Permite apenas dígitos
-                      ],
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'Altura (opcional)',
-                        hintText: 'Ex.: 1.75',
-                        hintStyle: TextStyle(color: Colors.white70),
-                        labelStyle: TextStyle(color: Colors.white),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFcca253)),
-                        ),
-                      ),
-                    ),
-                    const Positioned(
-                      right: 10, // Ajuste de posição
-                      top:
-                          20, // Alinhamento vertical, ajustado conforme necessário
-                      child: Text(
-                        'm',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: _isSubmitting ? null : registerUser,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFcca253),
-                  ),
-                  child: _isSubmitting
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          'Cadastrar',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                ),
-              ],
-            ),
+        backgroundColor: const Color(0xFF1e1c1b),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF282624),
+          title: const Text(
+            'Cadastro',
+            style: TextStyle(color: Colors.white),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, '/');
+            },
           ),
         ),
-      ),
-    );
+        body: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 450),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 200),
+            child: SingleChildScrollView(
+              child: Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(25),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            labelText: 'Nome *',
+                            hintText: 'João Borges',
+                            hintStyle: TextStyle(color: Colors.white70),
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFcca253)),
+                            ),
+                          ),
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Nome é obrigatório'
+                              : null,
+                        ),
+                        const SizedBox(height: 30),
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            labelText: 'E-mail *',
+                            hintText: 'joaoborges@gmail.com',
+                            hintStyle: TextStyle(color: Colors.white70),
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFcca253)),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'E-mail é obrigatório';
+                            }
+                            final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+                            if (!emailRegex.hasMatch(value)) {
+                              return 'E-mail inválido';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 30),
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            labelText: 'Senha *',
+                            hintText: 'Mínimo de 6 caracteres',
+                            hintStyle: TextStyle(color: Colors.white70),
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFcca253)),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Senha é obrigatória';
+                            }
+                            if (value.length < 6) {
+                              return 'A senha deve ter pelo menos 6 caracteres';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 30),
+                        Stack(
+                          children: [
+                            TextFormField(
+                              controller: _weightController,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter
+                                    .digitsOnly, // Permite apenas dígitos
+                              ],
+                              style: const TextStyle(color: Colors.white),
+                              decoration: const InputDecoration(
+                                labelText: 'Peso (opcional)',
+                                hintText: 'Ex.: 71.2',
+                                hintStyle: TextStyle(color: Colors.white70),
+                                labelStyle: TextStyle(color: Colors.white),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Color(0xFFcca253)),
+                                ),
+                              ),
+                            ),
+                            const Positioned(
+                              right: 10, // Ajuste de posição
+                              top:
+                                  20, // Alinhamento vertical, ajustado conforme necessário
+                              child: Text(
+                                'kg',
+                                style: TextStyle(color: Colors.white70),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        Stack(
+                          children: [
+                            TextFormField(
+                              controller: _heightController,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter
+                                    .digitsOnly, // Permite apenas dígitos
+                              ],
+                              style: const TextStyle(color: Colors.white),
+                              decoration: const InputDecoration(
+                                labelText: 'Altura (opcional)',
+                                hintText: 'Ex.: 1.75',
+                                hintStyle: TextStyle(color: Colors.white70),
+                                labelStyle: TextStyle(color: Colors.white),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Color(0xFFcca253)),
+                                ),
+                              ),
+                            ),
+                            const Positioned(
+                              right: 10, // Ajuste de posição
+                              top:
+                                  20, // Alinhamento vertical, ajustado conforme necessário
+                              child: Text(
+                                'm',
+                                style: TextStyle(color: Colors.white70),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 50),
+                        Container(
+                          constraints: const BoxConstraints(maxWidth: 200),
+                          child: ElevatedButton(
+                            onPressed: _isSubmitting ? null : registerUser,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFcca253),
+                            ),
+                            child: _isSubmitting
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white)
+                                : const Text(
+                                    'Cadastrar',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )),
+            ),
+          ),
+        ));
   }
 }

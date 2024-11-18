@@ -18,6 +18,9 @@ class SignInScreen extends StatelessWidget {
 
     return Scaffold(
       body: Center(
+          child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
@@ -35,14 +38,14 @@ class SignInScreen extends StatelessWidget {
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: "E-mail",
-                  labelStyle: TextStyle(color: Colors.white),
+                  labelStyle: const TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: const Color(0xFF282624),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: Icon(Icons.email, color: Color(0xFFCCA253)),
+                  prefixIcon: const Icon(Icons.email, color: Color(0xFFCCA253)),
                 ),
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(color: Colors.white),
@@ -54,14 +57,14 @@ class SignInScreen extends StatelessWidget {
                 controller: passwordController,
                 decoration: InputDecoration(
                   labelText: "Senha",
-                  labelStyle: TextStyle(color: Colors.white),
+                  labelStyle: const TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: const Color(0xFF282624),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: Icon(Icons.lock, color: Color(0xFFCCA253)),
+                  prefixIcon: const Icon(Icons.lock, color: Color(0xFFCCA253)),
                 ),
                 obscureText: true,
                 style: const TextStyle(color: Colors.white),
@@ -133,7 +136,7 @@ class SignInScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      )),
       backgroundColor: const Color(0xFF1E1C1B),
     );
   }
