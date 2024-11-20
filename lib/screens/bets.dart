@@ -104,7 +104,7 @@ class _BetsScreenState extends State<BetsScreen> {
         elevation: 4,
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         child: InkWell(
-          hoverColor: Color.fromARGB(255, 71, 68, 65),
+          hoverColor: const Color.fromARGB(255, 71, 68, 65),
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -114,12 +114,12 @@ class _BetsScreenState extends State<BetsScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 222, 159, 42),
+                    color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.sports_esports,
-                    color: Colors.white,
+                    color: _getStatusColor(bet.status),
                     size: 28,
                   ),
                 ),
@@ -180,7 +180,7 @@ class _BetsScreenState extends State<BetsScreen> {
                   },
                   icon: const Icon(
                     Icons.arrow_forward,
-                    color: Color.fromARGB(255, 222, 159, 42),
+                    color: Colors.white,
                   ),
                 ),
               ],
