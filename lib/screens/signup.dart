@@ -214,7 +214,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderSide: BorderSide(color: Colors.white),
                             ),
                             focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xFFcca253)),
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 222, 159, 42)),
                             ),
                           ),
                           validator: (value) => value == null || value.isEmpty
@@ -235,7 +236,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderSide: BorderSide(color: Colors.white),
                             ),
                             focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xFFcca253)),
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 222, 159, 42)),
                             ),
                           ),
                           validator: (value) {
@@ -263,7 +265,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               borderSide: BorderSide(color: Colors.white),
                             ),
                             focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xFFcca253)),
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 222, 159, 42)),
                             ),
                           ),
                           validator: (value) {
@@ -296,8 +299,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   borderSide: BorderSide(color: Colors.white),
                                 ),
                                 focusedBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Color(0xFFcca253)),
+                                  borderSide: BorderSide(
+                                      color: Color.fromARGB(255, 222, 159, 42)),
                                 ),
                               ),
                             ),
@@ -332,8 +335,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   borderSide: BorderSide(color: Colors.white),
                                 ),
                                 focusedBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Color(0xFFcca253)),
+                                  borderSide: BorderSide(
+                                      color: Color.fromARGB(255, 222, 159, 42)),
                                 ),
                               ),
                             ),
@@ -354,7 +357,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: ElevatedButton(
                             onPressed: _isSubmitting ? null : registerUser,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFcca253),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 222, 159, 42),
                             ),
                             child: _isSubmitting
                                 ? const CircularProgressIndicator(

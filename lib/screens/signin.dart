@@ -1,16 +1,26 @@
-import '../services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'package:daily_training_flutter/screens/bets.dart';
 
-// class SignInScreen extends StatelessWidget {
 final TextEditingController emailController = TextEditingController();
 final TextEditingController passwordController = TextEditingController();
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
+  @override
+  _SignInScreenState createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  bool _obscureText = true;
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +75,14 @@ class SignInScreen extends StatelessWidget {
                     borderSide: BorderSide.none,
                   ),
                   prefixIcon: const Icon(Icons.lock, color: Color(0xFFCCA253)),
+                  suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: const Color(0xFFCCA253),
+                      ),
+                      onPressed: _togglePasswordVisibility),
                 ),
-                obscureText: true,
+                obscureText: _obscureText,
                 style: const TextStyle(color: Colors.white),
               ),
 

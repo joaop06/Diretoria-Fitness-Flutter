@@ -1,5 +1,5 @@
-import 'package:daily_training_flutter/services/users_service.dart';
 import 'package:flutter/material.dart';
+import 'package:daily_training_flutter/services/users_service.dart';
 
 class UsersProvider with ChangeNotifier {
   String? _errorMessage;

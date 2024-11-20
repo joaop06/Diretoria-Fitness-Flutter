@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:daily_training_flutter/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
+  // static const String baseUrl = 'http://localhost:3000';
   static const String baseUrl = 'https://dailytraining.api.fluxocar.com.br';
 
   Future<Map<String, dynamic>> post(
@@ -25,28 +27,25 @@ class ApiService {
     }
   }
 
-  // Função para criar um novo usuário
-  Future<Map<String, dynamic>> createUser(Map<String, dynamic> userData) async {
+// Função para buscar apostas do servidor
+  Future<Map<String, dynamic>> get(String endpoint) async {
+    final url = Uri.parse("$baseUrl$endpoint");
+    final accessToken = await AuthService.getAccessToken();
+
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/users'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(userData),
-      );
+      final response = await http.get(url, headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      });
 
-      if (response.statusCode != 201) {
-        final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? error['error']);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else {
+        throw Exception('Falha ao buscar dados');
       }
-
-      return jsonDecode(response.body);
     } catch (e) {
-      final errorMessage = e.toString().isNotEmpty
-          ? e.toString()
-          : 'Erro ao tentar se comunicar com o servidor';
-      throw Exception(errorMessage);
+      rethrow;
     }
   }
 }
