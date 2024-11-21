@@ -42,14 +42,19 @@ class Bet {
 }
 
 class BetsService {
-  final ApiService apiService;
+  final ApiService _apiService;
 
-  BetsService(this.apiService);
+  BetsService(this._apiService);
 
   Future<List<Bet>> getBets() async {
-    final betsData = await apiService.get('/training-bets');
+    final betsData = await _apiService.get('/training-bets');
     return (betsData["rows"] as List)
         .map((item) => Bet.fromJson(item))
         .toList();
+  }
+
+  Future<String> create(Map<String, dynamic> betData) async {
+    await _apiService.post('/training-bets', betData);
+    return 'Aposta criada com sucesso!';
   }
 }

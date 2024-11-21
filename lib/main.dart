@@ -41,8 +41,8 @@ class MyApp extends StatelessWidget {
             '/': (context) => SignInScreen(),
             '/bets': (context) => BetsScreen(),
             '/signup': (context) => const SignUpScreen(),
-            '/bet_details': (context) => BetsScreen(),
-            '/new_bet': (context) => NewBetScreen(),
+            '/bet-details': (context) => BetsScreen(),
+            '/new-bet': (context) => NewBetScreen(),
           },
         ));
   }

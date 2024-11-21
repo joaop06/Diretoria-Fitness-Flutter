@@ -167,7 +167,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  usersProvider.errorMessage ?? 'Erro ao realizar o cadastro')),
+                  usersProvider.errorMessage ?? 'Erro ao realizar o cadastro',
+                  style: const TextStyle(color: Colors.red))),
         );
       }
     }

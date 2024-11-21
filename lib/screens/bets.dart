@@ -1,85 +1,297 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/screens/bet_details.dart';
+import 'package:daily_training_flutter/services/auth_service.dart';
 import 'package:daily_training_flutter/services/bets_service.dart';
+import 'package:daily_training_flutter/services/users_service.dart';
 import 'package:daily_training_flutter/providers/bets_provider.dart';
 
 class BetsScreen extends StatefulWidget {
+  const BetsScreen({Key? key}) : super(key: key);
+
   @override
   _BetsScreenState createState() => _BetsScreenState();
 }
 
-class _BetsScreenState extends State<BetsScreen> {
+class _BetsScreenState extends State<BetsScreen>
+    with AutomaticKeepAliveClientMixin {
+  User? userData;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isLoading = true;
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
-
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      Provider.of<BetsProvider>(context, listen: false).fetchBets();
+    // Use WidgetsBinding to ensure the widget is fully initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
     });
+  }
+
+  Future<void> _initializeData() async {
+    if (!mounted) return;
+
+    try {
+      // Fetch user data
+      userData = await _safeGetUserData();
+
+      // Fetch bets
+      await _safeFetchBets();
+
+      // Update loading state
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Falha ao buscar dados: $e')),
+        );
+      }
+    }
+  }
+
+  Future<User?> _safeGetUserData() async {
+    try {
+      return await AuthService.getUserData();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> _safeFetchBets() async {
+    try {
+      // Ensure we're using the context from the current build phase
+      await Future.microtask(() {
+        Provider.of<BetsProvider>(context, listen: false).fetchBets();
+      });
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final betsProvider = Provider.of<BetsProvider>(context);
+    super.build(context);
+    final betsProvider = context.watch<BetsProvider>();
+
+    if (_isLoading) {
+      return Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: const Color(0xFF1e1c1b),
+        body: const Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFFCCA253),
+          ),
+        ),
+      );
+    }
+
+    // Check for null or empty user data
+    if (userData == null) {
+      AuthService.signup(context);
+    }
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: const Color(0xFF1e1c1b),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 13, 12, 12),
+        elevation: 4,
         title: const Text(
-          'Apostas',
+          "Apostas",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF282624),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, '/');
-          },
+        leading: _buildLeadingAvatar(),
+      ),
+      drawer: _buildDrawer(),
+      body: _buildBody(betsProvider),
+    );
+  }
+
+  Widget _buildLeadingAvatar() {
+    String? userName = userData?.name;
+    String? userImageUrl = userData?.profileImagePath;
+
+    return GestureDetector(
+      onTap: () => _scaffoldKey.currentState?.openDrawer(),
+      child: Container(
+        margin: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.grey.shade200,
+          image: userImageUrl != null
+              ? DecorationImage(
+                  image: NetworkImage(userImageUrl),
+                  fit: BoxFit.cover,
+                )
+              : null,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.green),
-            onPressed: () => {Navigator.pushNamed(context, '/new_bet')},
-          )
+        child: userImageUrl == null
+            ? Center(
+                child: Text(
+                  userName![0].toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              )
+            : null,
+      ),
+    );
+  }
+
+  Widget _buildDrawer() {
+    String? userName = userData?.name;
+    String? userImageUrl = userData?.profileImagePath;
+
+    return Drawer(
+      backgroundColor: const Color(0xFF282624),
+      child: Column(
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Color(0xFF1e1c1b),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.grey.shade200,
+                  backgroundImage:
+                      userImageUrl != null ? NetworkImage(userImageUrl) : null,
+                  child: userImageUrl == null
+                      ? Text(
+                          userName![0].toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  userName!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.edit, color: Colors.white),
+            title: const Text("Editar Dados",
+                style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pushNamed(context, '/edit-user');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.add, color: Colors.white),
+            title: const Text("Nova Aposta",
+                style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pushNamed(context, '/new-bet');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.leaderboard, color: Colors.white),
+            title: const Text("Ranking", style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pushNamed(context, '/ranking');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.white),
+            title: const Text("Sair", style: TextStyle(color: Colors.white)),
+            onTap: () async {
+              // SignUp
+              await AuthService.signup(context);
+            },
+          ),
         ],
       ),
-      body: betsProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : betsProvider.bets.isNotEmpty
-              ? Center(
-                  child: Container(
-                    constraints:
-                        const BoxConstraints(minWidth: 500, maxWidth: 800),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (betsProvider.highlightedBet != null)
-                            _HighlightedBet(bet: betsProvider.highlightedBet!),
-                          const SizedBox(height: 60),
-                          const Text(
-                            'Outras Apostas',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          otherBets(context, betsProvider),
-                        ],
+    );
+  }
+
+  Widget _buildBody(BetsProvider betsProvider) {
+    if (betsProvider.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFFCCA253),
+        ),
+      );
+    }
+
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 500, maxWidth: 800),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (betsProvider.highlightedBet != null)
+                _HighlightedBet(bet: betsProvider.highlightedBet!),
+              const SizedBox(height: 60),
+              const Text(
+                'Outras Apostas',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: betsProvider.bets.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: betsProvider.bets.length,
+                        itemBuilder: (context, index) {
+                          final bet = betsProvider.bets[index];
+                          return betCard(context, bet);
+                        },
+                      )
+                    : const Center(
+                        child: Text(
+                          'Não há mais apostas',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
-                    ),
-                  ),
-                )
-              : const Center(
-                  child: Text(
-                  'Nenhuma aposta disponível',
-                  style: TextStyle(color: Colors.white),
-                )),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget loading(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: const Color(0xFF1e1c1b),
+      body: const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFFCCA253),
+        ),
+      ),
     );
   }
 
@@ -130,7 +342,7 @@ class _BetsScreenState extends State<BetsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Aposta: ${bet.id}',
+                        'Aposta ${bet.id}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

@@ -3,23 +3,28 @@ import 'package:daily_training_flutter/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // static const String baseUrl = 'http://localhost:3000';
-  static const String baseUrl = 'https://dailytraining.api.fluxocar.com.br';
+  static const String baseUrl = 'http://localhost:3000';
+  // static const String baseUrl = 'https://dailytraining.api.fluxocar.com.br';
 
   Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
     final url = Uri.parse("$baseUrl$endpoint");
+    final accessToken = await AuthService.getAccessToken();
+
     try {
       final response = await http.post(
         url,
         body: jsonEncode(data),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $accessToken',
+        },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body);
+        return json.decode(response.body);
       } else {
-        final error = jsonDecode(response.body);
+        final error = json.decode(response.body);
         throw Exception(error['message'] ?? error['error']);
       }
     } catch (e) {
@@ -34,8 +39,8 @@ class ApiService {
 
     try {
       final response = await http.get(url, headers: {
-        'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
       });
 
       if (response.statusCode == 200) {
