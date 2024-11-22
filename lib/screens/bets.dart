@@ -1,3 +1,5 @@
+import 'package:daily_training_flutter/providers/participants.privider.dart';
+import 'package:daily_training_flutter/services/participants_service.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -72,6 +74,7 @@ class _BetsScreenState extends State<BetsScreen>
     try {
       // Ensure we're using the context from the current build phase
       await Future.microtask(() {
+        Provider.of<ParticipantsProvider>(context, listen: false);
         Provider.of<BetsProvider>(context, listen: false).fetchBets();
       });
     } catch (e) {
@@ -83,6 +86,7 @@ class _BetsScreenState extends State<BetsScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final betsProvider = context.watch<BetsProvider>();
+    final participantsProvider = context.watch<ParticipantsProvider>();
 
     if (_isLoading) {
       return Scaffold(
@@ -114,7 +118,7 @@ class _BetsScreenState extends State<BetsScreen>
         leading: _buildLeadingAvatar(),
       ),
       drawer: _buildDrawer(),
-      body: _buildBody(betsProvider),
+      body: _buildBody(betsProvider, participantsProvider),
     );
   }
 
@@ -231,7 +235,7 @@ class _BetsScreenState extends State<BetsScreen>
     );
   }
 
-  Widget _buildBody(BetsProvider betsProvider) {
+  Widget _buildBody(BetsProvider betsProvider, participantsProvider) {
     if (betsProvider.isLoading) {
       return const Center(
         child: CircularProgressIndicator(
@@ -249,7 +253,10 @@ class _BetsScreenState extends State<BetsScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (betsProvider.highlightedBet != null)
-                _HighlightedBet(bet: betsProvider.highlightedBet!),
+                _HighlightedBet(
+                    userId: userData?.id,
+                    bet: betsProvider.highlightedBet!,
+                    participantsProvider: participantsProvider),
               const SizedBox(height: 60),
               const Text(
                 'Outras Apostas',
@@ -417,9 +424,14 @@ class _BetsScreenState extends State<BetsScreen>
 }
 
 class _HighlightedBet extends StatelessWidget {
+  final userId;
   final Bet bet;
+  final ParticipantsProvider participantsProvider;
 
-  const _HighlightedBet({required this.bet});
+  const _HighlightedBet(
+      {required this.bet,
+      required this.userId,
+      required this.participantsProvider});
 
   @override
   Widget build(BuildContext context) {
@@ -539,7 +551,13 @@ class _HighlightedBet extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  // Ação para participar
+                  final participantData = {
+                    'userId': userId,
+                    'trainingBetId': bet.id,
+                  };
+                  await participantsProvider.create(participantData);
+
+                  // if (participantsProvider._errorMessage == null) {}
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor:

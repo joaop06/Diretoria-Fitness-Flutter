@@ -1,21 +1,21 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:daily_training_flutter/services/bets_service.dart';
 
 class BetsProvider with ChangeNotifier {
-  String? _errorMessage;
-  bool _isLoading = false;
-  final BetsService _betsService;
-
   List<Bet> _bets = [];
-  Bet? _highlightedBet = Bet();
-
   List<Bet> get bets => _bets;
+
+  bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  String? _errorMessage;
   String? get errorMessage => _errorMessage;
+
+  Bet? _highlightedBet = Bet();
   Bet? get highlightedBet => _highlightedBet;
 
+  final BetsService _betsService;
   BetsProvider(this._betsService);
 
   Future<void> fetchBets() async {

@@ -1,3 +1,4 @@
+import 'package:daily_training_flutter/services/participants_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/screens/bets.dart';
@@ -9,6 +10,7 @@ import 'package:daily_training_flutter/services/bets_service.dart';
 import 'package:daily_training_flutter/providers/bets_provider.dart';
 import 'package:daily_training_flutter/providers/auth_provider.dart';
 import 'package:daily_training_flutter/providers/users_provider.dart';
+import 'package:daily_training_flutter/providers/participants.privider.dart';
 
 void main() async {
   runApp(
@@ -16,6 +18,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UsersProvider()),
+        ChangeNotifierProvider(
+            create: (_) =>
+                ParticipantsProvider(ParticipantsService(ApiService()))),
         ChangeNotifierProvider(
             create: (_) => BetsProvider(BetsService(ApiService()))),
       ],
@@ -39,10 +44,10 @@ class MyApp extends StatelessWidget {
           initialRoute: '/',
           routes: {
             '/': (context) => SignInScreen(),
-            '/bets': (context) => BetsScreen(),
-            '/signup': (context) => const SignUpScreen(),
-            '/bet-details': (context) => BetsScreen(),
             '/new-bet': (context) => NewBetScreen(),
+            '/bets': (context) => const BetsScreen(),
+            '/signup': (context) => const SignUpScreen(),
+            '/bet-details': (context) => const BetsScreen(),
           },
         ));
   }
