@@ -258,31 +258,31 @@ class _BetsScreenState extends State<BetsScreen>
                     bet: betsProvider.highlightedBet!,
                     participantsProvider: participantsProvider),
               const SizedBox(height: 60),
-              const Text(
-                'Outras Apostas',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: betsProvider.bets.isNotEmpty
-                    ? ListView.builder(
+              if (betsProvider.bets.isNotEmpty)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Outras Apostas',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                          child: ListView.builder(
                         itemCount: betsProvider.bets.length,
                         itemBuilder: (context, index) {
                           final bet = betsProvider.bets[index];
-                          return betCard(context, bet);
+                          return _betCard(context, bet);
                         },
-                      )
-                    : const Center(
-                        child: Text(
-                          'Não há mais apostas',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-              ),
+                      )),
+                    ],
+                  ),
+                )
             ],
           ),
         ),
@@ -290,31 +290,7 @@ class _BetsScreenState extends State<BetsScreen>
     );
   }
 
-  Widget loading(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: const Color(0xFF1e1c1b),
-      body: const Center(
-        child: CircularProgressIndicator(
-          color: Color(0xFFCCA253),
-        ),
-      ),
-    );
-  }
-
-  Widget otherBets(BuildContext context, betsProvider) {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: betsProvider.bets.length,
-        itemBuilder: (context, index) {
-          final bet = betsProvider.bets[index];
-          return betCard(context, bet);
-        },
-      ),
-    );
-  }
-
-  Widget betCard(BuildContext context, bet) {
+  Widget _betCard(BuildContext context, bet) {
     return Card(
         color: const Color(0xFF282624),
         shape: RoundedRectangleBorder(
@@ -448,7 +424,34 @@ class _HighlightedBet extends StatelessWidget {
             ),
             child: bet.status == 'Em Andamento'
                 ? inProgressBet(context)
-                : scheduleBet(context)));
+                : bet.status == 'Agendada'
+                    ? scheduleBet(context)
+                    : Center(
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Nenhuma aposta em destaque no momento',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 35,
+                            ),
+                            ElevatedButton(
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, '/new-bet'),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange),
+                              child: const Text(
+                                'Agende um aposta',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )));
   }
 
   Widget inProgressBet(BuildContext context) {

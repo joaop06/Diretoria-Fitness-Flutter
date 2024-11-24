@@ -27,13 +27,17 @@ class BetsProvider with ChangeNotifier {
 
       _highlightedBet = _bets.firstWhere(
         (bet) => bet.status == 'Em Andamento',
-        orElse: () => _bets.firstWhere(
-          (bet) =>
-              bet.status == 'Agendada' &&
-              bet.initialDate != null &&
-              bet.initialDate!.isAfter(DateTime.now()),
-          orElse: () => Bet(),
-        ),
+        orElse: () {
+          final agendadaBets = _bets
+              .where(
+                  (bet) => bet.status == 'Agendada' && bet.initialDate != null)
+              .toList();
+          if (agendadaBets.isEmpty) {
+            return Bet(); // Retorna um objeto vazio caso não encontre nenhuma aposta 'Agendada'
+          }
+          return agendadaBets.reduce(
+              (a, b) => a.initialDate!.isBefore(b.initialDate!) ? a : b);
+        },
       );
 
       _bets = _bets.where((Bet bet) => bet.id != _highlightedBet?.id).toList();

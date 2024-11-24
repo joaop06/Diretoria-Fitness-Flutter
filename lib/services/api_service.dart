@@ -3,8 +3,8 @@ import 'package:daily_training_flutter/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:3000';
-  // static const String baseUrl = 'https://dailytraining.api.fluxocar.com.br';
+  // static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'https://dailytraining.api.fluxocar.com.br';
 
   Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
