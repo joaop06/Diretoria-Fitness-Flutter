@@ -11,6 +11,8 @@ class Bet {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final Null deletedAt;
+  final List<dynamic>? betDays;
+  final List? participants;
 
   Bet({
     this.id,
@@ -23,6 +25,8 @@ class Bet {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
+    this.betDays,
+    this.participants,
   });
 
   factory Bet.fromJson(Map<String, dynamic> json) {
@@ -37,6 +41,8 @@ class Bet {
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       deletedAt: json['deletedAt'],
+      betDays: json['betDays'],
+      participants: json['participants'],
     );
   }
 }
@@ -56,5 +62,10 @@ class BetsService {
   Future<String> create(Map<String, dynamic> betData) async {
     await _apiService.post('/training-bets', betData);
     return 'Aposta criada com sucesso!';
+  }
+
+  Future<Bet> getBetDetails(int id) async {
+    final bet = await _apiService.get('/training-bets/$id');
+    return Bet.fromJson(bet);
   }
 }

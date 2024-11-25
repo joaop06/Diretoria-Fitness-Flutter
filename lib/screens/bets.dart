@@ -1,13 +1,11 @@
-import 'package:daily_training_flutter/providers/participants.privider.dart';
-import 'package:daily_training_flutter/services/participants_service.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:daily_training_flutter/screens/bet_details.dart';
 import 'package:daily_training_flutter/services/auth_service.dart';
 import 'package:daily_training_flutter/services/bets_service.dart';
 import 'package:daily_training_flutter/services/users_service.dart';
 import 'package:daily_training_flutter/providers/bets_provider.dart';
+import 'package:daily_training_flutter/providers/participants.privider.dart';
 
 class BetsScreen extends StatefulWidget {
   const BetsScreen({Key? key}) : super(key: key);
@@ -366,11 +364,10 @@ class _BetsScreenState extends State<BetsScreen>
                 // Botão para detalhes
                 IconButton(
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => BetDetailsScreen(bet: bet),
-                      ),
+                      '/bet-details',
+                      arguments: {'id': bet.id},
                     );
                   },
                   icon: const Icon(
@@ -493,10 +490,10 @@ class _HighlightedBet extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushNamed(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => BetDetailsScreen(bet: bet)),
+                    '/bet-details',
+                    arguments: {'id': bet.id},
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -559,8 +556,6 @@ class _HighlightedBet extends StatelessWidget {
                     'trainingBetId': bet.id,
                   };
                   await participantsProvider.create(participantData);
-
-                  // if (participantsProvider._errorMessage == null) {}
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor:

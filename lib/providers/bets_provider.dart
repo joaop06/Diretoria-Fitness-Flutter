@@ -63,4 +63,19 @@ class BetsProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> getBetDetails(int? id) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _bets = [await _betsService.getBetDetails(id!)];
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }
