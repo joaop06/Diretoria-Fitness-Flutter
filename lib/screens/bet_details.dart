@@ -9,8 +9,7 @@ import 'package:daily_training_flutter/services/bets_service.dart';
 import 'package:daily_training_flutter/providers/bets_provider.dart';
 
 class BetDetailsScreen extends StatefulWidget {
-  final int betId;
-  const BetDetailsScreen({Key? key, required this.betId}) : super(key: key);
+  const BetDetailsScreen({Key? key}) : super(key: key);
 
   @override
   _BetDetailsScreenState createState() => _BetDetailsScreenState();
@@ -18,6 +17,7 @@ class BetDetailsScreen extends StatefulWidget {
 
 class _BetDetailsScreenState extends State<BetDetailsScreen>
     with AutomaticKeepAliveClientMixin {
+  int? betId;
   Bet? betDetails;
   bool _isLoading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -37,10 +37,17 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
     if (!mounted) return;
 
     try {
+      final arguments =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+      // Extrai o 'id' da aposta
+      betId = arguments?['id'];
+      if (betId == null) throw Exception('Aposta não informada');
+
       // Pegando os detalhes da aposta
       final betsProvider = Provider.of<BetsProvider>(context, listen: false);
 
-      await betsProvider.getBetDetails(widget.betId);
+      await betsProvider.getBetDetails(betId);
       betDetails = betsProvider.bets[0];
 
       // Update loading state
@@ -55,7 +62,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Falha ao buscar detalhes da aposta: $e')),
+          const SnackBar(content: Text('Erro ao carregar detalhes da aposta')),
         );
       }
     }
@@ -77,18 +84,6 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
       );
     }
 
-    if (betDetails == null) {
-      return Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: const Color(0xFF1e1c1b),
-        body: const Center(
-            child: Text(
-          'Detalhes da aposta não encontrados',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        )),
-      );
-    }
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -106,20 +101,62 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
               color: Colors.white,
             )),
       ),
-      body: Container(
-        color: const Color(0xFF282624),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildBetInfoCard(betDetails),
-            const SizedBox(height: 16),
-            Expanded(
-              child: _buildDaysList(betDetails?.betDays),
+      body: betDetails == null
+          ? Container(
+              constraints:
+                  BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+              color: const Color(0xFF282624),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 200),
+                        const Text(
+                          'Detalhes da aposta não encontrados',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 35),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/bets',
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                          ),
+                          child: const Text(
+                            'Ir para Apostas',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            )
+          : Container(
+              color: const Color(0xFF282624),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildBetInfoCard(betDetails),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: _buildDaysList(betDetails?.betDays ?? []),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -188,11 +225,11 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
   }
 
   // Lista expansível para os dias da aposta
-  Widget _buildDaysList(List<dynamic>? betDays) {
+  Widget _buildDaysList(List<dynamic> betDays) {
     return ListView.builder(
-      itemCount: betDays?.length,
+      itemCount: betDays.length,
       itemBuilder: (context, index) {
-        final day = betDays![index];
+        final day = betDays[index];
         return Center(
           child: Container(
             constraints: const BoxConstraints(minWidth: 500, maxWidth: 800),

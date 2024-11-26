@@ -43,49 +43,49 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Diretoria Fitness',
           initialRoute: '/',
-          onGenerateRoute: (settings) {
-            if (settings.name == '/bet-details') {
-              // Verifica se os argumentos foram passados corretamente
-              final args = settings.arguments as Map<String, dynamic>?;
-              final betId = args?['id'];
+          // onGenerateRoute: (settings) {
+          //   if (settings.name == '/bet-details') {
+          //     // Verifica se os argumentos foram passados corretamente
+          //     final args = settings.arguments as Map<String, dynamic>?;
+          //     final betId = args?['id'];
 
-              if (betId != null) {
-                return MaterialPageRoute(
-                  builder: (context) => BetDetailsScreen(betId: betId),
-                );
-              }
+          //     if (betId != null) {
+          //       return MaterialPageRoute(
+          //         builder: (context) => BetDetailsScreen(betId: betId),
+          //       );
+          //     }
 
-              // Caso o argumento seja nulo ou inválido, redirecione para uma tela de erro ou outra ação
-              return MaterialPageRoute(
-                builder: (context) => const ErrorScreen(),
-              );
-            }
+          //     // Caso o argumento seja nulo ou inválido, redirecione para uma tela de erro ou outra ação
+          //     return MaterialPageRoute(
+          //       builder: (context) => const ErrorScreen(),
+          //     );
+          //   }
 
-            // Outras rotas
-            switch (settings.name) {
-              case '/':
-                return MaterialPageRoute(builder: (context) => SignInScreen());
-              case '/new-bet':
-                return MaterialPageRoute(builder: (context) => NewBetScreen());
-              case '/bets':
-                return MaterialPageRoute(
-                    builder: (context) => const BetsScreen());
-              case '/signup':
-                return MaterialPageRoute(
-                    builder: (context) => const SignUpScreen());
-              default:
-                return MaterialPageRoute(
-                  builder: (context) => const ErrorScreen(),
-                );
-            }
-          },
-          // routes: {
-          //   '/': (context) => SignInScreen(),
-          //   '/new-bet': (context) => NewBetScreen(),
-          //   '/bets': (context) => const BetsScreen(),
-          //   '/signup': (context) => const SignUpScreen(),
-          //   '/bet-details': (context) => const BetDetailsScreen(),
+          //   // Outras rotas
+          //   switch (settings.name) {
+          //     case '/':
+          //       return MaterialPageRoute(builder: (context) => SignInScreen());
+          //     case '/new-bet':
+          //       return MaterialPageRoute(builder: (context) => NewBetScreen());
+          //     case '/bets':
+          //       return MaterialPageRoute(
+          //           builder: (context) => const BetsScreen());
+          //     case '/signup':
+          //       return MaterialPageRoute(
+          //           builder: (context) => const SignUpScreen());
+          //     default:
+          //       return MaterialPageRoute(
+          //         builder: (context) => const ErrorScreen(),
+          //       );
+          //   }
           // },
+          routes: {
+            '/': (context) => SignInScreen(),
+            '/new-bet': (context) => NewBetScreen(),
+            '/bets': (context) => const BetsScreen(),
+            '/signup': (context) => const SignUpScreen(),
+            '/bet-details': (context) => const BetDetailsScreen(),
+          },
         ));
   }
 }

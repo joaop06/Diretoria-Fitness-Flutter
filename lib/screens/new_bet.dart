@@ -1,10 +1,11 @@
-import 'package:daily_training_flutter/providers/bets_provider.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
+import 'package:provider/provider.dart';
+import 'package:daily_training_flutter/widgets/sidebar.dart';
+import 'package:daily_training_flutter/providers/bets_provider.dart';
 import 'package:flutter_multi_formatter/formatters/formatter_utils.dart';
 import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
 
 class NewBetScreen extends StatefulWidget {
   @override
@@ -84,6 +85,73 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
     }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Sidebar(
+      title: 'Criar Aposta',
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(minWidth: 500, maxWidth: 800),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                children: [
+                  _buildDateField(
+                    hint: "Ex.: DD/MM/AAAA",
+                    label: "Data Inicial",
+                    controller: _initialDateController,
+                    context: context,
+                  ),
+                  _buildDateField(
+                    hint: "Ex.: DD/MM/AAAA",
+                    label: "Data Final",
+                    controller: _finalDateController,
+                    context: context,
+                  ),
+                  _buildNumberField(
+                    label: "Faltas Permitidas",
+                    controller: _faultsAllowedController,
+                  ),
+                  _buildMinimumPenaltyField(
+                    label: "Valor Mínimo da Penalidade",
+                    controller: _minimumPenaltyAmountController,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                      onPressed: _isLoadingCreateBet ? null : _createBet,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: _isLoadingCreateBet
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.black,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              "Criar Aposta",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            )),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickDate(
       BuildContext context, TextEditingController controller) async {
     final DateTime? selectedDate = await showDatePicker(
@@ -112,80 +180,6 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Criar Aposta",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF1e1c1b),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, '/bets');
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              _buildDateField(
-                hint: "Ex.: DD/MM/AAAA",
-                label: "Data Inicial",
-                controller: _initialDateController,
-                context: context,
-              ),
-              _buildDateField(
-                hint: "Ex.: DD/MM/AAAA",
-                label: "Data Final",
-                controller: _finalDateController,
-                context: context,
-              ),
-              _buildNumberField(
-                label: "Faltas Permitidas",
-                controller: _faultsAllowedController,
-              ),
-              _buildMinimumPenaltyField(
-                label: "Valor Mínimo da Penalidade",
-                controller: _minimumPenaltyAmountController,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                  onPressed: _isLoadingCreateBet ? null : _createBet,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFcca253),
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: _isLoadingCreateBet
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.black,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text(
-                          "Criar Aposta",
-                          style: TextStyle(fontSize: 18),
-                        )),
-            ],
-          ),
-        ),
-      ),
-      backgroundColor: const Color(0xFF282624),
-    );
-  }
-
   Widget _buildDateField({
     required String hint,
     required String label,
@@ -208,6 +202,10 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
           fillColor: const Color(0xFF1e1c1b),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
           ),
         ),
         validator: (value) {
@@ -249,6 +247,10 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
+          ),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -284,6 +286,10 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
           fillColor: const Color(0xFF1e1c1b),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
           ),
         ),
         validator: (value) {

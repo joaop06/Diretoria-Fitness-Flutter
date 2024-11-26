@@ -110,8 +110,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Column(children: [
               const Text(
                 'Cadastre-se e venha treinar!',
-                style: TextStyle(
-                    fontSize: 25, color: Color.fromARGB(255, 222, 159, 42)),
+                style: TextStyle(fontSize: 25, color: Colors.orange),
               ),
               Form(
                   key: _formKey,
@@ -181,9 +180,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: ElevatedButton(
                             onPressed: _isSubmitting ? null : registerUser,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 222, 159, 42),
-                            ),
+                                backgroundColor: Colors.orange),
                             child: _isSubmitting
                                 ? const CircularProgressIndicator(
                                     color: Colors.white)

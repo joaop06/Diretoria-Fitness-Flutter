@@ -55,7 +55,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: const Icon(Icons.email, color: Color(0xFFCCA253)),
+                  prefixIcon: const Icon(Icons.email, color: Colors.orange),
                 ),
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(color: Colors.white),
@@ -74,11 +74,11 @@ class _SignInScreenState extends State<SignInScreen> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: const Icon(Icons.lock, color: Color(0xFFCCA253)),
+                  prefixIcon: const Icon(Icons.lock, color: Colors.orange),
                   suffixIcon: IconButton(
                       icon: Icon(
                         _obscureText ? Icons.visibility_off : Icons.visibility,
-                        color: const Color(0xFFCCA253),
+                        color: Colors.orange,
                       ),
                       onPressed: _togglePasswordVisibility),
                 ),
@@ -119,7 +119,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFCCA253),
+                        backgroundColor: Colors.orange,
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -138,7 +138,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   Navigator.pushReplacementNamed(context, '/signup');
                 },
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFFCCA253)),
+                  side: const BorderSide(color: Colors.orange),
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -146,7 +146,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 child: const Text(
                   "Cadastrar",
-                  style: TextStyle(fontSize: 18, color: Color(0xFFCCA253)),
+                  style: TextStyle(fontSize: 18, color: Colors.orange),
                 ),
               ),
             ],
