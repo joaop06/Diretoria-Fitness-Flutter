@@ -91,7 +91,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
           "Detalhes da Aposta",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF1e1c1b),
+        backgroundColor: const Color.fromARGB(255, 75, 40, 0),
         leading: IconButton(
             onPressed: () {
               Navigator.pushNamed(context, '/bets');
@@ -117,9 +117,10 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                         const Text(
                           'Detalhes da aposta não encontrados',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 35),
                         ElevatedButton(

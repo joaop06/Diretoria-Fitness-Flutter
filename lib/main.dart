@@ -1,9 +1,12 @@
+import 'package:daily_training_flutter/providers/ranking_provider.dart';
+import 'package:daily_training_flutter/services/ranking_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/screens/bets.dart';
 import 'package:daily_training_flutter/screens/signup.dart';
 import 'package:daily_training_flutter/screens/signin.dart';
 import 'package:daily_training_flutter/screens/new_bet.dart';
+import 'package:daily_training_flutter/screens/ranking.dart';
 import 'package:daily_training_flutter/screens/bet_details.dart';
 import 'package:daily_training_flutter/services/api_service.dart';
 import 'package:daily_training_flutter/services/bets_service.dart';
@@ -19,6 +22,8 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UsersProvider()),
+        ChangeNotifierProvider(
+            create: (_) => RankingProvider(RankingService(ApiService()))),
         ChangeNotifierProvider(
             create: (_) =>
                 ParticipantsProvider(ParticipantsService(ApiService()))),
@@ -43,47 +48,12 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Diretoria Fitness',
           initialRoute: '/',
-          // onGenerateRoute: (settings) {
-          //   if (settings.name == '/bet-details') {
-          //     // Verifica se os argumentos foram passados corretamente
-          //     final args = settings.arguments as Map<String, dynamic>?;
-          //     final betId = args?['id'];
-
-          //     if (betId != null) {
-          //       return MaterialPageRoute(
-          //         builder: (context) => BetDetailsScreen(betId: betId),
-          //       );
-          //     }
-
-          //     // Caso o argumento seja nulo ou inválido, redirecione para uma tela de erro ou outra ação
-          //     return MaterialPageRoute(
-          //       builder: (context) => const ErrorScreen(),
-          //     );
-          //   }
-
-          //   // Outras rotas
-          //   switch (settings.name) {
-          //     case '/':
-          //       return MaterialPageRoute(builder: (context) => SignInScreen());
-          //     case '/new-bet':
-          //       return MaterialPageRoute(builder: (context) => NewBetScreen());
-          //     case '/bets':
-          //       return MaterialPageRoute(
-          //           builder: (context) => const BetsScreen());
-          //     case '/signup':
-          //       return MaterialPageRoute(
-          //           builder: (context) => const SignUpScreen());
-          //     default:
-          //       return MaterialPageRoute(
-          //         builder: (context) => const ErrorScreen(),
-          //       );
-          //   }
-          // },
           routes: {
             '/': (context) => SignInScreen(),
             '/new-bet': (context) => NewBetScreen(),
             '/bets': (context) => const BetsScreen(),
             '/signup': (context) => const SignUpScreen(),
+            '/ranking': (context) => const RankingScreen(),
             '/bet-details': (context) => const BetDetailsScreen(),
           },
         ));

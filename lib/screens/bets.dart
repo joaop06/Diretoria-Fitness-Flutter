@@ -1,7 +1,8 @@
-import 'package:daily_training_flutter/widgets/sidebar.dart';
+import 'package:daily_training_flutter/utils/colors.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:daily_training_flutter/widgets/sidebar.dart';
 import 'package:daily_training_flutter/services/auth_service.dart';
 import 'package:daily_training_flutter/services/bets_service.dart';
 import 'package:daily_training_flutter/services/users_service.dart';
@@ -94,10 +95,10 @@ class _BetsScreenState extends State<BetsScreen>
     if (_isLoading) {
       return Scaffold(
         key: _scaffoldKey,
-        backgroundColor: const Color(0xFF1e1c1b),
+        backgroundColor: AllColors.background,
         body: const Center(
           child: CircularProgressIndicator(
-            color: Color(0xFFCCA253),
+            color: AllColors.orange,
           ),
         ),
       );
@@ -111,7 +112,7 @@ class _BetsScreenState extends State<BetsScreen>
     if (betsProvider.isLoading) {
       return const Center(
         child: CircularProgressIndicator(
-          color: Color(0xFFCCA253),
+          color: AllColors.orange,
         ),
       );
     }
@@ -145,7 +146,7 @@ class _BetsScreenState extends State<BetsScreen>
                       const Text(
                         'Outras Apostas',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AllColors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -171,14 +172,14 @@ class _BetsScreenState extends State<BetsScreen>
 
   Widget _betCard(BuildContext context, bet) {
     return Card(
-        color: const Color(0xFF282624),
+        color: AllColors.card,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         elevation: 4,
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         child: InkWell(
-          hoverColor: const Color.fromARGB(255, 71, 68, 65),
+          hoverColor: AllColors.hoverCard,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -188,12 +189,12 @@ class _BetsScreenState extends State<BetsScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: AllColors.white,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.sports_esports,
-                    color: _getStatusColor(bet.status),
+                    color: AllColors.statusBet[bet.status],
                     size: 28,
                   ),
                 ),
@@ -206,7 +207,7 @@ class _BetsScreenState extends State<BetsScreen>
                       Text(
                         'Aposta ${bet.id}',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AllColors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -215,7 +216,7 @@ class _BetsScreenState extends State<BetsScreen>
                       Text(
                         'Duração: ${bet.duration} dias',
                         style: const TextStyle(
-                          color: Colors.white70,
+                          color: AllColors.softWhite,
                           fontSize: 14,
                         ),
                       ),
@@ -227,13 +228,13 @@ class _BetsScreenState extends State<BetsScreen>
                           horizontal: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(bet.status),
+                          color: AllColors.statusBet[bet.status],
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           bet.status.toUpperCase(),
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AllColors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -253,27 +254,13 @@ class _BetsScreenState extends State<BetsScreen>
                   },
                   icon: const Icon(
                     Icons.arrow_forward,
-                    color: Colors.white,
+                    color: AllColors.white,
                   ),
                 ),
               ],
             ),
           ),
         ));
-  }
-
-  // Função para obter a cor do status
-  static Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Em Andamento':
-        return Colors.green;
-      case 'Encerrada':
-        return Colors.red;
-      case 'Agendada':
-        return Colors.orange;
-      default:
-        return Colors.grey;
-    }
   }
 }
 
@@ -294,10 +281,10 @@ class _HighlightedBet extends StatelessWidget {
             constraints: const BoxConstraints(minWidth: 500, maxWidth: 700),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF282624),
+              color: AllColors.card,
               borderRadius: BorderRadius.circular(8),
               boxShadow: const [
-                BoxShadow(color: Colors.black38, blurRadius: 5),
+                BoxShadow(color: AllColors.grey, blurRadius: 15),
               ],
             ),
             child: bet.status == 'Em Andamento'
@@ -310,8 +297,8 @@ class _HighlightedBet extends StatelessWidget {
                             const Text(
                               'Nenhuma aposta em destaque no momento',
                               style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 16,
+                                  color: AllColors.white,
                                   fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(
@@ -321,10 +308,10 @@ class _HighlightedBet extends StatelessWidget {
                               onPressed: () =>
                                   Navigator.pushNamed(context, '/new-bet'),
                               style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orange),
+                                  backgroundColor: AllColors.orange),
                               child: const Text(
                                 'Agende um aposta',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: AllColors.white),
                               ),
                             ),
                           ],
@@ -335,12 +322,13 @@ class _HighlightedBet extends StatelessWidget {
   Widget inProgressBet(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Center(
-        child: Text('Aposta ${bet.status}',
-            style: TextStyle(
-              fontSize: 18,
-              // color: Color.fromARGB(255, 222, 159, 42), ),
-              color: _BetsScreenState._getStatusColor('${bet.status}'),
-            )),
+        child: Text(
+          'Aposta ${bet.status}',
+          style: TextStyle(
+            fontSize: 18,
+            color: AllColors.statusBet[bet.status],
+          ),
+        ),
       ),
       const SizedBox(height: 20),
       Row(
@@ -351,17 +339,17 @@ class _HighlightedBet extends StatelessWidget {
               // const SizedBox(height: 8),
               Text(
                 'Duração: ${bet.duration} dias',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: AllColors.white, fontSize: 14),
               ),
               const SizedBox(height: 8),
               Text(
                 'Início: ${DateFormat('dd/MM/yyyy').format(bet.initialDate ?? DateTime.now())}',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: AllColors.white, fontSize: 14),
               ),
               const SizedBox(height: 8),
               Text(
                 'Fim: ${DateFormat('dd/MM/yyyy').format(bet.finalDate ?? DateTime.now())}',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: AllColors.white, fontSize: 14),
               ),
             ],
           ),
@@ -378,12 +366,11 @@ class _HighlightedBet extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        _BetsScreenState._getStatusColor('${bet.status}'),
-                    textStyle: const TextStyle(color: Color(0xFF282624))),
+                    backgroundColor: AllColors.statusBet[bet.status],
+                    textStyle: const TextStyle(color: AllColors.background)),
                 child: const Text(
                   'Ver Detalhes',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: AllColors.white),
                 ),
               ),
             ],
@@ -399,8 +386,7 @@ class _HighlightedBet extends StatelessWidget {
         child: Text('Próxima Aposta ${bet.status}',
             style: TextStyle(
               fontSize: 18,
-              // color: Color.fromARGB(255, 222, 159, 42), ),
-              color: _BetsScreenState._getStatusColor('${bet.status}'),
+              color: AllColors.statusBet[bet.status],
             )),
       ),
       const SizedBox(height: 20),
@@ -412,17 +398,17 @@ class _HighlightedBet extends StatelessWidget {
               // const SizedBox(height: 8),
               Text(
                 'Duração: ${bet.duration} dias',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: AllColors.white, fontSize: 14),
               ),
               const SizedBox(height: 8),
               Text(
                 'Início: ${DateFormat('dd/MM/yyyy').format(bet.initialDate ?? DateTime.now())}',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: AllColors.white, fontSize: 14),
               ),
               const SizedBox(height: 8),
               Text(
                 'Fim: ${DateFormat('dd/MM/yyyy').format(bet.finalDate ?? DateTime.now())}',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: AllColors.white, fontSize: 14),
               ),
             ],
           ),
@@ -439,13 +425,11 @@ class _HighlightedBet extends StatelessWidget {
                   await participantsProvider.create(participantData);
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        _BetsScreenState._getStatusColor('${bet.status}'),
-                    textStyle: const TextStyle(
-                        color: Color.fromARGB(255, 222, 159, 42))),
+                    backgroundColor: AllColors.statusBet[bet.status],
+                    textStyle: const TextStyle(color: AllColors.orange)),
                 child: const Text(
                   'Participar',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: AllColors.white),
                 ),
               ),
             ],

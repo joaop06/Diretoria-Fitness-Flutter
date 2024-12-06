@@ -1,5 +1,6 @@
 import 'package:daily_training_flutter/services/auth_service.dart';
 import 'package:daily_training_flutter/services/users_service.dart';
+import 'package:daily_training_flutter/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 class Sidebar extends StatefulWidget {
@@ -16,6 +17,7 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
   var body;
   var title = '';
   User? userData;
+  bool _isLoading = true;
 
   @override
   bool get wantKeepAlive => true;
@@ -42,11 +44,15 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
 
       // Update loading state
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _isLoading = false;
+        });
       }
     } catch (e) {
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Falha ao buscar dados')),
         );
@@ -64,20 +70,39 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: AllColors.background,
+        body: const Center(
+          child: CircularProgressIndicator(
+            color: AllColors.orange,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFF1e1c1b),
+      backgroundColor: AllColors.background,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 13, 12, 12),
+        backgroundColor: AllColors.black,
         elevation: 4,
-        title: Text(title, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 17,
+            color: AllColors.gold,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         leading: _buildLeadingAvatar(),
       ),
       drawer: _buildDrawer(),
       body: body ??
           const Center(
             child: CircularProgressIndicator(
-              color: Color(0xFFCCA253),
+              color: AllColors.orange,
             ),
           ),
     );
@@ -90,30 +115,44 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
     return GestureDetector(
       onTap: () => _scaffoldKey.currentState?.openDrawer(),
       child: Container(
-        margin: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.grey.shade200,
-          image: userImageUrl != null
-              ? DecorationImage(
-                  image: NetworkImage(userImageUrl),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        ),
-        child: userImageUrl == null
-            ? Center(
-                child: Text(
-                  userName![0].toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+          margin: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AllColors.transparent,
+            border: Border.all(
+              color: AllColors.gold, // Cor da borda
+              width: 2, // Largura da borda
+            ),
+            image: userImageUrl != null
+                ? DecorationImage(
+                    image: NetworkImage(userImageUrl),
+                    fit: BoxFit.cover,
+                  )
+                : null,
+          ),
+          child: CircleAvatar(
+            radius: 30,
+            backgroundColor: AllColors.transparent,
+            child: userImageUrl == null
+                ? Text(
+                    (userName?.isNotEmpty == true
+                        ? userName![0].toUpperCase()
+                        : "?"),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: AllColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                : ClipOval(
+                    child: Image.network(
+                      userImageUrl,
+                      fit: BoxFit.cover,
+                      width: MediaQuery.of(context).size.width * 0.05,
+                      height: MediaQuery.of(context).size.height * 0.05,
+                    ),
                   ),
-                ),
-              )
-            : null,
-      ),
+          )),
     );
   }
 
@@ -122,84 +161,128 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
     String? userImageUrl = userData?.profileImagePath;
 
     return Drawer(
-      backgroundColor: const Color(0xFF282624),
+      backgroundColor: AllColors.card,
       child: Column(
         children: [
           DrawerHeader(
             decoration: const BoxDecoration(
-              color: Color(0xFF1e1c1b),
+              color: AllColors.card,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min, // Ajusta o tamanho ao conteúdo
+              mainAxisAlignment:
+                  MainAxisAlignment.center, // Centraliza verticalmente
+              crossAxisAlignment:
+                  CrossAxisAlignment.center, // Centraliza horizontalmente
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey.shade200,
-                  backgroundImage:
-                      userImageUrl != null ? NetworkImage(userImageUrl) : null,
-                  child: userImageUrl == null
-                      ? Text(
-                          userName![0].toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        )
-                      : null,
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AllColors.transparent,
+                    border: Border.all(
+                      color: AllColors.gold, // Cor da borda
+                      width: 2, // Largura da borda
+                    ),
+                    image: userImageUrl != null
+                        ? DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(userImageUrl),
+                          )
+                        : null,
+                  ),
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundColor: AllColors.transparent,
+                    backgroundImage: userImageUrl != null
+                        ? NetworkImage(userImageUrl)
+                        : null,
+                    child: userImageUrl == null
+                        ? Text(
+                            userName != null && userName.isNotEmpty
+                                ? userName[0].toUpperCase()
+                                : "?",
+                            style: const TextStyle(
+                              fontSize: 30,
+                              color: AllColors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          )
+                        : null,
+                  ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                 Text(
                   userName!,
                   style: const TextStyle(
-                    color: Colors.white,
                     fontSize: 18,
+                    color: AllColors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.home, color: Colors.white),
-            title: const Text("Início", style: TextStyle(color: Colors.white)),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.025),
+          _buildListTile(
+            icon: Icons.home,
+            title: "Início",
             onTap: () {
               Navigator.pushNamed(context, '/bets');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.edit, color: Colors.white),
-            title: const Text("Editar Dados",
-                style: TextStyle(color: Colors.white)),
+          const Divider(color: AllColors.softBlack, thickness: 1),
+          _buildListTile(
+            icon: Icons.edit,
+            title: "Editar Dados",
             onTap: () {
               Navigator.pushNamed(context, '/edit-user');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.add, color: Colors.white),
-            title: const Text("Nova Aposta",
-                style: TextStyle(color: Colors.white)),
+          const Divider(color: AllColors.softBlack, thickness: 1),
+          _buildListTile(
+            icon: Icons.add,
+            title: "Nova Aposta",
             onTap: () {
               Navigator.pushNamed(context, '/new-bet');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.leaderboard, color: Colors.white),
-            title: const Text("Ranking", style: TextStyle(color: Colors.white)),
+          const Divider(color: AllColors.softBlack, thickness: 1),
+          _buildListTile(
+            icon: Icons.leaderboard,
+            title: "Ranking",
             onTap: () {
               Navigator.pushNamed(context, '/ranking');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.white),
-            title: const Text("Sair", style: TextStyle(color: Colors.white)),
+          const Divider(color: AllColors.softBlack, thickness: 1),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.4),
+          const Divider(color: AllColors.softBlack, thickness: 2),
+          _buildListTile(
+            icon: Icons.logout,
+            title: "Sair",
             onTap: () async {
               // SignUp
               await AuthService.signup(context);
             },
-          ),
+          )
         ],
       ),
+    );
+  }
+
+  Widget _buildListTile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: AllColors.white),
+      title: Text(
+        title,
+        style: const TextStyle(color: AllColors.white),
+      ),
+      onTap: onTap,
     );
   }
 }

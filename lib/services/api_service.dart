@@ -44,8 +44,7 @@ class ApiService {
       });
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data;
+        return json.decode(response.body);
       } else {
         throw Exception('Falha ao buscar dados');
       }
