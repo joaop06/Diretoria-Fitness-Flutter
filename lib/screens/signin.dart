@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'package:daily_training_flutter/utils/colors.dart';
 
 final TextEditingController emailController = TextEditingController();
 final TextEditingController passwordController = TextEditingController();
@@ -48,17 +49,17 @@ class _SignInScreenState extends State<SignInScreen> {
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: "E-mail",
-                  labelStyle: const TextStyle(color: Colors.white),
+                  labelStyle: const TextStyle(color: AllColors.white),
                   filled: true,
-                  fillColor: const Color(0xFF282624),
+                  fillColor: AllColors.background,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: const Icon(Icons.email, color: Colors.orange),
+                  prefixIcon: const Icon(Icons.email, color: AllColors.gold),
                 ),
                 keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: AllColors.white),
               ),
 
               const SizedBox(height: 20),
@@ -67,30 +68,30 @@ class _SignInScreenState extends State<SignInScreen> {
                 controller: passwordController,
                 decoration: InputDecoration(
                   labelText: "Senha",
-                  labelStyle: const TextStyle(color: Colors.white),
+                  labelStyle: const TextStyle(color: AllColors.white),
                   filled: true,
-                  fillColor: const Color(0xFF282624),
+                  fillColor: AllColors.background,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                  prefixIcon: const Icon(Icons.lock, color: AllColors.gold),
                   suffixIcon: IconButton(
                       icon: Icon(
                         _obscureText ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.orange,
+                        color: AllColors.gold,
                       ),
                       onPressed: _togglePasswordVisibility),
                 ),
                 obscureText: _obscureText,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: AllColors.white),
               ),
 
               const SizedBox(height: 30),
               if (authProvider.errorMessage != null)
                 Text(
                   authProvider.errorMessage!,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: AllColors.red),
                 ),
               // Botão "Entrar"
               authProvider.isLoading
@@ -103,8 +104,11 @@ class _SignInScreenState extends State<SignInScreen> {
                         if (email.isEmpty || password.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text('Preencha todos os campos!',
-                                    style: TextStyle(color: Colors.red))),
+                              content: Text(
+                                'Preencha todos os campos!',
+                                style: TextStyle(color: AllColors.red),
+                              ),
+                            ),
                           );
                           return;
                         }
@@ -119,7 +123,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
+                        backgroundColor: AllColors.gold,
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -127,8 +131,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                       child: const Text(
                         "Entrar",
-                        style:
-                            TextStyle(fontSize: 18, color: Color(0xFF1E1C1B)),
+                        style: TextStyle(fontSize: 18, color: AllColors.white),
                       ),
                     ),
               const SizedBox(height: 15),
@@ -138,7 +141,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   Navigator.pushReplacementNamed(context, '/signup');
                 },
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.orange),
+                  side: const BorderSide(color: AllColors.gold),
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -146,7 +149,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 child: const Text(
                   "Cadastrar",
-                  style: TextStyle(fontSize: 18, color: Colors.orange),
+                  style: TextStyle(fontSize: 18, color: AllColors.gold),
                 ),
               ),
             ],

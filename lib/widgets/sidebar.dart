@@ -255,9 +255,8 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
               Navigator.pushNamed(context, '/ranking');
             },
           ),
-          const Divider(color: AllColors.softBlack, thickness: 1),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.4),
-          const Divider(color: AllColors.softBlack, thickness: 2),
+          // SizedBox(height: MediaQuery.of(context).size.height * 0.015),
+          const Divider(color: AllColors.softBlack, thickness: 4),
           _buildListTile(
             icon: Icons.logout,
             title: "Sair",

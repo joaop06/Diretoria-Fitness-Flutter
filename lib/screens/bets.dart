@@ -189,13 +189,13 @@ class _BetsScreenState extends State<BetsScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: const BoxDecoration(
-                    color: AllColors.white,
                     shape: BoxShape.circle,
+                    color: AllColors.softBlack,
                   ),
                   child: Icon(
                     Icons.sports_esports,
-                    color: AllColors.statusBet[bet.status],
                     size: 28,
+                    color: AllColors.statusBet[bet.status],
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -216,8 +216,8 @@ class _BetsScreenState extends State<BetsScreen>
                       Text(
                         'Duração: ${bet.duration} dias',
                         style: const TextStyle(
-                          color: AllColors.softWhite,
                           fontSize: 14,
+                          color: AllColors.softWhite,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -254,7 +254,7 @@ class _BetsScreenState extends State<BetsScreen>
                   },
                   icon: const Icon(
                     Icons.arrow_forward,
-                    color: AllColors.white,
+                    color: AllColors.gold,
                   ),
                 ),
               ],
@@ -383,12 +383,24 @@ class _HighlightedBet extends StatelessWidget {
   Widget scheduleBet(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Center(
-        child: Text('Próxima Aposta ${bet.status}',
+          child: Row(
+        children: [
+          const Text(
+            'Próxima Aposta ',
+            style: TextStyle(
+              fontSize: 18,
+              color: AllColors.white,
+            ),
+          ),
+          Text(
+            '${bet.status}',
             style: TextStyle(
               fontSize: 18,
               color: AllColors.statusBet[bet.status],
-            )),
-      ),
+            ),
+          ),
+        ],
+      )),
       const SizedBox(height: 20),
       Row(
         children: [
@@ -416,7 +428,7 @@ class _HighlightedBet extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ElevatedButton(
+              OutlinedButton(
                 onPressed: () async {
                   final participantData = {
                     'userId': userId,
@@ -424,12 +436,16 @@ class _HighlightedBet extends StatelessWidget {
                   };
                   await participantsProvider.create(participantData);
                 },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: AllColors.statusBet[bet.status],
-                    textStyle: const TextStyle(color: AllColors.orange)),
-                child: const Text(
-                  'Participar',
-                  style: TextStyle(color: AllColors.white),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AllColors.gold),
+                ),
+                child: Text(
+                  "Participar",
+                  style: TextStyle(
+                    color: AllColors.gold,
+                    fontWeight: FontWeight.bold,
+                    fontSize: MediaQuery.of(context).size.width * 0.033,
+                  ),
                 ),
               ),
             ],
