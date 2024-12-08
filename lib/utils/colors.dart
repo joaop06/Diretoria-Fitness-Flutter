@@ -34,6 +34,8 @@ class AllColors {
   static const text = Color.fromRGBO(255, 255, 255, 1);
 
   static const background = Color.fromRGBO(20, 19, 18, 1);
+
+  static const backgroundModal = Color.fromARGB(97, 0, 0, 0);
 }
 
 

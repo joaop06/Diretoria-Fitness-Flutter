@@ -245,12 +245,9 @@ class _BetsScreenState extends State<BetsScreen>
                 ),
                 // Botão para detalhes
                 IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/bet-details',
-                      arguments: {'id': bet.id},
-                    );
+                  onPressed: () async {
+                    await AuthService.setBetDetailsId(bet.id);
+                    Navigator.pushNamed(context, '/bet-details');
                   },
                   icon: const Icon(
                     Icons.arrow_forward,
@@ -358,12 +355,9 @@ class _HighlightedBet extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/bet-details',
-                    arguments: {'id': bet.id},
-                  );
+                onPressed: () async {
+                  await AuthService.setBetDetailsId(bet.id);
+                  Navigator.pushNamed(context, '/bet-details');
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: AllColors.statusBet[bet.status],
@@ -430,17 +424,14 @@ class _HighlightedBet extends StatelessWidget {
             children: [
               OutlinedButton(
                 onPressed: () async {
-                  final participantData = {
-                    'userId': userId,
-                    'trainingBetId': bet.id,
-                  };
-                  await participantsProvider.create(participantData);
+                  await AuthService.setBetDetailsId(bet.id);
+                  Navigator.pushNamed(context, '/bet-details');
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AllColors.gold),
                 ),
                 child: Text(
-                  "Participar",
+                  'Detalhes',
                   style: TextStyle(
                     color: AllColors.gold,
                     fontWeight: FontWeight.bold,

@@ -8,28 +8,41 @@ import 'package:daily_training_flutter/services/users_service.dart';
 class AuthService {
   final ApiService _apiService = ApiService();
 
+  static instancePrefs() async {
+    return await SharedPreferences.getInstance();
+  }
+
   static Future<String?> getAccessToken() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await instancePrefs();
     return prefs.getString("accessToken");
   }
 
   static getUserData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await instancePrefs();
     final String? userDataString = prefs.getString("userData");
 
     if (userDataString != null) {
       try {
         return User.fromJson(jsonDecode(userDataString));
       } catch (e) {
-        print("Erro ao decodificar os dados do usuário: $e");
         return null;
       }
     }
-    return null; // Retorna null se não houver dados salvos
+    return null;
+  }
+
+  static Future<void> setBetDetailsId(int? betId) async {
+    final prefs = await instancePrefs();
+    return await prefs.setInt("betId", betId);
+  }
+
+  static Future<int> getBetDetailsId() async {
+    final prefs = await instancePrefs();
+    return await prefs.getInt("betId");
   }
 
   static Future<void> signup(context) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await instancePrefs();
     await prefs.remove('userData');
     await prefs.remove('accessToken');
 
@@ -44,7 +57,7 @@ class AuthService {
 
     if (response.containsKey("accessToken")) {
       try {
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final prefs = await instancePrefs();
         await prefs.setString("accessToken", response["accessToken"]);
 
         final userEncoded = jsonEncode(response["user"]);

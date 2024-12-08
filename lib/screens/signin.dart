@@ -95,7 +95,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               // Botão "Entrar"
               authProvider.isLoading
-                  ? const CircularProgressIndicator()
+                  ? const CircularProgressIndicator(
+                      color: AllColors.gold,
+                    )
                   : ElevatedButton(
                       onPressed: () async {
                         final email = emailController.text.trim();

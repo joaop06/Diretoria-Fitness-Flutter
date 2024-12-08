@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 class Sidebar extends StatefulWidget {
   Object body;
   String title;
-  Sidebar({Key? key, required this.title, required this.body})
+  List<Widget>? actions;
+  Sidebar({Key? key, required this.title, required this.body, this.actions})
       : super(key: key);
 
   @override
@@ -15,7 +16,9 @@ class Sidebar extends StatefulWidget {
 
 class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
   var body;
+  var actions;
   var title = '';
+
   User? userData;
   bool _isLoading = true;
 
@@ -38,6 +41,7 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
     try {
       body = widget.body;
       title = widget.title;
+      actions = widget.actions;
 
       // Fetch user data
       userData = await _safeGetUserData();
@@ -97,6 +101,7 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
           ),
         ),
         leading: _buildLeadingAvatar(),
+        actions: actions,
       ),
       drawer: _buildDrawer(),
       body: body ??
@@ -255,7 +260,6 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
               Navigator.pushNamed(context, '/ranking');
             },
           ),
-          // SizedBox(height: MediaQuery.of(context).size.height * 0.015),
           const Divider(color: AllColors.softBlack, thickness: 4),
           _buildListTile(
             icon: Icons.logout,
