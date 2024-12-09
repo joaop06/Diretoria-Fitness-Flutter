@@ -1,14 +1,15 @@
 import 'dart:convert';
 
+import 'package:daily_training_flutter/screens/training_release.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/utils/colors.dart';
 import 'package:daily_training_flutter/widgets/sidebar.dart';
-import 'package:daily_training_flutter/services/auth_service.dart';
-import 'package:daily_training_flutter/services/bets_service.dart';
-import 'package:daily_training_flutter/services/users_service.dart';
-import 'package:daily_training_flutter/providers/bets_provider.dart';
+import 'package:daily_training_flutter/services/auth.service.dart';
+import 'package:daily_training_flutter/services/bets.service.dart';
+import 'package:daily_training_flutter/services/users.service.dart';
+import 'package:daily_training_flutter/providers/bets.provider.dart';
 import 'package:carousel_slider/carousel_slider.dart' as custom_carousel;
 import 'package:daily_training_flutter/providers/participants.privider.dart';
 
@@ -115,6 +116,12 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
       orElse: () => null,
     );
 
+    final participant = betDetails?.participants?.firstWhere(
+      (participant) =>
+          participant['user']['id'] == int.parse('${userData?.id}'),
+      orElse: () => null,
+    );
+
     return Sidebar(
       title: 'Detalhes da Aposta ${betDetails?.id}',
       actions: [
@@ -187,6 +194,9 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                         _buildTodayHighlight(
                           context: context,
                           todayBetDay: todayBetDay,
+                          participantId: participant == null
+                              ? participant
+                              : participant['id'],
                         ),
                       _buildOtherDaysList(
                         context: context,
@@ -377,6 +387,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
   }
 
   Widget _buildTodayHighlight({
+    required int? participantId,
     required BuildContext context,
     required Map<String, dynamic> todayBetDay,
   }) {
@@ -469,12 +480,18 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  if (!userTrained)
+                  // Somente exibe o botão se o usuário for um participante e não tiver registrado treino ainda
+                  if (!userTrained && participantId != null)
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacementNamed(
+                        Navigator.push(
                           context,
-                          '/release-training',
+                          MaterialPageRoute(
+                            builder: (context) => LaunchTrainingScreen(
+                              betDayId: todayBetDay['id'],
+                              participantId: participantId,
+                            ),
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -518,7 +535,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:daily_training_flutter/services/participants_service.dart';
+import 'package:daily_training_flutter/services/participants.service.dart';
 
 class ParticipantsProvider with ChangeNotifier {
   String? _errorMessage;

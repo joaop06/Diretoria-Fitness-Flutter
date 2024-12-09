@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
+import '../providers/auth.provider.dart';
 import 'package:daily_training_flutter/utils/colors.dart';
 
 final TextEditingController emailController = TextEditingController();
@@ -61,7 +61,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(color: AllColors.white),
               ),
-
               const SizedBox(height: 20),
               // Campo de senha
               TextField(

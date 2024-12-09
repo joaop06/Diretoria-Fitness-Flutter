@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/widgets/sidebar.dart';
-import 'package:daily_training_flutter/services/ranking_service.dart';
-import 'package:daily_training_flutter/providers/ranking_provider.dart';
+import 'package:daily_training_flutter/services/ranking.service.dart';
+import 'package:daily_training_flutter/providers/ranking.provider.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({Key? key}) : super(key: key);

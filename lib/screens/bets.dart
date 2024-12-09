@@ -3,10 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/widgets/sidebar.dart';
-import 'package:daily_training_flutter/services/auth_service.dart';
-import 'package:daily_training_flutter/services/bets_service.dart';
-import 'package:daily_training_flutter/services/users_service.dart';
-import 'package:daily_training_flutter/providers/bets_provider.dart';
+import 'package:daily_training_flutter/services/auth.service.dart';
+import 'package:daily_training_flutter/services/bets.service.dart';
+import 'package:daily_training_flutter/services/users.service.dart';
+import 'package:daily_training_flutter/providers/bets.provider.dart';
 import 'package:daily_training_flutter/providers/participants.privider.dart';
 
 class BetsScreen extends StatefulWidget {
@@ -290,6 +290,7 @@ class _HighlightedBet extends StatelessWidget {
                     ? scheduleBet(context)
                     : Center(
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const Text(
                               'Nenhuma aposta em destaque no momento',

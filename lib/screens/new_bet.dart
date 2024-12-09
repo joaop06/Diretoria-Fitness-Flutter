@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/widgets/sidebar.dart';
-import 'package:daily_training_flutter/providers/bets_provider.dart';
+import 'package:daily_training_flutter/providers/bets.provider.dart';
 import 'package:flutter_multi_formatter/formatters/formatter_utils.dart';
 import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
 import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
