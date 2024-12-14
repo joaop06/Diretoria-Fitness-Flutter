@@ -1,7 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/services/auth.service.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
-import 'package:daily_training_flutter/utils/colors.dart';
-import 'package:flutter/material.dart';
 
 class Sidebar extends StatefulWidget {
   Object body;
@@ -90,12 +90,12 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
       key: _scaffoldKey,
       backgroundColor: AllColors.background,
       appBar: AppBar(
-        backgroundColor: AllColors.black,
         elevation: 4,
+        backgroundColor: AllColors.backgroundSidebar,
         title: Text(
           title,
           style: const TextStyle(
-            fontSize: 17,
+            fontSize: 16,
             color: AllColors.gold,
             fontWeight: FontWeight.bold,
           ),

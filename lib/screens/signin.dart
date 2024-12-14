@@ -1,7 +1,9 @@
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
+import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth.provider.dart';
-import 'package:daily_training_flutter/utils/colors.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
 
 final TextEditingController emailController = TextEditingController();
 final TextEditingController passwordController = TextEditingController();
@@ -12,152 +14,154 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  bool _isLoading = false;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool _obscureText = true;
+  Future<void> signIn() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-  void _togglePasswordVisibility() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
+      final email = emailController.text.trim();
+      final password = passwordController.text.trim();
+
+      if (email.isEmpty || password.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Preencha todos os campos!',
+              style: TextStyle(color: AllColors.red),
+            ),
+          ),
+        );
+        return;
+      }
+
+      await authProvider.login(
+        email,
+        password,
+      );
+
+      if (authProvider.errorMessage != null) {
+        throw Exception(
+          authProvider.errorMessage ?? 'Erro ao realizar o cadastro',
+        );
+      }
+
+      Navigator.pushReplacementNamed(context, '/bets');
+    } catch (e) {
+      var errorMessage = 'Falha ao realizar o login';
+      if (e is Exception) {
+        errorMessage = e.toString().replaceFirst('Exception: ', '');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+          errorMessage,
+          style: const TextStyle(color: AllColors.red),
+        )),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    double _currentPage = 0.0;
+    PageController _pageController = PageController();
+
+    _pageController.addListener(() {
+      setState(() {
+        _currentPage = _pageController.page ?? 0.0;
+      });
+    });
+
+    final scale = (1 - (_currentPage).abs()).clamp(1.0, 1.2);
+    final scaleWidth = (MediaQuery.of(context).size.width) * scale;
+    final scaleHeight = (MediaQuery.of(context).size.height) * scale;
 
     return Scaffold(
+      backgroundColor: AllColors.background,
       body: Center(
           child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(16),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+          maxHeight: MediaQuery.of(context).size.height,
+        ),
+        padding: const EdgeInsets.all(25),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Logo da aplicação
-              Image.asset(
-                'images/logo-diretoria-fitness.jpg', // Substitua pelo caminho da sua imagem
-                height: 200,
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: scaleWidth / 2,
+                  maxHeight: scaleHeight / 2,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 4.0,
+                    color: AllColors.gold,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Image.asset(
+                  'images/logo-diretoria-fitness.jpg',
+                ),
               ),
-              const SizedBox(height: 40),
-              // Campo de e-mail
-              TextField(
+              SizedBox(height: MediaQuery.of(context).size.height * 0.025),
+              CustomTextField(
+                label: "E-mail",
                 controller: emailController,
-                decoration: InputDecoration(
-                  labelText: "E-mail",
-                  labelStyle: const TextStyle(color: AllColors.white),
-                  filled: true,
-                  fillColor: AllColors.background,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(Icons.email, color: AllColors.gold),
-                ),
+                hint: "joaoborges@gmail.com",
                 keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(color: AllColors.white),
+                prefixIcon: const Icon(Icons.email, color: AllColors.gold),
               ),
-              const SizedBox(height: 20),
-              // Campo de senha
-              TextField(
+              CustomTextField(
+                label: "Senha",
+                hint: "Jb1234@",
+                obscureText: true,
                 controller: passwordController,
-                decoration: InputDecoration(
-                  labelText: "Senha",
-                  labelStyle: const TextStyle(color: AllColors.white),
-                  filled: true,
-                  fillColor: AllColors.background,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(Icons.lock, color: AllColors.gold),
-                  suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility_off : Icons.visibility,
-                        color: AllColors.gold,
-                      ),
-                      onPressed: _togglePasswordVisibility),
-                ),
-                obscureText: _obscureText,
-                style: const TextStyle(color: AllColors.white),
+                keyboardType: TextInputType.emailAddress,
+                prefixIcon: const Icon(Icons.lock, color: AllColors.gold),
               ),
-
-              const SizedBox(height: 30),
-              if (authProvider.errorMessage != null)
-                Text(
-                  authProvider.errorMessage!,
-                  style: const TextStyle(color: AllColors.red),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.06),
+              CustomElevatedButton(
+                padding: null,
+                onPressed: signIn,
+                backgroundColor: AllColors.gold,
+                maximumSize: const Size(150, 45),
+                minimumSize: const Size(150, 45),
+                child: const Text(
+                  "Entrar",
+                  style: TextStyle(fontSize: 16, color: AllColors.white),
                 ),
-              // Botão "Entrar"
-              authProvider.isLoading
-                  ? const CircularProgressIndicator(
-                      color: AllColors.gold,
-                    )
-                  : ElevatedButton(
-                      onPressed: () async {
-                        final email = emailController.text.trim();
-                        final password = passwordController.text.trim();
-
-                        if (email.isEmpty || password.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Preencha todos os campos!',
-                                style: TextStyle(color: AllColors.red),
-                              ),
-                            ),
-                          );
-                          return;
-                        }
-
-                        await authProvider.login(
-                          email,
-                          password,
-                        );
-
-                        if (authProvider.errorMessage == null) {
-                          Navigator.pushReplacementNamed(context, '/bets');
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AllColors.gold,
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        "Entrar",
-                        style: TextStyle(fontSize: 18, color: AllColors.white),
-                      ),
-                    ),
-              const SizedBox(height: 15),
-              // Botão "Cadastrar Usuário"
+              ),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
               OutlinedButton(
                 onPressed: () {
                   Navigator.pushReplacementNamed(context, '/signup');
                 },
                 style: OutlinedButton.styleFrom(
+                  maximumSize: const Size(200, 45),
+                  minimumSize: const Size(200, 45),
                   side: const BorderSide(color: AllColors.gold),
-                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: const Text(
                   "Cadastrar",
-                  style: TextStyle(fontSize: 18, color: AllColors.gold),
+                  style: TextStyle(fontSize: 16, color: AllColors.gold),
                 ),
               ),
             ],
           ),
         ),
       )),
-      backgroundColor: const Color(0xFF1E1C1B),
     );
   }
 }

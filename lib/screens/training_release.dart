@@ -1,15 +1,11 @@
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:daily_training_flutter/providers/participants.privider.dart';
-import 'package:daily_training_flutter/providers/training_release.provider.dart';
-import 'package:daily_training_flutter/services/training_release.service.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart'; // Para verificar a Plataforma Web
-import 'package:image_picker/image_picker.dart';
-import 'package:daily_training_flutter/utils/colors.dart';
-import 'package:daily_training_flutter/widgets/sidebar.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:daily_training_flutter/widgets/Sidebar.dart';
+import 'package:daily_training_flutter/providers/training_release.provider.dart';
 
 class LaunchTrainingScreen extends StatefulWidget {
   final int betDayId;

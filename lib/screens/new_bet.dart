@@ -1,7 +1,12 @@
+import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:daily_training_flutter/utils/Date.dart';
+import 'package:daily_training_flutter/widgets/DateRangePicker.dart';
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
+import 'package:daily_training_flutter/widgets/CustomTextFormField.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:daily_training_flutter/widgets/sidebar.dart';
+import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
 import 'package:flutter_multi_formatter/formatters/formatter_utils.dart';
 import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
@@ -41,12 +46,12 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
   double convertMoney(String inputMoney) {
     return double.parse(_minimumPenaltyAmountController.text
         .replaceAll('R\$ ', '')
-        .replaceAll(',', ''));
+        .replaceAll(',', '.'));
   }
 
-  var _isLoadingCreateBet = false;
+  var _isLoading = false;
   void _createBet() async {
-    _isLoadingCreateBet = true;
+    _isLoading = true;
     final betsProvider = Provider.of<BetsProvider>(context, listen: false);
 
     if (_formKey.currentState?.validate() ?? false) {
@@ -81,14 +86,14 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
         );
       }
 
-      _isLoadingCreateBet = false;
+      _isLoading = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Sidebar(
-      title: 'Criar Aposta',
+      title: 'Nova Aposta',
       body: Center(
         child: Container(
           constraints: BoxConstraints(minWidth: 500, maxWidth: 800),
@@ -98,18 +103,11 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
               key: _formKey,
               child: ListView(
                 children: [
-                  _buildDateField(
-                    hint: "Ex.: DD/MM/AAAA",
-                    label: "Data Inicial",
-                    controller: _initialDateController,
-                    context: context,
+                  DateRangePicker(
+                    finalDateController: _finalDateController,
+                    initialDateController: _initialDateController,
                   ),
-                  _buildDateField(
-                    hint: "Ex.: DD/MM/AAAA",
-                    label: "Data Final",
-                    controller: _finalDateController,
-                    context: context,
-                  ),
+                  const SizedBox(height: 24),
                   _buildNumberField(
                     label: "Faltas Permitidas",
                     controller: _faultsAllowedController,
@@ -119,30 +117,15 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
                     controller: _minimumPenaltyAmountController,
                   ),
                   const SizedBox(height: 24),
-                  ElevatedButton(
-                      onPressed: _isLoadingCreateBet ? null : _createBet,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: _isLoadingCreateBet
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.black,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              "Criar Aposta",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
-                            )),
+                  CustomElevatedButton(
+                      onPressed: _isLoading ? null : _createBet,
+                      isLoading: _isLoading,
+                      backgroundColor: AllColors.gold,
+                      foregroundColor: Colors.black,
+                      child: const Text(
+                        "Agendar Aposta",
+                        style: TextStyle(color: Colors.white),
+                      )),
                 ],
               ),
             ),
@@ -156,16 +139,16 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
       BuildContext context, TextEditingController controller) async {
     final DateTime? selectedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      initialDate: Date.now(),
+      firstDate: Date.year(2000),
+      lastDate: Date.year(2100),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Colors.teal, // Cor do botão de seleção
+              primary: AllColors.orange, // Cor do botão de seleção
               onPrimary: Colors.white, // Cor do texto do botão
-              surface: Color(0xFF1e1c1b), // Cor de fundo
+              surface: AllColors.background, // Cor de fundo
               onSurface: Colors.white, // Cor do texto no fundo
             ),
             dialogBackgroundColor: const Color(0xFF1e1c1b),
@@ -189,8 +172,8 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
-        controller: controller,
         readOnly: true,
+        controller: controller,
         onTap: () => _pickDate(context, controller),
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(

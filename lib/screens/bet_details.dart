@@ -1,15 +1,15 @@
 import 'dart:convert';
-
-import 'package:daily_training_flutter/screens/training_release.dart';
+import 'package:daily_training_flutter/services/participants.service.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:daily_training_flutter/utils/colors.dart';
-import 'package:daily_training_flutter/widgets/sidebar.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/services/auth.service.dart';
 import 'package:daily_training_flutter/services/bets.service.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
+import 'package:daily_training_flutter/screens/training_release.dart';
 import 'package:carousel_slider/carousel_slider.dart' as custom_carousel;
 import 'package:daily_training_flutter/providers/participants.privider.dart';
 
@@ -25,6 +25,11 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
   int? betId;
   User? userData;
   Bet? betDetails;
+
+  bool? isParticipant;
+  bool? betClosed;
+  bool? betScheduled;
+  bool? betInProgress;
 
   bool _isLoading = true;
   late DateTime currentDate = DateTime.now();
@@ -75,6 +80,11 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
           const SnackBar(content: Text('Erro ao carregar detalhes da aposta')),
         );
       }
+    } finally {
+      isParticipant = isUserParticipant();
+      betClosed = betDetails!.status == 'Encerrada';
+      betScheduled = betDetails!.status == 'Agendada';
+      betInProgress = betDetails!.status == 'Em Andamento';
     }
   }
 
@@ -187,7 +197,11 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildBetDetails(betDetails!, participantsProvider),
+                      _buildBetDetails(
+                        betDetails: betDetails!,
+                        participant: participant,
+                        participantsProvider: participantsProvider,
+                      ),
                       SizedBox(
                           height: MediaQuery.of(context).size.height * 0.015),
                       if (todayBetDay != null)
@@ -211,12 +225,11 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
     );
   }
 
-  Widget _buildBetDetails(Bet betDetails, participantsProvider) {
-    final isParticipant = isUserParticipant();
-    final betClosed = betDetails.status == 'Encerrada';
-    final betScheduled = betDetails.status == 'Agendada';
-    final betInProgress = betDetails.status == 'Em Andamento';
-
+  Widget _buildBetDetails({
+    participant,
+    Bet? betDetails,
+    participantsProvider,
+  }) {
     return Container(
       color: AllColors.transparent,
       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
@@ -232,22 +245,23 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
           child: Center(
             child: Container(
               constraints: const BoxConstraints(minWidth: 500, maxWidth: 700),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
               decoration: BoxDecoration(
                 color: AllColors.card,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
                     blurRadius: 15,
-                    color: AllColors.statusBet[betDetails.status] ??
+                    color: AllColors.statusBet[betDetails!.status] ??
                         AllColors.transparent,
                   ),
                 ],
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ElevatedButton(
@@ -259,10 +273,15 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                         },
                         style: ElevatedButton.styleFrom(
                           elevation: 0,
+                          padding: EdgeInsets.zero,
                           backgroundColor: AllColors.transparent,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Icon(Icons.arrow_back,
-                            size: 25, color: AllColors.white),
+                        child: const Icon(
+                          size: 22,
+                          Icons.arrow_back,
+                          color: AllColors.white,
+                        ),
                       ),
                       Text(
                         '${betDetails.status}',
@@ -284,26 +303,68 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                       ),
                     ],
                   ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.015),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Início: ${DateFormat('dd/MM/yyyy').format(betDetails.initialDate!)}',
+                        style: const TextStyle(
+                            fontSize: 12, color: AllColors.text),
+                      ),
+                      Text(
+                        'Término: ${DateFormat('dd/MM/yyyy').format(betDetails.finalDate!)}',
+                        style: const TextStyle(
+                            fontSize: 12, color: AllColors.text),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Início: ${DateFormat('dd/MM/yyyy').format(betDetails.initialDate!)}',
-                            style: const TextStyle(
-                                fontSize: 12, color: AllColors.text),
+                          const Text(
+                            'Faltas Permitidas: ',
+                            style:
+                                TextStyle(fontSize: 12, color: AllColors.text),
                           ),
                           Text(
-                            'Término: ${DateFormat('dd/MM/yyyy').format(betDetails.finalDate!)}',
+                            '${betDetails.faultsAllowed!}',
                             style: const TextStyle(
                                 fontSize: 12, color: AllColors.text),
                           ),
                         ],
                       ),
-                      if (betInProgress)
+                      Column(
+                        children: [
+                          const Text(
+                            'Penalidade: ',
+                            style:
+                                TextStyle(fontSize: 12, color: AllColors.text),
+                          ),
+                          Text(
+                            NumberFormat.currency(
+                                    locale: 'pt_BR', symbol: 'R\$')
+                                .format(betDetails.minimumPenaltyAmount),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: betClosed!
+                                  ? AllColors.white
+                                  : AllColors.green,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (betInProgress!)
                         OutlinedButton(
                           onPressed: null,
                           style: OutlinedButton.styleFrom(
@@ -321,8 +382,8 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                             ),
                           ),
                         ),
-                      if (betScheduled)
-                        !isParticipant
+                      if (betScheduled!)
+                        !isParticipant!
                             ? ElevatedButton(
                                 onPressed: () async {
                                   final participantData = {
@@ -358,7 +419,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                                   ),
                                 ),
                               ),
-                      if (betClosed)
+                      if (betClosed!)
                         OutlinedButton(
                           onPressed: () {},
                           style: OutlinedButton.styleFrom(
@@ -376,7 +437,17 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                         ),
                     ],
                   ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                  if (participant != null &&
+                      participant?['declassified'] == true)
+                    const Center(
+                      child: Text(
+                        'Desclassificado por limite de faltas',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AllColors.red,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -438,7 +509,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                   Column(
                     children: [
                       const Text(
-                        'Treinos',
+                        'Treinos Totais',
                         style: TextStyle(fontSize: 12, color: AllColors.text),
                       ),
                       Text(
@@ -464,7 +535,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                   Column(
                     children: [
                       const Text(
-                        'Falhas',
+                        'Falhas Totais',
                         style: TextStyle(fontSize: 12, color: AllColors.text),
                       ),
                       Text(
@@ -481,7 +552,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   // Somente exibe o botão se o usuário for um participante e não tiver registrado treino ainda
-                  if (!userTrained && participantId != null)
+                  if (betInProgress! && !userTrained && participantId != null)
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(

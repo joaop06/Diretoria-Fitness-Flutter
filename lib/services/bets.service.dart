@@ -36,7 +36,7 @@ class Bet {
       initialDate: DateTime.parse(json['initialDate']),
       finalDate: DateTime.parse(json['finalDate']),
       faultsAllowed: json['faultsAllowed'],
-      minimumPenaltyAmount: json['minimumPenaltyAmount'].toDouble(),
+      minimumPenaltyAmount: json['minimumPenaltyAmount'],
       status: json['status'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),

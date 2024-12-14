@@ -1,8 +1,8 @@
-import 'package:daily_training_flutter/utils/colors.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:daily_training_flutter/widgets/sidebar.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/services/auth.service.dart';
 import 'package:daily_training_flutter/services/bets.service.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
@@ -28,7 +28,6 @@ class _BetsScreenState extends State<BetsScreen>
   @override
   void initState() {
     super.initState();
-    // Use WidgetsBinding to ensure the widget is fully initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });

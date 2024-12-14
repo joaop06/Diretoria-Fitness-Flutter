@@ -1,6 +1,9 @@
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 import 'package:daily_training_flutter/providers/users.provider.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -18,8 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
 
-  bool _obscureText = true;
-  bool _isSubmitting = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -40,261 +42,169 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void registerUser() async {
-    final usersProvider = Provider.of<UsersProvider>(context, listen: false);
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    if (_formKey.currentState?.validate() ?? false) {
-      final userData = {
-        'name': _nameController.text,
-        'email': _emailController.text,
-        'password': _passwordController.text,
-      };
+      final usersProvider = Provider.of<UsersProvider>(context, listen: false);
 
-      // Condicionalmente adiciona 'weight' se preenchido, convertendo para String
-      if (_weightController.text.isNotEmpty) {
-        userData['weight'] = double.parse(_weightController.text).toString();
-      }
+      if (_formKey.currentState?.validate() ?? false) {
+        final Map<String, dynamic> userData = {
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        };
 
-      // Condicionalmente adiciona 'height' se preenchido, convertendo para String
-      if (_heightController.text.isNotEmpty) {
-        userData['height'] = double.parse(_heightController.text).toString();
-      }
+        // Condicionalmente adiciona 'weight' se preenchido, convertendo para String
+        if (_weightController.text.isNotEmpty) {
+          userData['weight'] = double.parse(_weightController.text);
+        }
 
-      await usersProvider.registerUser(userData);
+        // Condicionalmente adiciona 'height' se preenchido, convertendo para String
+        if (_heightController.text.isNotEmpty) {
+          userData['height'] = double.parse(_heightController.text);
+        }
 
-      if (usersProvider.errorMessage == null) {
+        await usersProvider.registerUser(userData);
+
+        if (usersProvider.errorMessage != null) {
+          throw Exception(
+              usersProvider.errorMessage ?? 'Erro ao realizar o cadastro');
+        }
+
         // Mostra uma mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text(
             'Cadastro realizado com sucesso!',
-            style: TextStyle(color: Colors.green),
+            style: TextStyle(color: AllColors.green),
           )),
         );
 
         // Redireciona para a tela de login
         Navigator.pushReplacementNamed(context, '/');
-      } else {
-        // Exibe o erro
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  usersProvider.errorMessage ?? 'Erro ao realizar o cadastro',
-                  style: const TextStyle(color: Colors.red))),
-        );
       }
+    } catch (e) {
+      var errorMessage = 'Falha ao cadastrar usuário';
+      if (e is Exception) {
+        errorMessage = e.toString().replaceFirst('Exception: ', '');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+          errorMessage,
+          style: const TextStyle(color: AllColors.red),
+        )),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xFF1e1c1b),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF282624),
-          title: const Text(
-            'Cadastro',
-            style: TextStyle(color: Colors.white),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacementNamed(context, '/');
-            },
-          ),
+      backgroundColor: AllColors.background,
+      appBar: AppBar(
+        elevation: 4,
+        backgroundColor: AllColors.backgroundSidebar,
+        title: const Text(
+          'Cadastre-se e venha treinar!',
+          style: TextStyle(fontSize: 16, color: AllColors.gold),
         ),
-        body: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 450),
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 200),
-            child: SingleChildScrollView(
-                child: Column(children: [
-              const Text(
-                'Cadastre-se e venha treinar!',
-                style: TextStyle(fontSize: 25, color: Colors.orange),
-              ),
-              Form(
-                  key: _formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.all(25),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildTextField(
-                            label: 'Nome',
-                            context: context,
-                            hint: 'João Borges',
-                            controller: _nameController,
-                            validator: (value) => value == null || value.isEmpty
-                                ? 'Nome é obrigatório'
-                                : null),
-                        _buildTextField(
-                            label: 'E-mail',
-                            context: context,
-                            hint: 'joaoborges@gmail.com',
-                            controller: _emailController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'E-mail é obrigatório';
-                              }
-                              final emailRegex =
-                                  RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-                              if (!emailRegex.hasMatch(value)) {
-                                return 'E-mail inválido';
-                              }
-                              return null;
-                            }),
-                        _buildTextField(
-                            label: 'Senha',
-                            context: context,
-                            obscureText: true,
-                            hint: 'Mínimo de 6 caracteres',
-                            controller: _passwordController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Senha é obrigatória';
-                              }
-                              if (value.length < 6) {
-                                return 'A senha deve ter pelo menos 6 caracteres';
-                              }
-                              return null;
-                            }),
-                        const SizedBox(height: 25),
-                        _buildNumberField(
-                          hint: 'Ex.: 71.2',
-                          label: 'Peso (opcional)',
-                          controller: _weightController,
-                          context: context,
-                          suffix: 'kg',
-                        ),
-                        const SizedBox(height: 25),
-                        _buildNumberField(
-                          hint: 'Ex.: 1.75',
-                          label: 'Altura (opcional)',
-                          controller: _heightController,
-                          context: context,
-                          suffix: 'm',
-                        ),
-                        const SizedBox(height: 40),
-                        Container(
-                          constraints: const BoxConstraints(maxWidth: 200),
-                          child: ElevatedButton(
-                            onPressed: _isSubmitting ? null : registerUser,
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange),
-                            child: _isSubmitting
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white)
-                                : const Text(
-                                    'Cadastrar',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 20),
-                                  ),
-                          ),
-                        )
-                      ],
-                    ),
-                  )),
-            ])),
-          ),
-        ));
-  }
-
-  Widget _buildTextField(
-      {required String hint,
-      required String label,
-      required TextEditingController controller,
-      required BuildContext context,
-      bool obscureText = false,
-      required validator}) {
-    return Column(
-      children: [
-        const SizedBox(height: 5),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextFormField(
-            validator: validator,
-            controller: controller,
-            obscureText: obscureText && _obscureText,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              filled: true,
-              hintText: hint,
-              labelText: label,
-              suffixIcon: obscureText != true
-                  ? null
-                  : IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility_off : Icons.visibility,
-                        color: const Color(0xFFCCA253),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AllColors.white),
+          onPressed: () {
+            Navigator.pushNamed(context, '/');
+          },
+        ),
+      ),
+      body: Center(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CustomTextField(
+                  label: "Nome",
+                  hint: "João Borges",
+                  controller: _nameController,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Nome é obrigatório'
+                      : null,
+                ),
+                CustomTextField(
+                  label: "E-mail",
+                  hint: "joaoborges@gmail.com",
+                  controller: _emailController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'E-mail é obrigatório';
+                    }
+                    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+                    if (!emailRegex.hasMatch(value)) {
+                      return 'E-mail inválido';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  label: 'Senha',
+                  obscureText: true,
+                  hint: 'Mínimo de 6 caracteres',
+                  controller: _passwordController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Senha é obrigatória';
+                    }
+                    if (value.length < 6) {
+                      return 'A senha deve ter pelo menos 6 caracteres';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 25),
+                CustomTextField(
+                  suffix: 'kg',
+                  isNumeric: true,
+                  hint: 'Ex.: 71.2',
+                  label: 'Peso (opcional)',
+                  controller: _weightController,
+                ),
+                CustomTextField(
+                  suffix: 'm',
+                  isNumeric: true,
+                  hint: 'Ex.: 1.75',
+                  label: 'Altura (opcional)',
+                  controller: _heightController,
+                ),
+                const SizedBox(height: 40),
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 200),
+                  child: CustomElevatedButton(
+                    isLoading: _isLoading,
+                    backgroundColor: AllColors.gold,
+                    onPressed: _isLoading ? null : registerUser,
+                    child: const Text(
+                      'Cadastrar',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AllColors.text,
                       ),
-                      onPressed: _togglePasswordVisibility),
-              fillColor: const Color(0xFF1e1c1b),
-              hintStyle: const TextStyle(color: Colors.white30),
-              labelStyle: const TextStyle(color: Colors.white),
-              focusedBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide:
-                    BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
-              ),
-              border: OutlineInputBorder(
-                borderSide:
-                    const BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
-                borderRadius: BorderRadius.circular(10),
-              ),
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
-        )
-      ],
+        ),
+      ),
     );
-  }
-
-  void _togglePasswordVisibility() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
-  }
-
-  Widget _buildNumberField({
-    required String hint,
-    required String label,
-    required TextEditingController controller,
-    required BuildContext context,
-    required String suffix,
-  }) {
-    return Stack(children: [
-      TextFormField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        style: const TextStyle(color: Colors.white),
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly, // Permite apenas dígitos
-        ],
-        decoration: InputDecoration(
-          hintText: hint,
-          labelText: label,
-          fillColor: const Color(0xFF1e1c1b),
-          hintStyle: const TextStyle(color: Colors.white30),
-          labelStyle: const TextStyle(color: Colors.white),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
-          ),
-          border: OutlineInputBorder(
-            borderSide:
-                const BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      ),
-      Positioned(
-        top: 20,
-        right: 10,
-        child: Text(
-          suffix,
-          style: const TextStyle(color: Colors.white70),
-        ),
-      ),
-    ]);
   }
 
   void _formatWeightDynamically() {
