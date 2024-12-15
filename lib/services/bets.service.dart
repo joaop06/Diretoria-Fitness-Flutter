@@ -68,4 +68,14 @@ class BetsService {
     final bet = await _apiService.get('/training-bets/$id');
     return Bet.fromJson(bet);
   }
+
+  Future<String> update(int id, object) async {
+    await _apiService.patch('/training-bets', id, object);
+    return 'Aposta atualizada com sucesso';
+  }
+
+  Future<String> delete(int id) async {
+    await _apiService.delete('/training-bets', id);
+    return 'Aposta apagada com sucesso';
+  }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
+import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
 
 class CustomTextField extends StatefulWidget {
   final String hint;
@@ -8,10 +10,12 @@ class CustomTextField extends StatefulWidget {
   final bool enabled;
   final String? suffix;
   final bool isNumeric;
+  final bool isCurrency;
   final bool obscureText;
   final Color cursorColor;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
+  final TextStyle? hintStyle;
   final Color selectionColor;
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
@@ -21,6 +25,7 @@ class CustomTextField extends StatefulWidget {
   const CustomTextField({
     Key? key,
     this.suffix,
+    this.hintStyle,
     this.validator,
     this.prefixIcon,
     this.suffixIcon,
@@ -28,6 +33,7 @@ class CustomTextField extends StatefulWidget {
     this.enabled = true,
     required this.label,
     this.isNumeric = false,
+    this.isCurrency = false,
     required this.controller,
     this.obscureText = false,
     this.cursorColor = AllColors.white,
@@ -57,6 +63,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isCurrency) {
+      widget.controller.text = 'R\$ ${widget.controller.text},00';
+    }
+
     return Theme(
       data: Theme.of(context).copyWith(
         textSelectionTheme: TextSelectionThemeData(
@@ -69,26 +79,35 @@ class _CustomTextFieldState extends State<CustomTextField> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextFormField(
+              validator: widget.validator,
               controller: widget.controller,
               obscureText: widget.obscureText && _obscureText,
-              validator: widget.validator,
               keyboardType:
                   widget.isNumeric ? TextInputType.number : widget.keyboardType,
               textInputAction: widget.textInputAction,
               style: const TextStyle(color: AllColors.white),
               enabled: widget.enabled,
-              inputFormatters: widget.isNumeric
-                  ? [FilteringTextInputFormatter.digitsOnly]
-                  : null,
               cursorColor: widget.cursorColor,
               selectionControls: MaterialTextSelectionControls(),
+              inputFormatters: widget.isCurrency
+                  ? [
+                      CurrencyInputFormatter(
+                        leadingSymbol: 'R\$',
+                        useSymbolPadding: true,
+                        thousandSeparator: ThousandSeparator.Period,
+                      )
+                    ]
+                  : widget.isNumeric
+                      ? [FilteringTextInputFormatter.digitsOnly]
+                      : null,
               decoration: InputDecoration(
                 filled: true,
                 hintText: widget.hint,
                 labelText: widget.label,
                 fillColor: AllColors.background,
                 labelStyle: const TextStyle(color: AllColors.white),
-                hintStyle: const TextStyle(color: AllColors.softWhite),
+                hintStyle: widget.hintStyle ??
+                    const TextStyle(color: AllColors.softWhite),
                 prefixIcon: widget.prefixIcon,
                 suffixIcon: widget.obscureText
                     ? IconButton(
@@ -108,8 +127,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 222, 159, 42)),
+                  borderSide: const BorderSide(color: AllColors.orange),
                 ),
               ),
             ),

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:daily_training_flutter/services/participants.service.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -125,12 +124,14 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
       (day) => day['day'] == DateFormat('yyyy-MM-dd').format(currentDate),
       orElse: () => null,
     );
+    print('todayBetDay $todayBetDay');
 
     final participant = betDetails?.participants?.firstWhere(
       (participant) =>
           participant['user']['id'] == int.parse('${userData?.id}'),
       orElse: () => null,
     );
+    print('participant $participant');
 
     return Sidebar(
       title: 'Detalhes da Aposta ${betDetails?.id}',
@@ -141,6 +142,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
               Navigator.pushNamed(
                 context,
                 '/edit-bet',
+                arguments: {'betId': betDetails?.id},
               );
             },
             icon: const Icon(
@@ -194,26 +196,30 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                     ],
                   )
                 : Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildBetDetails(
+                      _BetDetailsContainer(
+                        userData: userData!,
+                        betClosed: betClosed!,
                         betDetails: betDetails!,
                         participant: participant,
+                        betScheduled: betScheduled!,
+                        betInProgress: betInProgress!,
+                        isParticipant: isParticipant!,
                         participantsProvider: participantsProvider,
                       ),
                       SizedBox(
                           height: MediaQuery.of(context).size.height * 0.015),
                       if (todayBetDay != null)
-                        _buildTodayHighlight(
-                          context: context,
+                        _TodayHighlightContainer(
                           todayBetDay: todayBetDay,
-                          participantId: participant == null
-                              ? participant
-                              : participant['id'],
+                          participant: participant,
+                          betInProgress: betInProgress,
+                          userTrained: hasUserTrainedToday(),
                         ),
-                      _buildOtherDaysList(
-                        context: context,
+                      _OtherDaysList(
+                        currentDate: currentDate,
                         todayBetDay: todayBetDay,
                         betDays: betDetails!.betDays!,
                       ),
@@ -224,12 +230,31 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
       ),
     );
   }
+}
 
-  Widget _buildBetDetails({
-    participant,
-    Bet? betDetails,
-    participantsProvider,
-  }) {
+class _BetDetailsContainer extends StatelessWidget {
+  User userData;
+  Bet betDetails;
+  bool betClosed;
+  final participant;
+  bool betScheduled;
+  bool betInProgress;
+  bool isParticipant;
+  ParticipantsProvider participantsProvider;
+
+  _BetDetailsContainer({
+    this.participant,
+    required this.userData,
+    required this.betClosed,
+    required this.betDetails,
+    required this.betScheduled,
+    required this.betInProgress,
+    required this.isParticipant,
+    required this.participantsProvider,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: AllColors.transparent,
       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
@@ -438,7 +463,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                     ],
                   ),
                   if (participant != null &&
-                      participant?['declassified'] == true)
+                      participant['declassified'] == true)
                     const Center(
                       child: Text(
                         'Desclassificado por limite de faltas',
@@ -456,13 +481,26 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
       ),
     );
   }
+}
 
-  Widget _buildTodayHighlight({
-    required int? participantId,
-    required BuildContext context,
-    required Map<String, dynamic> todayBetDay,
-  }) {
-    final userTrained = hasUserTrainedToday();
+class _TodayHighlightContainer extends StatelessWidget {
+  bool userTrained;
+  final participant;
+  final betInProgress;
+  Map<String, dynamic> todayBetDay;
+
+  _TodayHighlightContainer({
+    this.participant,
+    required this.todayBetDay,
+    required this.userTrained,
+    required this.betInProgress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final participantId =
+        participant == null ? participant : participant!['id'];
+
     final trainingReleasesIsEmpty =
         (todayBetDay['trainingReleases'] as List<dynamic>).isEmpty;
 
@@ -577,10 +615,9 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                     ),
                   if (!trainingReleasesIsEmpty)
                     OutlinedButton(
-                      onPressed: () => _showTrainingModal(
-                        context,
-                        todayBetDay['trainingReleases'],
-                      ),
+                      onPressed: () => _TrainingModal(
+                        trainingReleases: todayBetDay['trainingReleases'],
+                      ).show(context),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AllColors.gold),
                         shape: RoundedRectangleBorder(
@@ -613,12 +650,21 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
       ),
     );
   }
+}
 
-  Widget _buildOtherDaysList({
-    required BuildContext context,
-    required List<dynamic> betDays,
-    required Map<String, dynamic>? todayBetDay,
-  }) {
+class _OtherDaysList extends StatelessWidget {
+  final currentDate;
+  List<dynamic> betDays;
+  Map<String, dynamic>? todayBetDay;
+
+  _OtherDaysList({
+    this.todayBetDay,
+    required this.betDays,
+    required this.currentDate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final todayIndex = todayBetDay != null ? betDays.indexOf(todayBetDay) : -1;
 
     return Center(
@@ -733,12 +779,12 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                                       : Icons.visibility_off,
                                   color: AllColors.white,
                                 ),
-                                onPressed: !trainingReleasesIsEmpty
-                                    ? () => _showTrainingModal(
-                                          context,
-                                          day['trainingReleases'],
-                                        )
-                                    : null,
+                                onPressed: trainingReleasesIsEmpty
+                                    ? null
+                                    : () => _TrainingModal(
+                                          trainingReleases:
+                                              day['trainingReleases'],
+                                        ).show(context),
                               ),
                               Text(
                                 !trainingReleasesIsEmpty
@@ -758,8 +804,14 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
       ),
     );
   }
+}
 
-  void _showTrainingModal(BuildContext context, List trainingReleases) {
+class _TrainingModal {
+  List trainingReleases;
+
+  _TrainingModal({required this.trainingReleases});
+
+  void show(BuildContext context) {
     PageController _pageController = PageController();
 
     showModalBottomSheet(
@@ -811,7 +863,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                           const Text(
                             'Treinos Realizados',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               color: AllColors.gold,
                               fontWeight: FontWeight.bold,
                             ),

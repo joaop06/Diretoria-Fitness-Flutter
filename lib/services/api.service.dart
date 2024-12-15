@@ -83,6 +83,29 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> patch(
+      String endpoint, int id, Map<String, dynamic> data) async {
+    final url = Uri.parse("$baseUrl$endpoint/$id");
+    final accessToken = await AuthService.getAccessToken();
+
+    try {
+      final response = await http.patch(
+        url,
+        body: jsonEncode(data),
+        headers: buildHeaders(accessToken),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(error['message'] ?? error['error']);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> delete(String endpoint, int id) async {
     final url = Uri.parse("$baseUrl$endpoint/$id");
     final accessToken = await AuthService.getAccessToken();

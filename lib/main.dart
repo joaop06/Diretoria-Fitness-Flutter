@@ -1,3 +1,4 @@
+import 'package:daily_training_flutter/screens/edit_bet.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -69,6 +70,7 @@ class MyApp extends StatelessWidget {
             '/signup': (context) => const SignUpScreen(),
             '/ranking': (context) => const RankingScreen(),
             '/bet-details': (context) => const BetDetailsScreen(),
+            '/edit-bet': (ctx) => const EditBetScreen(betId: ''),
           },
         ));
   }

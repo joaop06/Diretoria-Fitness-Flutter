@@ -1,14 +1,17 @@
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:daily_training_flutter/utils/Date.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
 
 class DateRangePicker extends StatefulWidget {
+  DateTime? finalDate;
+  DateTime? initialDate;
   final TextEditingController finalDateController;
   final TextEditingController initialDateController;
 
-  const DateRangePicker({
+  DateRangePicker({
     Key? key,
+    this.finalDate,
+    this.initialDate,
     required this.finalDateController,
     required this.initialDateController,
   }) : super(key: key);
@@ -20,7 +23,7 @@ class DateRangePicker extends StatefulWidget {
 class _DateRangePickerState extends State<DateRangePicker>
     with SingleTickerProviderStateMixin {
   DateTimeRange? _selectedDateRange;
-  String placeholderField = 'Período da Aposta';
+  String? placeholderField;
 
   // Controlador de animação
   late Animation<double> _opacityAnimation;
@@ -29,6 +32,12 @@ class _DateRangePickerState extends State<DateRangePicker>
   @override
   void initState() {
     super.initState();
+    if (widget.initialDate != null && widget.finalDate != null) {
+      placeholderField =
+          '${Date(date: widget.initialDate).format()} - ${Date(date: widget.finalDate).format()}';
+    } else {
+      placeholderField = 'Selecione um intervalo';
+    }
 
     // Configuração da animação
     _animationController = AnimationController(
@@ -59,6 +68,13 @@ class _DateRangePickerState extends State<DateRangePicker>
       lastDate: Date.year(2100),
       firstDate: Date.year(2000),
       helpText: 'Selecione o período',
+
+      initialDateRange: widget.initialDate == null || widget.finalDate == null
+          ? null
+          : Date.range(
+              end: widget.finalDate,
+              start: widget.initialDate,
+            ),
 
       locale: const Locale('pt', 'BR'),
       initialEntryMode: DatePickerEntryMode.calendarOnly,
@@ -112,6 +128,7 @@ class _DateRangePickerState extends State<DateRangePicker>
     final startDate = Date(date: _selectedDateRange!.start).format();
     setState(() {
       placeholderField = '$startDate - $endDate';
+      print(placeholderField);
     });
   }
 
@@ -133,7 +150,7 @@ class _DateRangePickerState extends State<DateRangePicker>
             FadeTransition(
               opacity: _opacityAnimation,
               child: Text(
-                placeholderField,
+                placeholderField!,
                 style: const TextStyle(
                   fontSize: 16,
                   color: AllColors.white,

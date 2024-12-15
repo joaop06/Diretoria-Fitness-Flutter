@@ -1,14 +1,13 @@
-import 'package:daily_training_flutter/utils/AllColors.dart';
-import 'package:daily_training_flutter/utils/Date.dart';
-import 'package:daily_training_flutter/widgets/DateRangePicker.dart';
-import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
-import 'package:daily_training_flutter/widgets/CustomTextFormField.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:daily_training_flutter/utils/Date.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
+import 'package:daily_training_flutter/widgets/DateRangePicker.dart';
 import 'package:flutter_multi_formatter/formatters/formatter_utils.dart';
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
 import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
 
@@ -113,19 +112,20 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
                     controller: _faultsAllowedController,
                   ),
                   _buildMinimumPenaltyField(
-                    label: "Valor Mínimo da Penalidade",
+                    label: "Valor da Penalidade (R\$)",
                     controller: _minimumPenaltyAmountController,
                   ),
                   const SizedBox(height: 24),
                   CustomElevatedButton(
-                      onPressed: _isLoading ? null : _createBet,
-                      isLoading: _isLoading,
-                      backgroundColor: AllColors.gold,
-                      foregroundColor: Colors.black,
-                      child: const Text(
-                        "Agendar Aposta",
-                        style: TextStyle(color: Colors.white),
-                      )),
+                    onPressed: _isLoading ? null : _createBet,
+                    isLoading: _isLoading,
+                    backgroundColor: AllColors.gold,
+                    foregroundColor: Colors.black,
+                    child: const Text(
+                      "Agendar Aposta",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -215,24 +215,22 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
             leadingSymbol: 'R\$ ',
             useSymbolPadding: true,
             thousandSeparator: ThousandSeparator.Period,
-
-            // decimalSeparator: ThousandSeparator.Comma,
           ),
         ],
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.white),
-          hintText: "R\$ 30,00",
-          hintStyle: const TextStyle(color: Colors.white30),
           filled: true,
+          labelText: label,
+          hintText: "R\$ 30,00",
+          labelStyle: const TextStyle(color: Colors.white),
+          hintStyle: const TextStyle(color: Colors.white30),
           fillColor: const Color(0xFF1e1c1b),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
           focusedBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
+            borderSide: BorderSide(color: AllColors.orange),
           ),
         ),
         validator: (value) {
@@ -242,7 +240,7 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
           // Retira a máscara para validar o número
           final unmaskedValue = toNumericString(value, allowHyphen: false);
           if (double.tryParse(unmaskedValue) == null) {
-            return "Por favor, insira um número válido.";
+            return "Por favor, insira um valor válido.";
           }
           return null;
         },

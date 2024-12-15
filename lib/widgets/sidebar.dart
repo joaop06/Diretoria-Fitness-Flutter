@@ -101,6 +101,11 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
           ),
         ),
         leading: _buildLeadingAvatar(),
+        // leading: ElevatedButton(
+        //     onPressed: () {
+        //       Navigator.pushNamed(context, '/bet-details');
+        //     },
+        //     child: const Icon(Icons.arrow_back)),
         actions: actions,
       ),
       drawer: _buildDrawer(),

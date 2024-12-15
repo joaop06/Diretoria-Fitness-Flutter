@@ -30,8 +30,8 @@ class Date {
     DateTime? start,
     bool? now = false,
   }) {
-    end = now == true || end == null ? Date.now() : Date.parse(end);
-    start = now == true || start == null ? Date.now() : Date.parse(start);
+    end = now == true || end == null ? Date.now() : end;
+    start = now == true || start == null ? Date.now() : start;
 
     if (start.isAfter(end)) {
       end = start;
@@ -41,6 +41,7 @@ class Date {
   }
 
   String format([String? type = 'dd/MM/yyyy']) {
+    date ??= Date.now();
     if (date is DateTime) {
       return DateFormat(type).format((date as DateTime));
     } else if (date is String) {

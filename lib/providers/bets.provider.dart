@@ -78,4 +78,26 @@ class BetsProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> update(int id, object) async {
+    try {
+      await _betsService.update(id, object);
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> delete(int id) async {
+    try {
+      await _betsService.delete(id);
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }
