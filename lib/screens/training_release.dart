@@ -12,10 +12,10 @@ class LaunchTrainingScreen extends StatefulWidget {
   final int participantId;
 
   const LaunchTrainingScreen({
-    Key? key,
+    super.key,
     required this.betDayId,
     required this.participantId,
-  }) : super(key: key);
+  });
 
   @override
   State<LaunchTrainingScreen> createState() => _LaunchTrainingScreenState();
@@ -100,16 +100,16 @@ class _LaunchTrainingScreenState extends State<LaunchTrainingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double _currentPage = 0.0;
-    PageController _pageController = PageController();
+    double currentPage = 0.0;
+    PageController pageController = PageController();
 
-    _pageController.addListener(() {
+    pageController.addListener(() {
       setState(() {
-        _currentPage = _pageController.page ?? 0.0;
+        currentPage = pageController.page ?? 0.0;
       });
     });
 
-    final scale = (1 - (_currentPage).abs()).clamp(1.0, 1.2);
+    final scale = (1 - (currentPage).abs()).clamp(1.0, 1.2);
     final scaleWidth = (MediaQuery.of(context).size.width) * scale;
     final scaleHeight = (MediaQuery.of(context).size.height) * scale;
 

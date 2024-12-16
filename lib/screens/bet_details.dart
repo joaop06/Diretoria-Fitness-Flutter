@@ -13,7 +13,7 @@ import 'package:carousel_slider/carousel_slider.dart' as custom_carousel;
 import 'package:daily_training_flutter/providers/participants.privider.dart';
 
 class BetDetailsScreen extends StatefulWidget {
-  const BetDetailsScreen({Key? key}) : super(key: key);
+  const BetDetailsScreen({super.key});
 
   @override
   _BetDetailsScreenState createState() => _BetDetailsScreenState();
@@ -113,7 +113,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
         backgroundColor: AllColors.background,
         body: const Center(
           child: CircularProgressIndicator(
-            color: AllColors.orange,
+            color: AllColors.gold,
           ),
         ),
       );
@@ -124,14 +124,12 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
       (day) => day['day'] == DateFormat('yyyy-MM-dd').format(currentDate),
       orElse: () => null,
     );
-    print('todayBetDay $todayBetDay');
 
     final participant = betDetails?.participants?.firstWhere(
       (participant) =>
           participant['user']['id'] == int.parse('${userData?.id}'),
       orElse: () => null,
     );
-    print('participant $participant');
 
     return Sidebar(
       title: 'Detalhes da Aposta ${betDetails?.id}',
@@ -277,7 +275,7 @@ class _BetDetailsContainer extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     blurRadius: 15,
-                    color: AllColors.statusBet[betDetails!.status] ??
+                    color: AllColors.statusBet[betDetails.status] ??
                         AllColors.transparent,
                   ),
                 ],
@@ -376,9 +374,8 @@ class _BetDetailsContainer extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: betClosed!
-                                  ? AllColors.white
-                                  : AllColors.green,
+                              color:
+                                  betClosed ? AllColors.white : AllColors.green,
                             ),
                           ),
                         ],
@@ -387,66 +384,59 @@ class _BetDetailsContainer extends StatelessWidget {
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      if (betInProgress!)
-                        OutlinedButton(
-                          onPressed: null,
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(
-                              color: AllColors.statusBet[betDetails.status] ??
-                                  AllColors.white,
-                            ),
-                            backgroundColor: AllColors.transparent,
-                          ),
-                          child: Text(
-                            'Ver Participantes',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AllColors.statusBet[betDetails.status],
-                            ),
+                      OutlinedButton(
+                        onPressed: () {
+                          _ParticipantsModal(
+                            betStatus: betDetails.status!,
+                            participants: betDetails.participants,
+                          ).show(context);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: AllColors.transparent,
+                          side: BorderSide(
+                            color: AllColors.statusBet[betDetails.status] ??
+                                AllColors.white,
                           ),
                         ),
-                      if (betScheduled!)
-                        !isParticipant!
-                            ? ElevatedButton(
-                                onPressed: () async {
-                                  final participantData = {
-                                    'userId': userData?.id,
-                                    'trainingBetId': betDetails.id,
-                                  };
-                                  await participantsProvider
-                                      .create(participantData);
+                        child: Text(
+                          'Ver Participantes',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AllColors.statusBet[betDetails.status],
+                          ),
+                        ),
+                      ),
+                      if (betScheduled)
+                        if (!isParticipant)
+                          ElevatedButton(
+                            onPressed: () async {
+                              final participantData = {
+                                'userId': userData.id,
+                                'trainingBetId': betDetails.id,
+                              };
+                              await participantsProvider
+                                  .create(participantData);
 
-                                  Navigator.pushNamed(context, '/bet-details');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AllColors.orange,
-                                ),
-                                child: const Text(
-                                  'Participar',
-                                  style: TextStyle(
-                                    color: AllColors.white,
-                                  ),
-                                ),
-                              )
-                            : OutlinedButton(
-                                onPressed: () {},
-                                style: OutlinedButton.styleFrom(
-                                  side:
-                                      const BorderSide(color: AllColors.orange),
-                                  backgroundColor: AllColors.transparent,
-                                ),
-                                child: const Text(
-                                  'Participando!',
-                                  style: TextStyle(
-                                    color: AllColors.orange,
-                                  ),
-                                ),
+                              Navigator.pushNamed(context, '/bet-details');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AllColors.orange,
+                            ),
+                            child: const Text(
+                              'Participar',
+                              style: TextStyle(
+                                color: AllColors.white,
                               ),
-                      if (betClosed!)
+                            ),
+                          ),
+                      if (betClosed)
                         OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () => _WinnersModal(
+                                  betStatus: betDetails.status!,
+                                  participants: betDetails.participants)
+                              .show(context),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(
                               color: AllColors.gold,
@@ -806,13 +796,194 @@ class _OtherDaysList extends StatelessWidget {
   }
 }
 
+class _ParticipantsModal {
+  String betStatus;
+  List<dynamic>? participants;
+
+  _ParticipantsModal({required this.betStatus, this.participants});
+
+  void show(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AllColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return participants == null || participants!.isEmpty
+            ? const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
+                    'Nenhum participante no momento',
+                    style: TextStyle(fontSize: 16, color: AllColors.text),
+                  ),
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: participants?.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final participant = participants?[index];
+
+                  final imagePath = participant['user']['profileImagePath'];
+                  final decodedImage =
+                      imagePath != null ? base64Decode(imagePath) : null;
+
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: decodedImage != null
+                          ? AllColors.transparent
+                          : AllColors.statusBet[betStatus],
+                      child: decodedImage != null
+                          ? ClipOval(
+                              child: Image.memory(
+                                decodedImage,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.error,
+                                      color: AllColors.red,
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.5,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          : Text(
+                              participant['user']['name']
+                                  .substring(0, 1)
+                                  .toUpperCase(),
+                              style: const TextStyle(color: AllColors.white),
+                            ),
+                    ),
+                    title: Text(
+                      participant['user']['name'],
+                      style:
+                          const TextStyle(fontSize: 16, color: AllColors.text),
+                    ),
+                    subtitle: Text(
+                      'Vitórias: ${participant['user']['wins']} / Derrotas: ${participant['user']['losses']}',
+                      style:
+                          const TextStyle(fontSize: 12, color: AllColors.text),
+                    ),
+                  );
+                },
+              );
+      },
+    );
+  }
+}
+
+class _WinnersModal {
+  String betStatus;
+  List<dynamic>? participants;
+
+  _WinnersModal({required this.betStatus, this.participants});
+
+  void show(BuildContext context) {
+    final winners =
+        participants?.where((p) => p['declassified'] == false).toList();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AllColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return participants == null || participants!.isEmpty
+            ? const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
+                    'Nenhum participante no momento',
+                    style: TextStyle(fontSize: 16, color: AllColors.text),
+                  ),
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: participants?.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final participant = participants?[index];
+
+                  final imagePath = participant['user']['profileImagePath'];
+                  final decodedImage =
+                      imagePath != null ? base64Decode(imagePath) : null;
+
+                  return ListTile(
+                    leading: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.emoji_events, color: AllColors.orange),
+                        const SizedBox(width: 8),
+                        CircleAvatar(
+                          backgroundColor: decodedImage != null
+                              ? AllColors.transparent
+                              // : AllColors.statusBet[betStatus],
+                              : AllColors.softGold,
+                          child: decodedImage != null
+                              ? ClipOval(
+                                  child: Image.memory(
+                                    decodedImage,
+                                    errorBuilder:
+                                        (context, error, stackTrace) => Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.error,
+                                          color: AllColors.red,
+                                        ),
+                                        SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.5,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  participant['user']['name']
+                                      .substring(0, 1)
+                                      .toUpperCase(),
+                                  style:
+                                      const TextStyle(color: AllColors.white),
+                                ),
+                        ),
+                      ],
+                    ),
+                    title: Text(
+                      participant['user']['name'],
+                      style:
+                          const TextStyle(fontSize: 16, color: AllColors.text),
+                    ),
+                    subtitle: Text(
+                      'Aproveitamento: ${participant['utilization']} / Faltas: ${participant['faults']}',
+                      style:
+                          const TextStyle(fontSize: 12, color: AllColors.text),
+                    ),
+                  );
+                },
+              );
+      },
+    );
+  }
+}
+
 class _TrainingModal {
   List trainingReleases;
 
   _TrainingModal({required this.trainingReleases});
 
   void show(BuildContext context) {
-    PageController _pageController = PageController();
+    PageController pageController = PageController();
 
     showModalBottomSheet(
       elevation: 0,
@@ -826,12 +997,12 @@ class _TrainingModal {
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            double _currentPage = 0.0;
+            double currentPage = 0.0;
 
             // Adiciona listener para atualizar o estado conforme o carrossel é rolado
-            _pageController.addListener(() {
+            pageController.addListener(() {
               setState(() {
-                _currentPage = _pageController.page ?? 0.0;
+                currentPage = pageController.page ?? 0.0;
               });
             });
 
@@ -892,8 +1063,8 @@ class _TrainingModal {
                               ? base64Decode(imagePath)
                               : null;
 
-                          final scale = (1 - (_currentPage - index).abs())
-                              .clamp(1.0, 1.2);
+                          final scale =
+                              (1 - (currentPage - index).abs()).clamp(1.0, 1.2);
 
                           return Transform.scale(
                             scale: scale,
@@ -1016,7 +1187,7 @@ class _TrainingModal {
                           autoPlayInterval: const Duration(seconds: 3),
                           onPageChanged: (index, reason) {
                             setState(() {
-                              _currentPage = index.toDouble();
+                              currentPage = index.toDouble();
                             });
                           },
                         ),
@@ -1029,11 +1200,11 @@ class _TrainingModal {
                         (index) => AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                          width: _currentPage == index ? 12.0 : 8.0,
-                          height: _currentPage == index ? 12.0 : 8.0,
+                          width: currentPage == index ? 12.0 : 8.0,
+                          height: currentPage == index ? 12.0 : 8.0,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _currentPage == index
+                            color: currentPage == index
                                 ? AllColors.white
                                 : AllColors.grey,
                           ),

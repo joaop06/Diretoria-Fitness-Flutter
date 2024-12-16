@@ -5,6 +5,7 @@ import 'package:daily_training_flutter/utils/Date.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
+import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 import 'package:daily_training_flutter/widgets/DateRangePicker.dart';
 import 'package:flutter_multi_formatter/formatters/formatter_utils.dart';
 import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
@@ -12,6 +13,8 @@ import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
 import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
 
 class NewBetScreen extends StatefulWidget {
+  const NewBetScreen({super.key});
+
   @override
   _NewBetScreenScreenState createState() => _NewBetScreenScreenState();
 }
@@ -95,32 +98,58 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
       title: 'Nova Aposta',
       body: Center(
         child: Container(
-          constraints: BoxConstraints(minWidth: 500, maxWidth: 800),
+          constraints: const BoxConstraints(minWidth: 500, maxWidth: 800),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Form(
               key: _formKey,
-              child: ListView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   DateRangePicker(
+                    label: 'Período da Aposta',
                     finalDateController: _finalDateController,
                     initialDateController: _initialDateController,
                   ),
-                  const SizedBox(height: 24),
-                  _buildNumberField(
-                    label: "Faltas Permitidas",
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.015,
+                  ),
+                  CustomTextField(
+                    isNumeric: true,
+                    hint: 'Ex.: 2',
+                    label: 'Faltas Permitidas',
                     controller: _faultsAllowedController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Por favor, insira um valor válido";
+                      }
+                      return null;
+                    },
                   ),
-                  _buildMinimumPenaltyField(
-                    label: "Valor da Penalidade (R\$)",
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.015,
+                  ),
+                  CustomTextField(
+                    isCurrency: true,
+                    hint: "R\$ 30,00",
+                    label: 'Valor da Penalidade (R\$)',
+                    hintStyle: const TextStyle(color: Colors.white30),
                     controller: _minimumPenaltyAmountController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Por favor, insira um valor válido";
+                      }
+                      return null;
+                    },
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
                   CustomElevatedButton(
-                    onPressed: _isLoading ? null : _createBet,
                     isLoading: _isLoading,
-                    backgroundColor: AllColors.gold,
                     foregroundColor: Colors.black,
+                    backgroundColor: AllColors.gold,
+                    onPressed: _isLoading ? null : _createBet,
                     child: const Text(
                       "Agendar Aposta",
                       style: TextStyle(color: Colors.white),

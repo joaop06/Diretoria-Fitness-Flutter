@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/services/auth.service.dart';
@@ -7,8 +8,7 @@ class Sidebar extends StatefulWidget {
   Object body;
   String title;
   List<Widget>? actions;
-  Sidebar({Key? key, required this.title, required this.body, this.actions})
-      : super(key: key);
+  Sidebar({super.key, required this.title, required this.body, this.actions});
 
   @override
   _SidebarState createState() => _SidebarState();
@@ -80,7 +80,7 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
         backgroundColor: AllColors.background,
         body: const Center(
           child: CircularProgressIndicator(
-            color: AllColors.orange,
+            color: AllColors.gold,
           ),
         ),
       );
@@ -101,18 +101,13 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
           ),
         ),
         leading: _buildLeadingAvatar(),
-        // leading: ElevatedButton(
-        //     onPressed: () {
-        //       Navigator.pushNamed(context, '/bet-details');
-        //     },
-        //     child: const Icon(Icons.arrow_back)),
         actions: actions,
       ),
       drawer: _buildDrawer(),
       body: body ??
           const Center(
             child: CircularProgressIndicator(
-              color: AllColors.orange,
+              color: AllColors.gold,
             ),
           ),
     );
@@ -121,54 +116,66 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
   Widget _buildLeadingAvatar() {
     String? userName = userData?.name;
     String? userImageUrl = userData?.profileImagePath;
+    final decodedUserImage =
+        userImageUrl != null ? base64Decode(userImageUrl) : null;
 
     return GestureDetector(
       onTap: () => _scaffoldKey.currentState?.openDrawer(),
       child: Container(
-          margin: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AllColors.transparent,
-            border: Border.all(
-              color: AllColors.gold, // Cor da borda
-              width: 2, // Largura da borda
-            ),
-            image: userImageUrl != null
-                ? DecorationImage(
-                    image: NetworkImage(userImageUrl),
-                    fit: BoxFit.cover,
-                  )
-                : null,
+        margin: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AllColors.transparent,
+          border: Border.all(
+            color: AllColors.gold, // Cor da borda
+            width: 2, // Largura da borda
           ),
-          child: CircleAvatar(
-            radius: 30,
-            backgroundColor: AllColors.transparent,
-            child: userImageUrl == null
-                ? Text(
-                    (userName?.isNotEmpty == true
-                        ? userName![0].toUpperCase()
-                        : "?"),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: AllColors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                : ClipOval(
-                    child: Image.network(
-                      userImageUrl,
-                      fit: BoxFit.cover,
-                      width: MediaQuery.of(context).size.width * 0.05,
-                      height: MediaQuery.of(context).size.height * 0.05,
+          image: decodedUserImage != null
+              ? DecorationImage(
+                  image: MemoryImage(decodedUserImage),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        ),
+        child: CircleAvatar(
+          radius: 30,
+          backgroundColor: AllColors.transparent,
+          child: decodedUserImage == null
+              ? Text(
+                  (userName?.isNotEmpty == true
+                      ? userName![0].toUpperCase()
+                      : "?"),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: AllColors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              : ClipOval(
+                  child: Image.memory(
+                    decodedUserImage,
+                    errorBuilder: (context, error, stackTrace) => Text(
+                      (userName?.isNotEmpty == true
+                          ? userName![0].toUpperCase()
+                          : "?"),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: AllColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-          )),
+                ),
+        ),
+      ),
     );
   }
 
   Widget _buildDrawer() {
     String? userName = userData?.name;
     String? userImageUrl = userData?.profileImagePath;
+    final decodedUserImage =
+        userImageUrl != null ? base64Decode(userImageUrl) : null;
 
     return Drawer(
       backgroundColor: AllColors.card,
@@ -193,32 +200,46 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
                       color: AllColors.gold, // Cor da borda
                       width: 2, // Largura da borda
                     ),
-                    image: userImageUrl != null
+                    image: decodedUserImage != null
                         ? DecorationImage(
                             fit: BoxFit.cover,
-                            image: NetworkImage(userImageUrl),
+                            image: MemoryImage(decodedUserImage),
                           )
                         : null,
                   ),
                   child: CircleAvatar(
                     radius: 40,
                     backgroundColor: AllColors.transparent,
-                    backgroundImage: userImageUrl != null
-                        ? NetworkImage(userImageUrl)
+                    backgroundImage: decodedUserImage != null
+                        ? MemoryImage(decodedUserImage)
                         : null,
-                    child: userImageUrl == null
+                    child: decodedUserImage == null
                         ? Text(
-                            userName != null && userName.isNotEmpty
-                                ? userName[0].toUpperCase()
-                                : "?",
+                            (userName?.isNotEmpty == true
+                                ? userName![0].toUpperCase()
+                                : "?"),
                             style: const TextStyle(
-                              fontSize: 30,
+                              fontSize: 20,
                               color: AllColors.white,
                               fontWeight: FontWeight.bold,
                             ),
-                            textAlign: TextAlign.center,
                           )
-                        : null,
+                        : ClipOval(
+                            child: Image.memory(
+                              decodedUserImage,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Text(
+                                (userName?.isNotEmpty == true
+                                    ? userName![0].toUpperCase()
+                                    : "?"),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  color: AllColors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
                   ),
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),
@@ -241,14 +262,14 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
               Navigator.pushNamed(context, '/bets');
             },
           ),
-          const Divider(color: AllColors.softBlack, thickness: 1),
-          _buildListTile(
-            icon: Icons.edit,
-            title: "Editar Dados",
-            onTap: () {
-              Navigator.pushNamed(context, '/edit-user');
-            },
-          ),
+          // const Divider(color: AllColors.softBlack, thickness: 1),
+          // _buildListTile(
+          //   icon: Icons.edit,
+          //   title: "Editar Dados",
+          //   onTap: () {
+          //     Navigator.pushNamed(context, '/edit-user');
+          //   },
+          // ),
           const Divider(color: AllColors.softBlack, thickness: 1),
           _buildListTile(
             icon: Icons.add,

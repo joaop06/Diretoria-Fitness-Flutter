@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/widgets/Sidebar.dart';
@@ -5,7 +7,7 @@ import 'package:daily_training_flutter/services/ranking.service.dart';
 import 'package:daily_training_flutter/providers/ranking.provider.dart';
 
 class RankingScreen extends StatefulWidget {
-  const RankingScreen({Key? key}) : super(key: key);
+  const RankingScreen({super.key});
 
   @override
   _RankingScreenState createState() => _RankingScreenState();
@@ -69,7 +71,7 @@ class _RankingScreenState extends State<RankingScreen>
         backgroundColor: const Color(0xFF1e1c1b),
         body: const Center(
           child: CircularProgressIndicator(
-            color: Colors.orange,
+            color: AllColors.gold,
           ),
         ),
       );
@@ -86,7 +88,7 @@ class _RankingScreenState extends State<RankingScreen>
         child: rankingData!.isEmpty
             ? const Center(
                 child: CircularProgressIndicator(
-                  color: Colors.orange,
+                  color: AllColors.gold,
                 ),
               )
             : ListView.builder(
@@ -138,7 +140,7 @@ class _RankingScreenState extends State<RankingScreen>
                       "${item.score} pts",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFFcca253),
+                        color: AllColors.gold,
                         fontSize: MediaQuery.of(context).size.width * 0.035,
                       ),
                     ),
@@ -216,22 +218,31 @@ class _RankingScreenState extends State<RankingScreen>
   }
 
   // Exibe a imagem do perfil ou um ícone padrão
-  Widget _buildProfileImage(String profileImagePath) {
+  Widget _buildProfileImage(String? profileImagePath) {
+    final decodedImage =
+        profileImagePath != null ? base64Decode(profileImagePath) : null;
+
     return CircleAvatar(
       radius: MediaQuery.of(context).size.width * 0.05,
       backgroundColor: const Color(0xFF282624),
-      child: profileImagePath.isEmpty
+      child: decodedImage == null
           ? Icon(
               Icons.person,
-              color: const Color(0xFFcca253),
+              color: AllColors.gold,
               size: MediaQuery.of(context).size.width * 0.035,
             )
           : ClipOval(
-              child: Image.network(
-                profileImagePath,
-                fit: BoxFit.cover,
-                width: MediaQuery.of(context).size.width * 0.1,
-                height: MediaQuery.of(context).size.height * 0.05,
+              child: Image.memory(
+                decodedImage,
+                errorBuilder: (context, error, stackTrace) => Column(
+                  children: [
+                    Icon(
+                      Icons.person,
+                      color: AllColors.gold,
+                      size: MediaQuery.of(context).size.width * 0.035,
+                    )
+                  ],
+                ),
               ),
             ),
     );

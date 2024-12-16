@@ -22,7 +22,7 @@ class CustomTextFormField extends StatefulWidget {
   final TextEditingController initialDateController;
 
   const CustomTextFormField({
-    Key? key,
+    super.key,
     this.hint,
     this.label,
     this.border,
@@ -40,7 +40,7 @@ class CustomTextFormField extends StatefulWidget {
     required this.initialDateController,
     this.cursorColor = AllColors.white,
     this.selectionColor = AllColors.softGold,
-  }) : super(key: key);
+  });
 
   @override
   _CustomTextFormFieldState createState() => _CustomTextFormFieldState();

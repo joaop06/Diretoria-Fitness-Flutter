@@ -23,7 +23,7 @@ class CustomTextField extends StatefulWidget {
   final String? Function(String?)? validator;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     this.suffix,
     this.hintStyle,
     this.validator,
@@ -40,7 +40,7 @@ class CustomTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.selectionColor = AllColors.softGold,
     this.textInputAction = TextInputAction.done,
-  }) : super(key: key);
+  });
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
@@ -64,7 +64,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     if (widget.isCurrency) {
-      widget.controller.text = 'R\$ ${widget.controller.text},00';
+      if (widget.controller.text.isEmpty) {
+        widget.controller.text = 'R\$ 0,00';
+      } else {
+        widget.controller.text = 'R\$ ${widget.controller.text},00';
+      }
     }
 
     return Theme(

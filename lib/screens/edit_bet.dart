@@ -1,23 +1,20 @@
-import 'package:daily_training_flutter/services/auth.service.dart';
-import 'package:daily_training_flutter/services/bets.service.dart';
-import 'package:daily_training_flutter/utils/AllColors.dart';
-import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
-import 'package:daily_training_flutter/widgets/CustomTextField.dart';
-import 'package:daily_training_flutter/widgets/CustomTextFormField.dart';
-import 'package:daily_training_flutter/widgets/DateRangePicker.dart';
-import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/utils/Date.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:daily_training_flutter/widgets/Sidebar.dart';
+import 'package:daily_training_flutter/services/auth.service.dart';
+import 'package:daily_training_flutter/services/bets.service.dart';
+import 'package:daily_training_flutter/widgets/CustomTextField.dart';
+import 'package:daily_training_flutter/widgets/DateRangePicker.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
-import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 
 class EditBetScreen extends StatefulWidget {
   final String betId;
 
-  const EditBetScreen({Key? key, required this.betId}) : super(key: key);
+  const EditBetScreen({super.key, required this.betId});
 
   @override
   State<EditBetScreen> createState() => _EditBetScreenState();
@@ -161,7 +158,7 @@ class _EditBetScreenState extends State<EditBetScreen> {
         backgroundColor: AllColors.background,
         body: Center(
           child: CircularProgressIndicator(
-            color: AllColors.orange,
+            color: AllColors.gold,
           ),
         ),
       );
@@ -178,13 +175,30 @@ class _EditBetScreenState extends State<EditBetScreen> {
           onPressed: () => showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text('Deletar Aposta'),
-              content:
-                  const Text('Tem certeza que deseja deletar esta aposta?'),
+              backgroundColor: AllColors.background,
+              title: Text(
+                'Deletar Aposta $betId',
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: AllColors.gold,
+                ),
+              ),
+              content: const Text(
+                'Tem certeza que deseja deletar esta aposta?',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AllColors.white,
+                ),
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancelar'),
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(
+                      color: AllColors.white,
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
@@ -207,6 +221,9 @@ class _EditBetScreenState extends State<EditBetScreen> {
             )
           : Container(
               color: AllColors.background,
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height,
+              ),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Form(
@@ -215,10 +232,14 @@ class _EditBetScreenState extends State<EditBetScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       DateRangePicker(
+                        label: 'Período da Aposta',
                         finalDate: betDetails?.finalDate,
                         initialDate: betDetails?.initialDate,
                         finalDateController: _finalDateController,
                         initialDateController: _initialDateController,
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.015,
                       ),
                       CustomTextField(
                         isNumeric: true,
@@ -231,6 +252,9 @@ class _EditBetScreenState extends State<EditBetScreen> {
                           }
                           return null;
                         },
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.015,
                       ),
                       CustomTextField(
                         isCurrency: true,
@@ -245,7 +269,9 @@ class _EditBetScreenState extends State<EditBetScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.05,
+                      ),
                       CustomElevatedButton(
                         isLoading: _isLoading,
                         foregroundColor: Colors.black,

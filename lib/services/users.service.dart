@@ -39,6 +39,7 @@ class User {
       wins: json['wins'],
       losses: json['losses'],
       totalFaults: json['totalFaults'],
+      profileImagePath: json['profileImagePath'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       deletedAt: json['deletedAt'],

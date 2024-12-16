@@ -7,7 +7,7 @@ import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 import 'package:daily_training_flutter/providers/users.provider.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -27,15 +27,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void initState() {
     super.initState();
     _weightController.addListener(_formatWeightDynamically);
-    _heightController.addListener(
-        _formatHeightDynamically); // Adiciona o listener para o height também
+    _heightController.addListener(_formatHeightDynamically);
   }
 
   @override
   void dispose() {
     _weightController.removeListener(_formatWeightDynamically);
-    _heightController.removeListener(
-        _formatHeightDynamically); // Remove o listener para o height também
+    _heightController.removeListener(_formatHeightDynamically);
     _weightController.dispose();
     _heightController.dispose();
     super.dispose();

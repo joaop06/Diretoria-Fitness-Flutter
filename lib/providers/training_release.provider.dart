@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:daily_training_flutter/services/training_release.service.dart';
 
 class TrainingReleaseProvider with ChangeNotifier {
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   String? _errorMessage;

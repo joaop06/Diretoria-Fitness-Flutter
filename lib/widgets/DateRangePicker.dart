@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:daily_training_flutter/utils/Date.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:intl/intl.dart';
 
 class DateRangePicker extends StatefulWidget {
+  String label;
   DateTime? finalDate;
   DateTime? initialDate;
   final TextEditingController finalDateController;
   final TextEditingController initialDateController;
 
   DateRangePicker({
-    Key? key,
+    super.key,
     this.finalDate,
     this.initialDate,
+    required this.label,
     required this.finalDateController,
     required this.initialDateController,
-  }) : super(key: key);
+  });
 
   @override
   _DateRangePickerState createState() => _DateRangePickerState();
@@ -33,10 +36,10 @@ class _DateRangePickerState extends State<DateRangePicker>
   void initState() {
     super.initState();
     if (widget.initialDate != null && widget.finalDate != null) {
-      placeholderField =
-          '${Date(date: widget.initialDate).format()} - ${Date(date: widget.finalDate).format()}';
-    } else {
-      placeholderField = 'Selecione um intervalo';
+      setState(() {
+        placeholderField =
+            '${Date(date: widget.initialDate).format()} - ${Date(date: widget.finalDate).format()}';
+      });
     }
 
     // Configuração da animação
@@ -118,52 +121,63 @@ class _DateRangePickerState extends State<DateRangePicker>
   }
 
   void _formatSelectedDate() {
-    if (_selectedDateRange == null) {
+    if (_selectedDateRange != null) {
+      final endDate = Date(date: _selectedDateRange!.end).format();
+      final startDate = Date(date: _selectedDateRange!.start).format();
       setState(() {
-        placeholderField = 'Selecione um período';
+        placeholderField = '$startDate - $endDate';
       });
     }
-
-    final endDate = Date(date: _selectedDateRange!.end).format();
-    final startDate = Date(date: _selectedDateRange!.start).format();
-    setState(() {
-      placeholderField = '$startDate - $endDate';
-      print(placeholderField);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _selectInterval,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: AllColors.background,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AllColors.gold, width: 1),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: AllColors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FadeTransition(
-              opacity: _opacityAnimation,
-              child: Text(
-                placeholderField!,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AllColors.white,
+        const SizedBox(height: 4),
+        GestureDetector(
+          onTap: _selectInterval,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: AllColors.background,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AllColors.gold, width: 1),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                FadeTransition(
+                  opacity: _opacityAnimation,
+                  child: Text(
+                    placeholderField ?? 'Selecione um intervalo',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: placeholderField?.isNotEmpty == true
+                          ? AllColors.white
+                          : AllColors.white.withOpacity(0.5),
+                    ),
+                  ),
                 ),
-              ),
+                const Icon(
+                  Icons.calendar_month,
+                  color: AllColors.gold,
+                ),
+              ],
             ),
-            const Icon(
-              Icons.calendar_month,
-              color: AllColors.gold,
-            ),
-          ],
-        ),
-      ),
+          ),
+        )
+      ],
     );
   }
 }

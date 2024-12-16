@@ -25,6 +25,7 @@ class BetsProvider with ChangeNotifier {
     try {
       _bets = await _betsService.getBets();
 
+      // Determinar a aposta destacada
       _highlightedBet = _bets.firstWhere(
         (bet) => bet.status == 'Em Andamento',
         orElse: () {
@@ -40,7 +41,18 @@ class BetsProvider with ChangeNotifier {
         },
       );
 
+      // Filtrar a aposta destacada da lista principal
       _bets = _bets.where((Bet bet) => bet.id != _highlightedBet?.id).toList();
+
+      // Ordenar a lista _bets pelo status
+      _bets.sort((a, b) {
+        if (a.status == 'Em Andamento' && b.status != 'Em Andamento') {
+          return -1;
+        } else if (a.status != 'Em Andamento' && b.status == 'Em Andamento') {
+          return 1;
+        }
+        return 0; // Mantém a ordem original se ambos não forem "Em Andamento"
+      });
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {

@@ -10,7 +10,7 @@ import 'package:daily_training_flutter/providers/bets.provider.dart';
 import 'package:daily_training_flutter/providers/participants.privider.dart';
 
 class BetsScreen extends StatefulWidget {
-  const BetsScreen({Key? key}) : super(key: key);
+  const BetsScreen({super.key});
 
   @override
   _BetsScreenState createState() => _BetsScreenState();
@@ -97,7 +97,7 @@ class _BetsScreenState extends State<BetsScreen>
         backgroundColor: AllColors.background,
         body: const Center(
           child: CircularProgressIndicator(
-            color: AllColors.orange,
+            color: AllColors.gold,
           ),
         ),
       );
@@ -111,7 +111,7 @@ class _BetsScreenState extends State<BetsScreen>
     if (betsProvider.isLoading) {
       return const Center(
         child: CircularProgressIndicator(
-          color: AllColors.orange,
+          color: AllColors.gold,
         ),
       );
     }
@@ -320,7 +320,7 @@ class _HighlightedBet extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Center(
         child: Text(
-          'Aposta ${bet.status}',
+          'Aposta ${bet.id} ${bet.status}',
           style: TextStyle(
             fontSize: 18,
             color: AllColors.statusBet[bet.status],

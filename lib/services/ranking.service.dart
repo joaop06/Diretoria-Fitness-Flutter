@@ -5,14 +5,14 @@ class User {
   final int wins;
   final int losses;
   final int totalFaults;
-  final String profileImagePath;
+  final String? profileImagePath;
 
   User({
     required this.name,
     required this.wins,
     required this.losses,
+    this.profileImagePath,
     required this.totalFaults,
-    required this.profileImagePath,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -21,7 +21,7 @@ class User {
       wins: json['wins'],
       losses: json['losses'],
       totalFaults: json['totalFaults'],
-      profileImagePath: json['profileImagePath'] ?? '',
+      profileImagePath: json['profileImagePath'],
     );
   }
 }
