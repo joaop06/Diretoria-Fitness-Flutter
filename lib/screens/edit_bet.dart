@@ -166,6 +166,25 @@ class _EditBetScreenState extends State<EditBetScreen> {
 
     return Sidebar(
       title: 'Editar Aposta $betId',
+      leading: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(
+            context,
+            '/bet-details',
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          backgroundColor: AllColors.transparent,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: const Icon(
+          size: 22,
+          Icons.arrow_back,
+          color: AllColors.white,
+        ),
+      ),
       actions: [
         IconButton(
           icon: const Icon(

@@ -830,6 +830,13 @@ class _ParticipantsModal {
                   final decodedImage =
                       imagePath != null ? base64Decode(imagePath) : null;
 
+                  var subtitleText =
+                      'Faltas: ${participant['faults']} / Aproveitamento: ${participant['utilization']}%';
+                  if (betStatus == 'Agendada') {
+                    subtitleText =
+                        'Vitórias: ${participant['user']['wins']} / Derrotas: ${participant['user']['losses']}';
+                  }
+
                   return ListTile(
                     leading: CircleAvatar(
                       backgroundColor: decodedImage != null
@@ -868,7 +875,7 @@ class _ParticipantsModal {
                           const TextStyle(fontSize: 16, color: AllColors.text),
                     ),
                     subtitle: Text(
-                      'Vitórias: ${participant['user']['wins']} / Derrotas: ${participant['user']['losses']}',
+                      subtitleText,
                       style:
                           const TextStyle(fontSize: 12, color: AllColors.text),
                     ),

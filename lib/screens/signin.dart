@@ -124,7 +124,7 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               CustomTextField(
                 label: "Senha",
-                hint: "Jb1234@",
+                hint: "",
                 obscureText: true,
                 controller: passwordController,
                 keyboardType: TextInputType.emailAddress,

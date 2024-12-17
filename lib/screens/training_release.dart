@@ -115,6 +115,25 @@ class _LaunchTrainingScreenState extends State<LaunchTrainingScreen> {
 
     return Sidebar(
       title: 'Lançamento de Treino',
+      leading: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(
+            context,
+            '/bet-details',
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          backgroundColor: AllColors.transparent,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: const Icon(
+          size: 22,
+          Icons.arrow_back,
+          color: AllColors.white,
+        ),
+      ),
       body: Center(
         child: Container(
           constraints: BoxConstraints(
@@ -240,31 +259,73 @@ class _LaunchTrainingScreenState extends State<LaunchTrainingScreen> {
                     items: const [
                       DropdownMenuItem(
                         value: 'Musculação',
-                        child: Text('Musculação'),
+                        child: Row(
+                          children: [
+                            Icon(Icons.fitness_center, color: Colors.blue),
+                            SizedBox(width: 10),
+                            Text('Musculação'),
+                          ],
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'Corrida',
-                        child: Text('Corrida'),
+                        child: Row(
+                          children: [
+                            Icon(Icons.directions_run, color: Colors.green),
+                            SizedBox(width: 10),
+                            Text('Corrida'),
+                          ],
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'Caminhada',
-                        child: Text('Caminhada'),
+                        child: Row(
+                          children: [
+                            Icon(Icons.directions_walk, color: Colors.orange),
+                            SizedBox(width: 10),
+                            Text('Caminhada'),
+                          ],
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'Luta',
-                        child: Text('Luta'),
+                        child: Row(
+                          children: [
+                            Icon(Icons.sports_kabaddi, color: Colors.red),
+                            SizedBox(width: 10),
+                            Text('Luta'),
+                          ],
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'Natação',
-                        child: Text('Natação'),
+                        child: Row(
+                          children: [
+                            Icon(Icons.pool, color: Colors.teal),
+                            SizedBox(width: 10),
+                            Text('Natação'),
+                          ],
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'Ciclismo',
-                        child: Text('Ciclismo'),
+                        child: Row(
+                          children: [
+                            Icon(Icons.directions_bike, color: Colors.purple),
+                            SizedBox(width: 10),
+                            Text('Ciclismo'),
+                          ],
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'Outros',
-                        child: Text('Outros'),
+                        child: Row(
+                          children: [
+                            Icon(Icons.more_horiz, color: Colors.grey),
+                            SizedBox(width: 10),
+                            Text('Outros'),
+                          ],
+                        ),
                       ),
                     ],
                     onChanged: (value) {

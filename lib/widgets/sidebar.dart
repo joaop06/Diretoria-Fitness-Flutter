@@ -7,8 +7,15 @@ import 'package:daily_training_flutter/services/users.service.dart';
 class Sidebar extends StatefulWidget {
   Object body;
   String title;
+  Widget? leading;
   List<Widget>? actions;
-  Sidebar({super.key, required this.title, required this.body, this.actions});
+  Sidebar({
+    super.key,
+    this.actions,
+    this.leading,
+    required this.title,
+    required this.body,
+  });
 
   @override
   _SidebarState createState() => _SidebarState();
@@ -17,6 +24,7 @@ class Sidebar extends StatefulWidget {
 class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
   var body;
   var actions;
+  var leading;
   var title = '';
 
   User? userData;
@@ -100,8 +108,8 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: _buildLeadingAvatar(),
-        actions: actions,
+        actions: widget.actions,
+        leading: widget.leading ?? _buildLeadingAvatar(),
       ),
       drawer: _buildDrawer(),
       body: body ??
