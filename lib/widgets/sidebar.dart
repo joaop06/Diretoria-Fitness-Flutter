@@ -270,14 +270,14 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
               Navigator.pushNamed(context, '/bets');
             },
           ),
-          // const Divider(color: AllColors.softBlack, thickness: 1),
-          // _buildListTile(
-          //   icon: Icons.edit,
-          //   title: "Editar Dados",
-          //   onTap: () {
-          //     Navigator.pushNamed(context, '/edit-user');
-          //   },
-          // ),
+          const Divider(color: AllColors.softBlack, thickness: 1),
+          _buildListTile(
+            icon: Icons.edit,
+            title: "Editar Dados",
+            onTap: () {
+              Navigator.pushNamed(context, '/edit-user');
+            },
+          ),
           const Divider(color: AllColors.softBlack, thickness: 1),
           _buildListTile(
             icon: Icons.add,

@@ -1,4 +1,3 @@
-import 'package:daily_training_flutter/screens/edit_bet.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,6 +7,8 @@ import 'package:daily_training_flutter/screens/signup.dart';
 import 'package:daily_training_flutter/screens/signin.dart';
 import 'package:daily_training_flutter/screens/new_bet.dart';
 import 'package:daily_training_flutter/screens/ranking.dart';
+import 'package:daily_training_flutter/screens/edit_bet.dart';
+import 'package:daily_training_flutter/screens/edit_user.dart';
 import 'package:daily_training_flutter/screens/bet_details.dart';
 
 import 'package:daily_training_flutter/services/api.service.dart';
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
             '/ranking': (context) => const RankingScreen(),
             '/bet-details': (context) => const BetDetailsScreen(),
             '/edit-bet': (ctx) => const EditBetScreen(betId: ''),
+            '/edit-user': (ctx) => const EditUserScreen(),
           },
         ));
   }

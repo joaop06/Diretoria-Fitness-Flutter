@@ -48,6 +48,7 @@ dependencies:
   flutter_calendar_week: ^3.0.3
   syncfusion_flutter_datepicker: ^28.1.33
   flutter_date_pickers: ^0.4.3
+  fl_chart: ^0.69.2
 
 dev_dependencies:
   flutter_test:
