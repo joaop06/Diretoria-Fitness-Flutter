@@ -1,5 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:daily_training_flutter/widgets/Sidebar.dart';
+import 'package:daily_training_flutter/services/auth.service.dart';
+import 'package:daily_training_flutter/services/users.service.dart';
+import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 
 class EditUserScreen extends StatefulWidget {
   const EditUserScreen({Key? key}) : super(key: key);
@@ -13,13 +19,16 @@ class _EditUserScreenState extends State<EditUserScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
+  User? userData;
+  bool _isLoading = true;
+
   // Estado da imagem de perfil
   String? _profileImageUrl;
 
   // Dados de exemplo do histórico
-  List<FlSpot> _weightData = [];
-  List<FlSpot> _heightData = [];
   List<FlSpot> _bmiData = [];
+  List<FlSpot> _heightData = [];
+  List<FlSpot> _weightData = [];
 
   // Tipo de dado selecionado para o gráfico
   String _selectedGraphType = 'weight';
@@ -27,18 +36,35 @@ class _EditUserScreenState extends State<EditUserScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
     _fetchGraphData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
   }
 
   // Método para carregar dados iniciais do usuário
-  void _loadUserData() {
-    // Simulação de carregamento de dados da API
-    setState(() {
-      _nameController.text = 'Nome do Usuário';
-      _emailController.text = 'email@exemplo.com';
-      _profileImageUrl = 'https://via.placeholder.com/150';
-    });
+  Future<void> _initializeData() async {
+    if (!mounted) return;
+
+    try {
+      userData = await AuthService.getUserData();
+
+      // Simulação de carregamento de dados da API
+      setState(() {
+        _isLoading = false;
+        _nameController.text = userData!.name!;
+        _emailController.text = userData!.email!;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Falha ao buscar dados')),
+        );
+      }
+    }
   }
 
   // Método para buscar dados do gráfico (simulação)
@@ -83,114 +109,177 @@ class _EditUserScreenState extends State<EditUserScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Editar Perfil'),
-        backgroundColor: Colors.deepPurpleAccent,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Seção de imagem de perfil
-              Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundImage: _profileImageUrl != null
-                          ? NetworkImage(_profileImageUrl!)
-                          : null,
-                      backgroundColor: Colors.grey.shade300,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: InkWell(
-                        onTap: _updateProfileImage,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.deepPurple,
-                            shape: BoxShape.circle,
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: AllColors.background,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: AllColors.gold,
+          ),
+        ),
+      );
+    }
+
+    String? userName = userData?.name;
+    String? userImageUrl = userData?.profileImagePath;
+    final decodedUserImage =
+        userImageUrl != null ? base64Decode(userImageUrl) : null;
+
+    return Sidebar(
+      title: 'Editar Perfil',
+      body: Center(
+        child: Container(
+          constraints:
+              BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.9),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.01,
+                ),
+                // Seção de imagem de perfil
+                Center(
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundColor: AllColors.transparent,
+                        child: decodedUserImage == null
+                            ? Text(
+                                (userName?.isNotEmpty == true
+                                    ? userName![0].toUpperCase()
+                                    : "?"),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  color: AllColors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : ClipOval(
+                                child: Image.memory(
+                                  decodedUserImage,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Text(
+                                    (userName?.isNotEmpty == true
+                                        ? userName![0].toUpperCase()
+                                        : "?"),
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      color: AllColors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: InkWell(
+                          onTap: _updateProfileImage,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AllColors.gold,
+                            ),
+                            padding: const EdgeInsets.all(8.0),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                            ),
                           ),
-                          padding: const EdgeInsets.all(8.0),
-                          child:
-                              const Icon(Icons.camera_alt, color: Colors.white),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Campos de edição
+                CustomTextField(
+                  label: 'Nome',
+                  hint: _nameController.text,
+                  controller: _nameController,
+                ),
+                CustomTextField(
+                  label: 'Email',
+                  hint: _emailController.text,
+                  controller: _emailController,
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _updateUserData,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AllColors.gold,
+                    foregroundColor: AllColors.white,
+                  ),
+                  child: const Text(
+                    'Salvar Alterações',
+                    style: TextStyle(
+                      color: AllColors.text,
                     ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Redefinir senha
+                TextButton(
+                  onPressed: _resetPassword,
+                  child: const Text(
+                    'Redefinir Senha',
+                    style: TextStyle(color: AllColors.gold),
+                  ),
+                ),
+                const Divider(height: 30),
+                // Gráfico interativo
+                const Text(
+                  'Histórico de Peso, Altura e IMC',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: AllColors.text,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                DropdownButton<String>(
+                  dropdownColor: AllColors.background,
+                  value: _selectedGraphType,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGraphType = value!;
+                    });
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                        value: 'bmi',
+                        child: Text(
+                          'IMC',
+                          style: TextStyle(color: AllColors.text),
+                        )),
+                    DropdownMenuItem(
+                        value: 'weight',
+                        child: Text(
+                          'Peso',
+                          style: TextStyle(color: AllColors.text),
+                        )),
+                    DropdownMenuItem(
+                        value: 'height',
+                        child: Text(
+                          'Altura',
+                          style: TextStyle(color: AllColors.text),
+                        )),
                   ],
                 ),
-              ),
-              const SizedBox(height: 20),
-              // Campos de edição
-              _buildInputField('Nome', _nameController),
-              _buildInputField('Email', _emailController),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _updateUserData,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurpleAccent,
-                  foregroundColor: Colors.white,
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.45,
+                  child: LineChart(_buildLineChart()),
                 ),
-                child: const Text('Salvar Alterações'),
-              ),
-              const SizedBox(height: 20),
-              // Redefinir senha
-              TextButton(
-                onPressed: _resetPassword,
-                child: const Text('Redefinir Senha',
-                    style: TextStyle(color: Colors.deepPurple)),
-              ),
-              const Divider(height: 30),
-              // Gráfico interativo
-              const Text(
-                'Histórico de Peso, Altura e IMC',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              DropdownButton<String>(
-                value: _selectedGraphType,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedGraphType = value!;
-                  });
-                },
-                items: const [
-                  DropdownMenuItem(value: 'weight', child: Text('Peso')),
-                  DropdownMenuItem(value: 'height', child: Text('Altura')),
-                  DropdownMenuItem(value: 'bmi', child: Text('IMC')),
-                ],
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 250,
-                child: LineChart(_buildLineChart()),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  // Widget auxiliar para campos de entrada
-  Widget _buildInputField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 5),
-        TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 15),
-      ],
     );
   }
 
@@ -208,16 +297,16 @@ class _EditUserScreenState extends State<EditUserScreen> {
     return LineChartData(
       lineBarsData: [
         LineChartBarData(
+          barWidth: 3,
           spots: data,
           isCurved: true,
-          color: Colors.deepPurple,
-          barWidth: 3,
           isStrokeCapRound: true,
+          color: AllColors.gold,
           belowBarData: BarAreaData(show: false),
         ),
       ],
-      titlesData: const FlTitlesData(show: true),
       borderData: FlBorderData(show: true),
+      titlesData: const FlTitlesData(show: true),
     );
   }
 }

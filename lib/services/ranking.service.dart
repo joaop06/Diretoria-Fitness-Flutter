@@ -1,15 +1,17 @@
 import 'package:daily_training_flutter/services/api.service.dart';
 
 class User {
-  final String name;
   final int wins;
   final int losses;
+  final String name;
+  final String email;
   final int totalFaults;
   final String? profileImagePath;
 
   User({
     required this.name,
     required this.wins,
+    required this.email,
     required this.losses,
     this.profileImagePath,
     required this.totalFaults,
@@ -19,6 +21,7 @@ class User {
     return User(
       name: json['name'],
       wins: json['wins'],
+      email: json['email'],
       losses: json['losses'],
       totalFaults: json['totalFaults'],
       profileImagePath: json['profileImagePath'],
