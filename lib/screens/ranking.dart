@@ -36,18 +36,8 @@ class _RankingScreenState extends State<RankingScreen>
     try {
       // Busca os dados da classificação
       await Provider.of<RankingProvider>(context, listen: false).getRanking();
-
-      // Update loading state
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Falha ao buscar dados')),
         );
@@ -65,7 +55,7 @@ class _RankingScreenState extends State<RankingScreen>
     final rankingProvider = context.watch<RankingProvider>();
     rankingData = rankingProvider.ranking;
 
-    if (rankingProvider.isLoading) {
+    if (_isLoading) {
       return Scaffold(
         key: _scaffoldKey,
         backgroundColor: const Color(0xFF1e1c1b),
@@ -77,28 +67,154 @@ class _RankingScreenState extends State<RankingScreen>
       );
     }
 
+    // Separar os 3 primeiros colocados e o restante
+    final podium = rankingData!.take(3).toList();
+    final others = rankingData!.skip(3).toList();
+
     return Sidebar(
       title: 'Classificação de Usuários',
       body: Container(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width,
         ),
-        color: const Color(0xFF282624),
-        padding: const EdgeInsets.all(16.0),
-        child: rankingData!.isEmpty
-            ? const Center(
-                child: CircularProgressIndicator(
-                  color: AllColors.gold,
-                ),
-              )
-            : ListView.builder(
-                itemCount: rankingData?.length,
+        color: AllColors.background,
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Exibição do pódio
+            if (podium.isNotEmpty) _buildPodium(podium),
+            const SizedBox(height: 20),
+
+            // Listagem do 4º em diante
+            Expanded(
+              child: ListView.builder(
+                itemCount: others.length,
                 itemBuilder: (context, index) {
-                  final Ranking item = rankingData![index];
-                  return _buildRankingCard(item, index + 1);
+                  final Ranking item = others[index];
+                  return _buildRankingCard(item, index + 4);
                 },
               ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  // Widget para o pódio
+  Widget _buildPodium(List<Ranking> podium) {
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        // Degraus do pódio
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // 2º colocado - Degrau esquerdo
+            if (podium.length > 1)
+              _buildPodiumStep(podium[1], 2, heightMultiplier: 1.1),
+
+            // 1º colocado - Degrau central
+            if (podium.isNotEmpty)
+              _buildPodiumStep(podium[0], 1, heightMultiplier: 1.4),
+
+            // 3º colocado - Degrau direito
+            if (podium.length > 2)
+              _buildPodiumStep(podium[2], 3, heightMultiplier: 0.8),
+          ],
+        ),
+      ],
+    );
+  }
+
+// Construção de um degrau do pódio
+  Widget _buildPodiumStep(Ranking item, int rank,
+      {double heightMultiplier = 1.0}) {
+    final userInfo = item.user;
+    final imagePath = item.user.profileImagePath;
+    final decodedImage = imagePath != null ? base64Decode(imagePath) : null;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Avatar do usuário com borda colorida
+        CircleAvatar(
+          radius: 40,
+          backgroundColor: rank == 1
+              ? const Color.fromARGB(255, 255, 215, 0) // Ouro
+              : rank == 2
+                  ? const Color.fromARGB(255, 192, 192, 192) // Prata
+                  : const Color.fromARGB(255, 205, 127, 50), // Bronze
+          child: CircleAvatar(
+            radius: 35,
+            backgroundColor: AllColors.softBlack,
+            child: decodedImage != null
+                ? ClipOval(
+                    child: Image.memory(
+                      decodedImage,
+                      errorBuilder: (context, error, stackTrace) => Column(
+                        children: [
+                          const Icon(
+                            Icons.error,
+                            color: AllColors.red,
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.5,
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                : Text(
+                    item.user.name.substring(0, 1).toUpperCase(),
+                    style: const TextStyle(color: AllColors.white),
+                  ),
+          ),
+
+          // CircleAvatar(
+          //   radius: 35,
+          //   backgroundImage: NetworkImage(userInfo.profileImagePath ?? ''),
+          // ),
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+
+        // Informações do usuário no degrau
+        Container(
+          width: MediaQuery.of(context).size.width * 0.3,
+          height: (MediaQuery.of(context).size.height * 0.1) * heightMultiplier,
+          color: const Color(0xFF3E3B3A),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                userInfo.name,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "Vitórias: ${item.user.wins}",
+                style: const TextStyle(color: AllColors.green, fontSize: 10),
+              ),
+              Text(
+                "Derrotas: ${item.user.losses}",
+                style: const TextStyle(color: AllColors.red, fontSize: 10),
+              ),
+              Text(
+                "Faltas: ${item.user.totalFaults}",
+                style: const TextStyle(color: AllColors.white, fontSize: 10),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

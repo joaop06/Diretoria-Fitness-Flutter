@@ -11,6 +11,7 @@ class CustomTextField extends StatefulWidget {
   final String? suffix;
   final bool isNumeric;
   final bool isCurrency;
+  final TextStyle? style;
   final bool obscureText;
   final Color cursorColor;
   final Widget? prefixIcon;
@@ -24,6 +25,7 @@ class CustomTextField extends StatefulWidget {
 
   const CustomTextField({
     super.key,
+    this.style,
     this.suffix,
     this.hintStyle,
     this.validator,
@@ -83,15 +85,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextFormField(
+              enabled: widget.enabled,
               validator: widget.validator,
               controller: widget.controller,
+              cursorColor: widget.cursorColor,
+              textInputAction: widget.textInputAction,
               obscureText: widget.obscureText && _obscureText,
               keyboardType:
                   widget.isNumeric ? TextInputType.number : widget.keyboardType,
-              textInputAction: widget.textInputAction,
-              style: const TextStyle(color: AllColors.white),
-              enabled: widget.enabled,
-              cursorColor: widget.cursorColor,
+              style: widget.style ?? const TextStyle(color: AllColors.white),
               selectionControls: MaterialTextSelectionControls(),
               inputFormatters: widget.isCurrency
                   ? [

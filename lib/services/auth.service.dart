@@ -17,20 +17,6 @@ class AuthService {
     return prefs.getString("accessToken");
   }
 
-  static getUserData() async {
-    final prefs = await instancePrefs();
-    final String? userDataString = prefs.getString("userData");
-
-    if (userDataString != null) {
-      try {
-        return User.fromJson(jsonDecode(userDataString));
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  }
-
   static Future<void> setBetDetailsId(int? betId) async {
     final prefs = await instancePrefs();
     return await prefs.setInt("betId", betId);
@@ -60,8 +46,7 @@ class AuthService {
         final prefs = await instancePrefs();
         await prefs.setString("accessToken", response["accessToken"]);
 
-        final userEncoded = jsonEncode(response["user"]);
-        await prefs.setString("userData", userEncoded);
+        await UsersService.setUserData(response['user']['id']);
       } catch (e) {
         throw Exception("Erro ao salvar o token ou dados do usuário: $e");
       }

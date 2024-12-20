@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:daily_training_flutter/services/participants.service.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +53,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
 
     try {
       // Dados do usuário logado
-      userData = await AuthService.getUserData();
+      userData = await UsersService.getUserData();
 
       // Extrai o 'id' da aposta
       betId = await AuthService.getBetDetailsId();
@@ -532,7 +533,7 @@ class _TodayHighlightContainer extends StatelessWidget {
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.02),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Column(
                     children: [
@@ -555,19 +556,6 @@ class _TodayHighlightContainer extends StatelessWidget {
                       ),
                       Text(
                         '${todayBetDay['utilization']}%',
-                        style: const TextStyle(
-                            fontSize: 14, color: AllColors.text),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      const Text(
-                        'Falhas Totais',
-                        style: TextStyle(fontSize: 12, color: AllColors.text),
-                      ),
-                      Text(
-                        '${todayBetDay['totalFaults']}',
                         style: const TextStyle(
                             fontSize: 14, color: AllColors.text),
                       ),
@@ -916,9 +904,9 @@ class _WinnersModal {
               )
             : ListView.builder(
                 padding: const EdgeInsets.all(16.0),
-                itemCount: participants?.length,
+                itemCount: winners?.length,
                 itemBuilder: (BuildContext context, int index) {
-                  final participant = participants?[index];
+                  final participant = winners?[index];
 
                   final imagePath = participant['user']['profileImagePath'];
                   final decodedImage =

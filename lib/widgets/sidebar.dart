@@ -74,7 +74,7 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
 
   Future<User?> _safeGetUserData() async {
     try {
-      return await AuthService.getUserData();
+      return await UsersService.getUserData();
     } catch (e) {
       return null;
     }
@@ -136,7 +136,7 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
           color: AllColors.transparent,
           border: Border.all(
             color: AllColors.gold, // Cor da borda
-            width: 2, // Largura da borda
+            width: 1, // Largura da borda
           ),
           image: decodedUserImage != null
               ? DecorationImage(
@@ -206,7 +206,7 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
                     color: AllColors.transparent,
                     border: Border.all(
                       color: AllColors.gold, // Cor da borda
-                      width: 2, // Largura da borda
+                      width: 1, // Largura da borda
                     ),
                     image: decodedUserImage != null
                         ? DecorationImage(

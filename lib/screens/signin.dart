@@ -134,6 +134,7 @@ class _SignInScreenState extends State<SignInScreen> {
               CustomElevatedButton(
                 padding: null,
                 onPressed: signIn,
+                isLoading: _isLoading,
                 backgroundColor: AllColors.gold,
                 maximumSize: const Size(150, 45),
                 minimumSize: const Size(150, 45),

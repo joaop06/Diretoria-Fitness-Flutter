@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // static const String baseUrl = 'http://localhost:3000';
-  static const String baseUrl = 'https://dailytraining.api.fluxocar.com.br';
+  static const String baseUrl = 'https://diretoriafitness.api.fluxocar.com.br';
 
   buildHeaders(accessToken, [String type = 'json']) {
     final headers = {

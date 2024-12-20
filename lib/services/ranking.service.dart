@@ -1,27 +1,24 @@
 import 'package:daily_training_flutter/services/api.service.dart';
 
-class User {
+class UserRanking {
   final int wins;
   final int losses;
   final String name;
-  final String email;
   final int totalFaults;
   final String? profileImagePath;
 
-  User({
+  UserRanking({
     required this.name,
     required this.wins,
-    required this.email,
     required this.losses,
     this.profileImagePath,
     required this.totalFaults,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+  factory UserRanking.fromJson(Map<String, dynamic> json) {
+    return UserRanking(
       name: json['name'],
       wins: json['wins'],
-      email: json['email'],
       losses: json['losses'],
       totalFaults: json['totalFaults'],
       profileImagePath: json['profileImagePath'],
@@ -32,7 +29,7 @@ class User {
 class Ranking {
   final int id;
   final int score;
-  final User user;
+  final UserRanking user;
 
   Ranking({
     required this.id,
@@ -43,7 +40,7 @@ class Ranking {
   factory Ranking.fromJson(Map<String, dynamic> json) {
     return Ranking(
       id: json['id'],
-      user: User.fromJson(json['user'] as Map<String, dynamic>),
+      user: UserRanking.fromJson(json['user'] as Map<String, dynamic>),
       score: json['score'],
     );
   }

@@ -67,7 +67,7 @@ class _BetsScreenState extends State<BetsScreen>
 
   Future<User?> _safeGetUserData() async {
     try {
-      return await AuthService.getUserData();
+      return await UsersService.getUserData();
     } catch (e) {
       return null;
     }
@@ -125,45 +125,49 @@ class _BetsScreenState extends State<BetsScreen>
   Widget _buildBody(BetsProvider betsProvider, participantsProvider) {
     return Center(
       child: Container(
+        // constraints: BoxConstraints(
+        //   maxWidth: MediaQuery.of(context).size.width,
+        //   maxHeight: MediaQuery.of(context).size.height * 0.5,
+        // ),
+        padding: const EdgeInsets.all(10.0),
         constraints: const BoxConstraints(minWidth: 500, maxWidth: 800),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (betsProvider.highlightedBet != null)
-                _HighlightedBet(
-                    userId: userData?.id,
-                    bet: betsProvider.highlightedBet!,
-                    participantsProvider: participantsProvider),
-              const SizedBox(height: 60),
-              if (betsProvider.bets.isNotEmpty)
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Outras Apostas',
-                        style: TextStyle(
-                          color: AllColors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (betsProvider.highlightedBet != null)
+              _HighlightedBet(
+                userId: userData?.id,
+                bet: betsProvider.highlightedBet!,
+                participantsProvider: participantsProvider,
+              ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+            if (betsProvider.bets.isNotEmpty)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Outras Apostas',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: AllColors.white,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                          child: ListView.builder(
-                        itemCount: betsProvider.bets.length,
-                        itemBuilder: (context, index) {
-                          final bet = betsProvider.bets[index];
-                          return _betCard(context, bet);
-                        },
-                      )),
-                    ],
-                  ),
-                )
-            ],
-          ),
+                    ),
+                    SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.005),
+                    Expanded(
+                        child: ListView.builder(
+                      itemCount: betsProvider.bets.length,
+                      itemBuilder: (context, index) {
+                        final bet = betsProvider.bets[index];
+                        return _betCard(context, bet);
+                      },
+                    )),
+                  ],
+                ),
+              )
+          ],
         ),
       ),
     );
@@ -273,47 +277,67 @@ class _HighlightedBet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Container(
-            constraints: const BoxConstraints(minWidth: 500, maxWidth: 700),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AllColors.card,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: const [
-                BoxShadow(color: AllColors.grey, blurRadius: 15),
-              ],
-            ),
-            child: bet.status == 'Em Andamento'
-                ? inProgressBet(context)
-                : bet.status == 'Agendada'
-                    ? scheduleBet(context)
-                    : Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Nenhuma aposta em destaque no momento',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color: AllColors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 35,
-                            ),
-                            ElevatedButton(
-                              onPressed: () =>
-                                  Navigator.pushNamed(context, '/new-bet'),
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: AllColors.orange),
-                              child: const Text(
-                                'Agende um aposta',
-                                style: TextStyle(color: AllColors.white),
-                              ),
-                            ),
-                          ],
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.8,
+          minWidth: MediaQuery.of(context).size.width * 0.8,
+        ),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AllColors.card,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
+            BoxShadow(color: AllColors.softGold, blurRadius: 15),
+          ],
+        ),
+        child: bet.status == 'Em Andamento'
+            ? inProgressBet(context)
+            : bet.status == 'Agendada'
+                ? scheduleBet(context)
+                : Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Nenhuma aposta em destaque no momento',
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: AllColors.white,
+                              fontWeight: FontWeight.bold),
                         ),
-                      )));
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.015,
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          child: ElevatedButton(
+                            onPressed: () =>
+                                Navigator.pushNamed(context, '/new-bet'),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: AllColors.gold),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.calendar_month,
+                                  color: AllColors.white,
+                                ),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.01,
+                                ),
+                                const Text(
+                                  'Agende um aposta',
+                                  style: TextStyle(color: AllColors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+      ),
+    );
   }
 
   Widget inProgressBet(BuildContext context) {

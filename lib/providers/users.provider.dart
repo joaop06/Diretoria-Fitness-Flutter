@@ -24,4 +24,14 @@ class UsersProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<User> setUserData(int userId) async {
+    try {
+      final userData = await UsersService.setUserData(userId);
+
+      return userData;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
