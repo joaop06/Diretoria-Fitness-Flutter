@@ -60,7 +60,17 @@ class _EditBetScreenState extends State<EditBetScreen> {
       _minimumPenaltyAmountController.text =
           '${betDetails!.minimumPenaltyAmount}';
     } catch (e) {
-      if (mounted) {
+      if (e.toString().replaceFirst('Exception: ', '') ==
+          'Token expirado. Faça o login novamente') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+            'Token expirado. Faça o login novamente',
+            style: TextStyle(color: AllColors.red),
+          )),
+        );
+        Navigator.pushNamed(context, '/');
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao carregar detalhes da aposta')),
         );
@@ -87,68 +97,97 @@ class _EditBetScreenState extends State<EditBetScreen> {
   }
 
   void _saveChanges() async {
-    if (!_formKey.currentState!.validate()) return;
+    try {
+      if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+      setState(() => _isLoading = true);
 
-    final betsProvider = Provider.of<BetsProvider>(context, listen: false);
+      final betsProvider = Provider.of<BetsProvider>(context, listen: false);
 
-    final updatedBet = {
-      "initialDate": convertDate(_initialDateController.text),
-      "finalDate": convertDate(_finalDateController.text),
-      "faultsAllowed": int.parse(_faultsAllowedController.text),
-      "minimumPenaltyAmount":
-          convertMoney(_minimumPenaltyAmountController.text),
-    };
+      final updatedBet = {
+        "initialDate": convertDate(_initialDateController.text),
+        "finalDate": convertDate(_finalDateController.text),
+        "faultsAllowed": int.parse(_faultsAllowedController.text),
+        "minimumPenaltyAmount":
+            convertMoney(_minimumPenaltyAmountController.text),
+      };
 
-    await betsProvider.update(betId!, updatedBet);
+      await betsProvider.update(betId!, updatedBet);
 
-    if (betsProvider.errorMessage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Aposta atualizada com sucesso!',
-              style: TextStyle(color: Colors.green)),
-        ),
-      );
-      Navigator.pushNamed(context, '/bet-details');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              betsProvider.errorMessage ?? 'Erro ao atualizar a aposta',
-              style: const TextStyle(color: Colors.red)),
-        ),
-      );
+      if (betsProvider.errorMessage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Aposta atualizada com sucesso!',
+                style: TextStyle(color: Colors.green)),
+          ),
+        );
+        Navigator.pushNamed(context, '/bet-details');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                betsProvider.errorMessage ?? 'Erro ao atualizar a aposta',
+                style: const TextStyle(color: Colors.red)),
+          ),
+        );
+      }
+
+      setState(() => _isLoading = false);
+    } catch (e) {
+      if (e.toString().replaceFirst('Exception: ', '') ==
+          'Token expirado. Faça o login novamente') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+            'Token expirado. Faça o login novamente',
+            style: TextStyle(color: AllColors.red),
+          )),
+        );
+        Navigator.pushNamed(context, '/');
+      }
     }
-
-    setState(() => _isLoading = false);
   }
 
   void _deleteBet() async {
-    setState(() => _isLoading = true);
+    try {
+      setState(() => _isLoading = true);
 
-    final betsProvider = Provider.of<BetsProvider>(context, listen: false);
+      final betsProvider = Provider.of<BetsProvider>(context, listen: false);
 
-    await betsProvider.delete(betId!);
+      await betsProvider.delete(betId!);
 
-    if (betsProvider.errorMessage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Aposta deletada com sucesso!',
-              style: TextStyle(color: Colors.green)),
-        ),
-      );
-      Navigator.pushNamed(context, '/bets');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(betsProvider.errorMessage ?? 'Erro ao deletar a aposta',
-              style: const TextStyle(color: Colors.red)),
-        ),
-      );
+      if (betsProvider.errorMessage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Aposta deletada com sucesso!',
+                style: TextStyle(color: Colors.green)),
+          ),
+        );
+        Navigator.pushNamed(context, '/bets');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                betsProvider.errorMessage ?? 'Erro ao deletar a aposta',
+                style: const TextStyle(color: Colors.red)),
+          ),
+        );
+      }
+
+      setState(() => _isLoading = false);
+    } catch (e) {
+      if (e.toString().replaceFirst('Exception: ', '') ==
+          'Token expirado. Faça o login novamente') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+            'Token expirado. Faça o login novamente',
+            style: TextStyle(color: AllColors.red),
+          )),
+        );
+        Navigator.pushNamed(context, '/');
+      }
     }
-
-    setState(() => _isLoading = false);
   }
 
   @override

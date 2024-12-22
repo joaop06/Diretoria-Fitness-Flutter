@@ -53,42 +53,57 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
 
   var _isLoading = false;
   void _createBet() async {
-    _isLoading = true;
-    final betsProvider = Provider.of<BetsProvider>(context, listen: false);
+    try {
+      _isLoading = true;
+      final betsProvider = Provider.of<BetsProvider>(context, listen: false);
 
-    if (_formKey.currentState?.validate() ?? false) {
-      final trainingBet = {
-        "initialDate": convertDate(_initialDateController.text),
-        "finalDate": convertDate(_finalDateController.text),
-        "faultsAllowed": int.parse(_faultsAllowedController.text),
-        "minimumPenaltyAmount":
-            convertMoney(_minimumPenaltyAmountController.text),
-      };
+      if (_formKey.currentState?.validate() ?? false) {
+        final trainingBet = {
+          "initialDate": convertDate(_initialDateController.text),
+          "finalDate": convertDate(_finalDateController.text),
+          "faultsAllowed": int.parse(_faultsAllowedController.text),
+          "minimumPenaltyAmount":
+              convertMoney(_minimumPenaltyAmountController.text),
+        };
 
-      await betsProvider.create(trainingBet);
+        await betsProvider.create(trainingBet);
 
-      if (betsProvider.errorMessage == null) {
-        // Mostra uma mensagem de sucesso
+        if (betsProvider.errorMessage == null) {
+          // Mostra uma mensagem de sucesso
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+              'Aposta criada com sucesso!',
+              style: TextStyle(color: Colors.green),
+            )),
+          );
+
+          // Redireciona para a tela de login
+          Navigator.pushReplacementNamed(context, '/bets');
+        } else {
+          // Exibe o erro
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    betsProvider.errorMessage ?? 'Erro ao criar aposta',
+                    style: const TextStyle(color: Colors.red))),
+          );
+        }
+
+        _isLoading = false;
+      }
+    } catch (e) {
+      if (e.toString().replaceFirst('Exception: ', '') ==
+          'Token expirado. Faça o login novamente') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text(
-            'Aposta criada com sucesso!',
-            style: TextStyle(color: Colors.green),
+            'Token expirado. Faça o login novamente',
+            style: TextStyle(color: AllColors.red),
           )),
         );
-
-        // Redireciona para a tela de login
-        Navigator.pushReplacementNamed(context, '/bets');
-      } else {
-        // Exibe o erro
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(betsProvider.errorMessage ?? 'Erro ao criar aposta',
-                  style: const TextStyle(color: Colors.red))),
-        );
+        Navigator.pushNamed(context, '/');
       }
-
-      _isLoading = false;
     }
   }
 

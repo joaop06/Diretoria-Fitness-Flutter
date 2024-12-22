@@ -30,7 +30,12 @@ class ApiService {
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
-        throw Exception('Falha ao buscar dados');
+        if (response.statusCode == 401 &&
+            json.decode(response.body)['message'] != 'Credenciais inválidas') {
+          throw Exception('Token expirado. Faça o login novamente');
+        } else {
+          throw Exception('Falha ao buscar dados');
+        }
       }
     } catch (e) {
       rethrow;
@@ -52,6 +57,10 @@ class ApiService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(response.body);
       } else {
+        if (response.statusCode == 401 &&
+            json.decode(response.body)['message'] != 'Credenciais inválidas') {
+          throw Exception('Token expirado. Faça o login novamente');
+        }
         final error = json.decode(response.body);
         throw Exception(error['message'] ?? error['error']);
       }
@@ -75,8 +84,13 @@ class ApiService {
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
-        final error = json.decode(response.body);
-        throw Exception(error['message'] ?? error['error']);
+        if (response.statusCode == 401 &&
+            json.decode(response.body)['message'] != 'Credenciais inválidas') {
+          throw Exception('Token expirado. Faça o login novamente');
+        } else {
+          final error = json.decode(response.body);
+          throw Exception(error['message'] ?? error['error']);
+        }
       }
     } catch (e) {
       rethrow;
@@ -98,8 +112,13 @@ class ApiService {
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
-        final error = json.decode(response.body);
-        throw Exception(error['message'] ?? error['error']);
+        if (response.statusCode == 401 &&
+            json.decode(response.body)['message'] != 'Credenciais inválidas') {
+          throw Exception('Token expirado. Faça o login novamente');
+        } else {
+          final error = json.decode(response.body);
+          throw Exception(error['message'] ?? error['error']);
+        }
       }
     } catch (e) {
       rethrow;
@@ -117,8 +136,13 @@ class ApiService {
       );
 
       if (response.statusCode != 200) {
-        final error = json.decode(response.body);
-        throw Exception(error['message'] ?? error['error']);
+        if (response.statusCode == 401 &&
+            json.decode(response.body)['message'] != 'Credenciais inválidas') {
+          throw Exception('Token expirado. Faça o login novamente');
+        } else {
+          final error = json.decode(response.body);
+          throw Exception(error['message'] ?? error['error']);
+        }
       }
     } catch (e) {
       rethrow;
@@ -144,7 +168,11 @@ class ApiService {
     final response = await request.send();
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Falha ao enviar imagem');
+      if (response.statusCode == 401) {
+        throw Exception('Token expirado. Faça o login novamente');
+      } else {
+        throw Exception('Falha ao enviar imagem');
+      }
     }
   }
 }

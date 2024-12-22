@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
 
@@ -23,6 +25,10 @@ class UsersProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<String> updateProfileImage(int userId, Uint8List image) async {
+    return await _usersService.updateProfileImage(userId, image);
   }
 
   Future<User> setUserData(int userId) async {

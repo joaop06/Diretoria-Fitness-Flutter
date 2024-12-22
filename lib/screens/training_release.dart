@@ -92,6 +92,17 @@ class _LaunchTrainingScreenState extends State<LaunchTrainingScreen> {
 
       Navigator.pushNamed(context, '/bet-details');
     } catch (e) {
+      if (e.toString().replaceFirst('Exception: ', '') ==
+          'Token expirado. Faça o login novamente') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+            'Token expirado. Faça o login novamente',
+            style: TextStyle(color: AllColors.red),
+          )),
+        );
+        Navigator.pushNamed(context, '/');
+      }
       setMessage(e.toString().replaceAll('Exception: ', ''), true);
     } finally {
       _isSubmitting.value = false;

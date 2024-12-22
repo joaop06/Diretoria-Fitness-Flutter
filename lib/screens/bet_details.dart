@@ -72,7 +72,17 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
         });
       }
     } catch (e) {
-      if (mounted) {
+      if (e.toString().replaceFirst('Exception: ', '') ==
+          'Token expirado. Faça o login novamente') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+            'Token expirado. Faça o login novamente',
+            style: TextStyle(color: AllColors.red),
+          )),
+        );
+        Navigator.pushNamed(context, '/');
+      } else {
         setState(() {
           _isLoading = false;
         });
@@ -413,14 +423,30 @@ class _BetDetailsContainer extends StatelessWidget {
                         if (!isParticipant)
                           ElevatedButton(
                             onPressed: () async {
-                              final participantData = {
-                                'userId': userData.id,
-                                'trainingBetId': betDetails.id,
-                              };
-                              await participantsProvider
-                                  .create(participantData);
+                              try {
+                                final participantData = {
+                                  'userId': userData.id,
+                                  'trainingBetId': betDetails.id,
+                                };
+                                await participantsProvider
+                                    .create(participantData);
 
-                              Navigator.pushNamed(context, '/bet-details');
+                                Navigator.pushNamed(context, '/bet-details');
+                              } catch (e) {
+                                if (e
+                                        .toString()
+                                        .replaceFirst('Exception: ', '') ==
+                                    'Token expirado. Faça o login novamente') {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                      'Token expirado. Faça o login novamente',
+                                      style: TextStyle(color: AllColors.red),
+                                    )),
+                                  );
+                                  Navigator.pushNamed(context, '/');
+                                }
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AllColors.orange,

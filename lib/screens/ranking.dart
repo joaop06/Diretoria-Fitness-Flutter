@@ -37,7 +37,17 @@ class _RankingScreenState extends State<RankingScreen>
       // Busca os dados da classificação
       await Provider.of<RankingProvider>(context, listen: false).getRanking();
     } catch (e) {
-      if (mounted) {
+      if (e.toString().replaceFirst('Exception: ', '') ==
+          'Token expirado. Faça o login novamente') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+            'Token expirado. Faça o login novamente',
+            style: TextStyle(color: AllColors.red),
+          )),
+        );
+        Navigator.pushNamed(context, '/');
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Falha ao buscar dados')),
         );
@@ -104,34 +114,45 @@ class _RankingScreenState extends State<RankingScreen>
 
   // Widget para o pódio
   Widget _buildPodium(List<Ranking> podium) {
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        // Degraus do pódio
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            // 2º colocado - Degrau esquerdo
-            if (podium.length > 1)
-              _buildPodiumStep(podium[1], 2, heightMultiplier: 1.1),
+    return Container(
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          // Degraus do pódio
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double stepWidth = constraints.maxWidth /
+                  3; // Ajuste proporcional à largura disponível
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // 2º colocado - Degrau esquerdo
+                  if (podium.length > 1)
+                    _buildPodiumStep(podium[1], 2,
+                        heightMultiplier: 1.1, stepWidth: stepWidth),
 
-            // 1º colocado - Degrau central
-            if (podium.isNotEmpty)
-              _buildPodiumStep(podium[0], 1, heightMultiplier: 1.4),
+                  // 1º colocado - Degrau central
+                  if (podium.isNotEmpty)
+                    _buildPodiumStep(podium[0], 1,
+                        heightMultiplier: 1.4, stepWidth: stepWidth),
 
-            // 3º colocado - Degrau direito
-            if (podium.length > 2)
-              _buildPodiumStep(podium[2], 3, heightMultiplier: 0.8),
-          ],
-        ),
-      ],
+                  // 3º colocado - Degrau direito
+                  if (podium.length > 2)
+                    _buildPodiumStep(podium[2], 3,
+                        heightMultiplier: 0.8, stepWidth: stepWidth),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
 // Construção de um degrau do pódio
   Widget _buildPodiumStep(Ranking item, int rank,
-      {double heightMultiplier = 1.0}) {
+      {double heightMultiplier = 1.0, double stepWidth = 100.0}) {
     final userInfo = item.user;
     final imagePath = item.user.profileImagePath;
     final decodedImage = imagePath != null ? base64Decode(imagePath) : null;
@@ -141,14 +162,15 @@ class _RankingScreenState extends State<RankingScreen>
       children: [
         // Avatar do usuário com borda colorida
         CircleAvatar(
-          radius: 40,
+          radius: stepWidth *
+              0.3, // Ajusta o tamanho do avatar de acordo com a largura disponível
           backgroundColor: rank == 1
               ? const Color.fromARGB(255, 255, 215, 0) // Ouro
               : rank == 2
                   ? const Color.fromARGB(255, 192, 192, 192) // Prata
                   : const Color.fromARGB(255, 205, 127, 50), // Bronze
           child: CircleAvatar(
-            radius: 35,
+            radius: stepWidth * 0.27, // Ajusta o tamanho do avatar interno
             backgroundColor: AllColors.softBlack,
             child: decodedImage != null
                 ? ClipOval(
@@ -172,22 +194,29 @@ class _RankingScreenState extends State<RankingScreen>
                     style: const TextStyle(color: AllColors.white),
                   ),
           ),
-
-          // CircleAvatar(
-          //   radius: 35,
-          //   backgroundImage: NetworkImage(userInfo.profileImagePath ?? ''),
-          // ),
         ),
         SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-
+        Text(
+          "${item.score} pts",
+          style: TextStyle(
+            color: AllColors.gold,
+            fontWeight: FontWeight.bold,
+            fontSize: MediaQuery.of(context).size.width > 550
+                ? 20
+                : MediaQuery.of(context).size.width * 0.035,
+          ),
+        ),
         // Informações do usuário no degrau
         Container(
-          width: MediaQuery.of(context).size.width * 0.3,
+          width: stepWidth, // Ajusta a largura do degrau
           height: (MediaQuery.of(context).size.height * 0.1) * heightMultiplier,
           color: const Color(0xFF3E3B3A),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(
+                  height: (MediaQuery.of(context).size.height * 0.01) *
+                      heightMultiplier),
               Text(
                 userInfo.name,
                 style: const TextStyle(
@@ -198,7 +227,6 @@ class _RankingScreenState extends State<RankingScreen>
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
-              const SizedBox(height: 4),
               Text(
                 "Vitórias: ${item.user.wins}",
                 style: const TextStyle(color: AllColors.green, fontSize: 10),
@@ -224,7 +252,6 @@ class _RankingScreenState extends State<RankingScreen>
     return Container(
       constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width * 0.005,
-        // maxHeight: MediaQuery.of(context).size.height * 0.3,
       ),
       child: Card(
         color: const Color(0xFF1e1c1b),

@@ -84,6 +84,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
         Navigator.pushReplacementNamed(context, '/');
       }
     } catch (e) {
+      if (e.toString().replaceFirst('Exception: ', '') ==
+          'Token expirado. Faça o login novamente') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+            'Token expirado. Faça o login novamente',
+            style: TextStyle(color: AllColors.red),
+          )),
+        );
+        Navigator.pushNamed(context, '/');
+      }
       var errorMessage = 'Falha ao cadastrar usuário';
       if (e is Exception) {
         errorMessage = e.toString().replaceFirst('Exception: ', '');

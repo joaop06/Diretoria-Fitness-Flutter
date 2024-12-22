@@ -3,6 +3,63 @@ import 'dart:convert';
 import 'package:daily_training_flutter/services/api.service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class Log {
+  final int? id;
+  final int? userId;
+  final double? value;
+  final String? fieldName;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final Null deletedAt;
+
+  Log({
+    this.id,
+    this.value,
+    this.userId,
+    this.fieldName,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
+
+  factory Log.fromJson(Map<String, dynamic> json) {
+    return Log(
+      id: json['id'],
+      userId: json['userId'],
+      fieldName: json['fieldName'],
+      value: double.parse(json['value']),
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+      deletedAt: json['deletedAt'],
+    );
+  }
+}
+
+class UserLogs {
+  final List<Log>? bmiLogs;
+  final List<Log>? heightLogs;
+  final List<Log>? weightLogs;
+
+  UserLogs({
+    this.bmiLogs,
+    this.heightLogs,
+    this.weightLogs,
+  });
+
+  factory UserLogs.fromJson(Map<String, dynamic> json) {
+    return UserLogs(
+      bmiLogs:
+          (json['bmiLogs'] as List).map((item) => Log.fromJson(item)).toList(),
+      heightLogs: (json['heightLogs'] as List)
+          .map((item) => Log.fromJson(item))
+          .toList(),
+      weightLogs: (json['weightLogs'] as List)
+          .map((item) => Log.fromJson(item))
+          .toList(),
+    );
+  }
+}
+
 class User {
   final int? id;
   final String? name;
@@ -17,7 +74,7 @@ class User {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final Null deletedAt;
-  final Object? userLogs;
+  final UserLogs? userLogs;
   final Object? betsParticipated;
 
   User({
@@ -53,7 +110,7 @@ class User {
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       deletedAt: json['deletedAt'],
-      userLogs: json['userLogs'],
+      userLogs: UserLogs.fromJson(json['userLogs']),
       betsParticipated: json['betsParticipated'],
     );
   }
@@ -70,6 +127,23 @@ class UsersService {
   Future<String> registerUser(Map<String, dynamic> userData) async {
     await _apiService.post('/users', userData);
     return 'Cadastro realizado com sucesso!';
+  }
+
+  Future<String> update(int userId, Map<String, dynamic> object) async {
+    await _apiService.patch('/users', userId, object);
+    return 'Cadastro realizado com sucesso!';
+  }
+
+  Future<String> updateProfileImage(userId, image) async {
+    try {
+      await _apiService.sendImage(
+        image,
+        '/users/profile-image/$userId',
+      );
+      return 'Imagem atualizada com sucesso!';
+    } catch (error) {
+      throw Exception('Erro ao atualizar imagem');
+    }
   }
 
   static setUserData(int userId) async {

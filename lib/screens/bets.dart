@@ -81,6 +81,17 @@ class _BetsScreenState extends State<BetsScreen>
         Provider.of<BetsProvider>(context, listen: false).fetchBets();
       });
     } catch (e) {
+      if (e.toString().replaceFirst('Exception: ', '') ==
+          'Token expirado. Faça o login novamente') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+            'Token expirado. Faça o login novamente',
+            style: TextStyle(color: AllColors.red),
+          )),
+        );
+        Navigator.pushNamed(context, '/');
+      }
       rethrow;
     }
   }
