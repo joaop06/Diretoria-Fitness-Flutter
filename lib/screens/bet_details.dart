@@ -222,12 +222,14 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                           height: MediaQuery.of(context).size.height * 0.015),
                       if (todayBetDay != null)
                         _TodayHighlightContainer(
+                          betId: betDetails!.id!,
                           todayBetDay: todayBetDay,
                           participant: participant,
                           betInProgress: betInProgress,
                           userTrained: hasUserTrainedToday(),
                         ),
                       _OtherDaysList(
+                        betId: betDetails!.id!,
                         currentDate: currentDate,
                         todayBetDay: todayBetDay,
                         betDays: betDetails!.betDays!,
@@ -454,6 +456,7 @@ class _BetDetailsContainer extends StatelessWidget {
                             child: const Text(
                               'Participar',
                               style: TextStyle(
+                                fontSize: 12,
                                 color: AllColors.white,
                               ),
                             ),
@@ -473,6 +476,7 @@ class _BetDetailsContainer extends StatelessWidget {
                           child: const Text(
                             'Ver Ganhadores!',
                             style: TextStyle(
+                              fontSize: 12,
                               color: AllColors.gold,
                             ),
                           ),
@@ -501,6 +505,7 @@ class _BetDetailsContainer extends StatelessWidget {
 }
 
 class _TodayHighlightContainer extends StatelessWidget {
+  int betId;
   bool userTrained;
   final participant;
   final betInProgress;
@@ -508,6 +513,7 @@ class _TodayHighlightContainer extends StatelessWidget {
 
   _TodayHighlightContainer({
     this.participant,
+    required this.betId,
     required this.todayBetDay,
     required this.userTrained,
     required this.betInProgress,
@@ -620,6 +626,7 @@ class _TodayHighlightContainer extends StatelessWidget {
                   if (!trainingReleasesIsEmpty)
                     OutlinedButton(
                       onPressed: () => _TrainingModal(
+                        betId: betId,
                         trainingReleases: todayBetDay['trainingReleases'],
                       ).show(context),
                       style: OutlinedButton.styleFrom(
@@ -657,12 +664,14 @@ class _TodayHighlightContainer extends StatelessWidget {
 }
 
 class _OtherDaysList extends StatelessWidget {
+  int betId;
   final currentDate;
   List<dynamic> betDays;
   Map<String, dynamic>? todayBetDay;
 
   _OtherDaysList({
     this.todayBetDay,
+    required this.betId,
     required this.betDays,
     required this.currentDate,
   });
@@ -675,8 +684,8 @@ class _OtherDaysList extends StatelessWidget {
       child: Container(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.7,
-          maxWidth: (MediaQuery.of(context).size.width > 500)
-              ? MediaQuery.of(context).size.width * 0.4
+          maxWidth: (MediaQuery.of(context).size.width > 900)
+              ? MediaQuery.of(context).size.width * 0.5
               : MediaQuery.of(context).size.width * 0.85,
         ),
         child: ListView.builder(
@@ -786,6 +795,7 @@ class _OtherDaysList extends StatelessWidget {
                                 onPressed: trainingReleasesIsEmpty
                                     ? null
                                     : () => _TrainingModal(
+                                          betId: betId,
                                           trainingReleases:
                                               day['trainingReleases'],
                                         ).show(context),
@@ -999,9 +1009,20 @@ class _WinnersModal {
 }
 
 class _TrainingModal {
+  int betId;
   List trainingReleases;
 
-  _TrainingModal({required this.trainingReleases});
+  _TrainingModal({required this.trainingReleases, required this.betId});
+
+  final mapTrainingIcons = {
+    'Natação': const Icon(Icons.pool, color: Colors.teal),
+    'Outros': const Icon(Icons.more_horiz, color: Colors.grey),
+    'Luta': const Icon(Icons.sports_kabaddi, color: Colors.red),
+    'Corrida': const Icon(Icons.directions_run, color: Colors.green),
+    'Musculação': const Icon(Icons.fitness_center, color: Colors.blue),
+    'Ciclismo': const Icon(Icons.directions_bike, color: Colors.purple),
+    'Caminhada': const Icon(Icons.directions_walk, color: Colors.orange),
+  };
 
   void show(BuildContext context) {
     PageController pageController = PageController();
@@ -1064,8 +1085,11 @@ class _TrainingModal {
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            icon:
-                                const Icon(Icons.close, color: AllColors.white),
+                            icon: const Icon(
+                              size: 25,
+                              Icons.close,
+                              color: AllColors.red,
+                            ),
                           ),
                         ],
                       ),
@@ -1079,8 +1103,13 @@ class _TrainingModal {
                           final participant = training['participant'];
 
                           final user = participant['user'];
+                          final decodedUserImage =
+                              user['profileImagePath'] != null
+                                  ? base64Decode(user['profileImagePath'])
+                                  : null;
+
                           final imagePath = training['imagePath'];
-                          final decodedImage = imagePath != null
+                          final decodedTrainingImage = imagePath != null
                               ? base64Decode(imagePath)
                               : null;
 
@@ -1092,9 +1121,9 @@ class _TrainingModal {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                decodedImage != null
+                                decodedTrainingImage != null
                                     ? Image.memory(
-                                        decodedImage,
+                                        decodedTrainingImage,
                                         width:
                                             (MediaQuery.of(context).size.width *
                                                     0.8) *
@@ -1127,7 +1156,7 @@ class _TrainingModal {
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height *
-                                                  0.25),
+                                                  0.15),
                                           const Icon(
                                             Icons.error,
                                             color: AllColors.red,
@@ -1136,64 +1165,182 @@ class _TrainingModal {
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height *
-                                                  0.25),
+                                                  0.15),
                                         ],
                                       ),
-                                Text(
-                                  '${training['trainingType']} - ${user['name']}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: AllColors.text,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
                                 SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.01,
-                                ),
-                                Text(
-                                  'Faltas: ${participant['faults']}',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AllColors.text,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.01,
-                                ),
-                                Text(
-                                  'Aproveitamento: ${participant['utilization']}%',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AllColors.text,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.01,
+                                  height: MediaQuery.of(context).size.height *
+                                      0.015,
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Text(
-                                      'Desclassificado:',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: AllColors.text),
+                                    mapTrainingIcons[training['trainingType']]!,
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.015,
                                     ),
-                                    Icon(
-                                      participant['declassified']
-                                          ? Icons.check
-                                          : Icons.close,
-                                      color: participant['declassified']
-                                          ? Colors.green
-                                          : Colors.red,
-                                      size: 30,
+                                    Text(
+                                      '${training['trainingType']}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: AllColors.text,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ],
+                                ),
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.015,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius:
+                                          MediaQuery.of(context).size.width *
+                                              0.025,
+                                      backgroundColor: const Color(0xFF282624),
+                                      child: decodedUserImage == null
+                                          ? Icon(
+                                              Icons.person,
+                                              color: AllColors.gold,
+                                              size: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.035,
+                                            )
+                                          : ClipOval(
+                                              child: Image.memory(
+                                                decodedUserImage,
+                                                errorBuilder: (context, error,
+                                                        stackTrace) =>
+                                                    Column(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.person,
+                                                      color: AllColors.gold,
+                                                      size:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.035,
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.02,
+                                    ),
+                                    Text(
+                                      '${user['name']}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10,
+                                        color: AllColors.text,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.025,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(25, 0, 0, 0),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '${user['name']} na Aposta $betId:',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          // color: AllColors.text,
+                                          decorationThickness: 1,
+                                          color: AllColors.gold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.005,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(25, 0, 25, 0),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          const Text(
+                                            'Faltas:',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: AllColors.text,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${participant['faults']}',
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: AllColors.text,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          const Text(
+                                            'Aproveitamento:',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: AllColors.text,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${participant['utilization']}%',
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: AllColors.text,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          const Text(
+                                            'Desclassificado:',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: AllColors.text,
+                                            ),
+                                          ),
+                                          Icon(
+                                            participant['declassified']
+                                                ? Icons.check
+                                                : Icons.close,
+                                            color: participant['declassified']
+                                                ? Colors.green
+                                                : Colors.red,
+                                            size: 20,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
