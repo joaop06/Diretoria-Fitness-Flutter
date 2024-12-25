@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'package:daily_training_flutter/services/participants.service.dart';
-import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +10,7 @@ import 'package:daily_training_flutter/services/users.service.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
 import 'package:daily_training_flutter/screens/training_release.dart';
 import 'package:carousel_slider/carousel_slider.dart' as custom_carousel;
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 import 'package:daily_training_flutter/providers/participants.privider.dart';
 
 class BetDetailsScreen extends StatefulWidget {
@@ -493,6 +492,7 @@ class _BetDetailsContainer extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           color: AllColors.red,
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
                     ),
@@ -1027,8 +1027,6 @@ class _TrainingModal {
   };
 
   void show(BuildContext context) {
-    PageController pageController = PageController();
-
     showModalBottomSheet(
       elevation: 0,
       context: context,
@@ -1039,353 +1037,304 @@ class _TrainingModal {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            double currentPage = 0.0;
+        // ValueNotifier para rastrear a página atual
+        final ValueNotifier<int> currentPageNotifier = ValueNotifier<int>(0);
 
-            // Adiciona listener para atualizar o estado conforme o carrossel é rolado
-            pageController.addListener(() {
-              setState(() {
-                currentPage = pageController.page ?? 0.0;
-              });
-            });
-
-            return Center(
-              child: Container(
-                color: AllColors.transparent,
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.8,
-                  maxHeight: MediaQuery.of(context).size.height * 0.9,
+        return Center(
+          child: Container(
+            color: AllColors.transparent,
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.8,
+              maxHeight: MediaQuery.of(context).size.height * 0.9,
+            ),
+            child: Column(
+              children: [
+                // Cabeçalho
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    MediaQuery.of(context).size.width * 0.05,
+                    0,
+                    MediaQuery.of(context).size.width * 0.05,
+                    0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const IconButton(
+                        onPressed: null,
+                        icon: Icon(Icons.close, color: AllColors.transparent),
+                      ),
+                      const Text(
+                        'Treinos Realizados',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AllColors.gold,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(
+                          size: 25,
+                          Icons.close,
+                          color: AllColors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    // Cabeçalho
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        MediaQuery.of(context).size.width * 0.05,
-                        0,
-                        MediaQuery.of(context).size.width * 0.05,
-                        0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const IconButton(
-                            onPressed: null,
-                            icon:
-                                Icon(Icons.close, color: AllColors.transparent),
-                          ),
-                          const Text(
-                            'Treinos Realizados',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: AllColors.gold,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(
-                              size: 25,
-                              Icons.close,
-                              color: AllColors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                    Expanded(
-                      child: custom_carousel.CarouselSlider.builder(
-                        itemCount: trainingReleases.length,
-                        itemBuilder: (context, index, realIndex) {
-                          final training = trainingReleases[index];
-                          final participant = training['participant'];
+                Expanded(
+                  child: custom_carousel.CarouselSlider.builder(
+                    itemCount: trainingReleases.length,
+                    itemBuilder: (context, index, realIndex) {
+                      final training = trainingReleases[index];
+                      final participant = training['participant'];
 
-                          final user = participant['user'];
-                          final decodedUserImage =
-                              user['profileImagePath'] != null
-                                  ? base64Decode(user['profileImagePath'])
-                                  : null;
+                      final user = participant['user'];
+                      final decodedUserImage = user['profileImagePath'] != null
+                          ? base64Decode(user['profileImagePath'])
+                          : null;
 
-                          final imagePath = training['imagePath'];
-                          final decodedTrainingImage = imagePath != null
-                              ? base64Decode(imagePath)
-                              : null;
+                      final imagePath = training['imagePath'];
+                      final decodedTrainingImage =
+                          imagePath != null ? base64Decode(imagePath) : null;
 
-                          final scale =
-                              (1 - (currentPage - index).abs()).clamp(1.0, 1.2);
+                      final scale =
+                          (1 - (currentPageNotifier.value - index).abs())
+                              .clamp(1.0, 1.2);
 
-                          return Transform.scale(
-                            scale: scale,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                decodedTrainingImage != null
-                                    ? Image.memory(
-                                        decodedTrainingImage,
-                                        width:
-                                            (MediaQuery.of(context).size.width *
-                                                    0.8) *
-                                                scale,
-                                        height: (MediaQuery.of(context)
-                                                    .size
-                                                    .height *
+                      return Transform.scale(
+                        scale: scale.toDouble(),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            decodedTrainingImage != null
+                                ? Image.memory(
+                                    decodedTrainingImage,
+                                    width: (MediaQuery.of(context).size.width *
+                                            0.8) *
+                                        scale,
+                                    height:
+                                        (MediaQuery.of(context).size.height *
                                                 0.5) *
                                             scale,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                Column(
-                                          children: [
-                                            const Icon(
-                                              Icons.error,
-                                              color: AllColors.red,
-                                            ),
-                                            SizedBox(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  0.5,
-                                            )
-                                          ],
+                                    errorBuilder:
+                                        (context, error, stackTrace) => Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.error,
+                                          color: AllColors.red,
                                         ),
-                                      )
-                                    : Column(
-                                        children: [
-                                          SizedBox(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  0.15),
-                                          const Icon(
-                                            Icons.error,
-                                            color: AllColors.red,
-                                          ),
-                                          SizedBox(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  0.15),
-                                        ],
-                                      ),
-                                SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.015,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    mapTrainingIcons[training['trainingType']]!,
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.015,
+                                        SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.5,
+                                        )
+                                      ],
                                     ),
-                                    Text(
-                                      '${training['trainingType']}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: AllColors.text,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.015,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CircleAvatar(
-                                      radius:
-                                          MediaQuery.of(context).size.width *
-                                              0.025,
-                                      backgroundColor: const Color(0xFF282624),
-                                      child: decodedUserImage == null
-                                          ? Icon(
-                                              Icons.person,
-                                              color: AllColors.gold,
-                                              size: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.035,
-                                            )
-                                          : ClipOval(
-                                              child: Image.memory(
-                                                decodedUserImage,
-                                                errorBuilder: (context, error,
-                                                        stackTrace) =>
-                                                    Column(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.person,
-                                                      color: AllColors.gold,
-                                                      size:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.035,
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                    ),
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.02,
-                                    ),
-                                    Text(
-                                      '${user['name']}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 10,
-                                        color: AllColors.text,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.025,
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(25, 0, 0, 0),
-                                  child: Row(
+                                  )
+                                : Column(
                                     children: [
-                                      Text(
-                                        '${user['name']} na Aposta $betId:',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          // color: AllColors.text,
-                                          decorationThickness: 1,
-                                          color: AllColors.gold,
-                                        ),
-                                        textAlign: TextAlign.center,
+                                      SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.15),
+                                      const Icon(
+                                        Icons.error,
+                                        color: AllColors.red,
                                       ),
+                                      SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.15),
                                     ],
                                   ),
-                                ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.01,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                mapTrainingIcons[training['trainingType']]!,
                                 SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.005,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.015,
                                 ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(25, 0, 25, 0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          const Text(
-                                            'Faltas:',
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: AllColors.text,
-                                            ),
-                                          ),
-                                          Text(
-                                            '${participant['faults']}',
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              color: AllColors.text,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          const Text(
-                                            'Aproveitamento:',
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: AllColors.text,
-                                            ),
-                                          ),
-                                          Text(
-                                            '${participant['utilization']}%',
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              color: AllColors.text,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          const Text(
-                                            'Desclassificado:',
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: AllColors.text,
-                                            ),
-                                          ),
-                                          Icon(
-                                            participant['declassified']
-                                                ? Icons.check
-                                                : Icons.close,
-                                            color: participant['declassified']
-                                                ? Colors.green
-                                                : Colors.red,
-                                            size: 20,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                Text(
+                                  '${training['trainingType']}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: AllColors.text,
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ],
                             ),
-                          );
-                        },
-                        options: custom_carousel.CarouselOptions(
-                          autoPlay: true,
-                          aspectRatio: 16 / 9,
-                          enlargeCenterPage: true,
-                          enableInfiniteScroll: false,
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          autoPlayInterval: const Duration(seconds: 3),
-                          onPageChanged: (index, reason) {
-                            setState(() {
-                              currentPage = index.toDouble();
-                            });
-                          },
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.015,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircleAvatar(
+                                  radius:
+                                      MediaQuery.of(context).size.width * 0.025,
+                                  backgroundColor: const Color(0xFF282624),
+                                  child: decodedUserImage == null
+                                      ? Icon(
+                                          Icons.person,
+                                          color: AllColors.gold,
+                                          size: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.035,
+                                        )
+                                      : ClipOval(
+                                          child: Image.memory(
+                                            decodedUserImage,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Column(
+                                              children: [
+                                                Icon(
+                                                  Icons.person,
+                                                  color: AllColors.gold,
+                                                  size: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.035,
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.01,
+                                ),
+                                Text(
+                                  '${user['name']} na Aposta $betId:',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    decorationThickness: 1,
+                                    color: AllColors.gold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.01,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Column(
+                                    children: [
+                                      const Text(
+                                        'Faltas:',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: AllColors.text,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${participant['faults']}',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: AllColors.text,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      const Text(
+                                        'Aproveitamento:',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: AllColors.text,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${participant['utilization']}%',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: AllColors.text,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.015,
+                            ),
+                            if (participant['declassified'])
+                              const Text(
+                                'Desclassificado por faltas',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AllColors.red,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              )
+                          ],
                         ),
-                      ),
+                      );
+                    },
+                    options: custom_carousel.CarouselOptions(
+                      aspectRatio: 16 / 9,
+                      enlargeCenterPage: true,
+                      enableInfiniteScroll: false,
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      onPageChanged: (index, reason) {
+                        currentPageNotifier.value = index;
+                      },
                     ),
-                    Row(
+                  ),
+                ),
+                // Indicadores
+                ValueListenableBuilder<int>(
+                  valueListenable: currentPageNotifier,
+                  builder: (context, currentPage, _) {
+                    return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
                         trainingReleases.length,
                         (index) => AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                          width: currentPage == index ? 12.0 : 8.0,
-                          height: currentPage == index ? 12.0 : 8.0,
+                          width: currentPage == index ? 14.0 : 8.0,
+                          height: currentPage == index ? 14.0 : 8.0,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: currentPage == index
-                                ? AllColors.white
+                                ? AllColors.gold
                                 : AllColors.grey,
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              ),
-            );
-          },
+              ],
+            ),
+          ),
         );
       },
     );
