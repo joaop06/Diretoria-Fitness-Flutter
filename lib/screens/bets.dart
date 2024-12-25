@@ -7,6 +7,7 @@ import 'package:daily_training_flutter/services/auth.service.dart';
 import 'package:daily_training_flutter/services/bets.service.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 import 'package:daily_training_flutter/providers/participants.privider.dart';
 
 class BetsScreen extends StatefulWidget {
@@ -136,10 +137,6 @@ class _BetsScreenState extends State<BetsScreen>
   Widget _buildBody(BetsProvider betsProvider, participantsProvider) {
     return Center(
       child: Container(
-        // constraints: BoxConstraints(
-        //   maxWidth: MediaQuery.of(context).size.width,
-        //   maxHeight: MediaQuery.of(context).size.height * 0.5,
-        // ),
         padding: const EdgeInsets.all(10.0),
         constraints: const BoxConstraints(minWidth: 500, maxWidth: 800),
         child: Column(
@@ -357,50 +354,47 @@ class _HighlightedBet extends StatelessWidget {
         child: Text(
           'Aposta ${bet.id} ${bet.status}',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             color: AllColors.statusBet[bet.status],
           ),
         ),
       ),
-      const SizedBox(height: 20),
+      SizedBox(height: MediaQuery.of(context).size.height * 0.025),
       Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const SizedBox(height: 8),
               Text(
                 'Duração: ${bet.duration} dias',
-                style: const TextStyle(color: AllColors.white, fontSize: 14),
+                style: const TextStyle(color: AllColors.white, fontSize: 12),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
               Text(
                 'Início: ${DateFormat('dd/MM/yyyy').format(bet.initialDate ?? DateTime.now())}',
-                style: const TextStyle(color: AllColors.white, fontSize: 14),
+                style: const TextStyle(color: AllColors.white, fontSize: 12),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
               Text(
                 'Fim: ${DateFormat('dd/MM/yyyy').format(bet.finalDate ?? DateTime.now())}',
-                style: const TextStyle(color: AllColors.white, fontSize: 14),
+                style: const TextStyle(color: AllColors.white, fontSize: 12),
               ),
             ],
           ),
-          const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ElevatedButton(
+              CustomElevatedButton(
+                fontSize: 12,
+                labelText: 'Ver Detalhes',
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                backgroundColor: AllColors.statusBet[bet.status],
+                textStyle: const TextStyle(color: AllColors.background),
                 onPressed: () async {
                   await AuthService.setBetDetailsId(bet.id);
                   Navigator.pushNamed(context, '/bet-details');
                 },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: AllColors.statusBet[bet.status],
-                    textStyle: const TextStyle(color: AllColors.background)),
-                child: const Text(
-                  'Ver Detalhes',
-                  style: TextStyle(color: AllColors.white),
-                ),
               ),
             ],
           )

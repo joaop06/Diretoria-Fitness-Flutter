@@ -28,5 +28,6 @@ class AllColors {
   static const background = Color.fromRGBO(20, 19, 18, 0.98);
   static const backgroundModal = Color.fromARGB(97, 0, 0, 0);
   static const softGold = Color.fromRGBO(204, 162, 83, 0.456);
+  static const backgroundPodium = Color.fromRGBO(62, 59, 58, 1);
   static const backgroundSidebar = Color.fromRGBO(0, 0, 0, 0.5);
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:daily_training_flutter/services/participants.service.dart';
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -300,19 +301,18 @@ class _BetDetailsContainer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ElevatedButton(
+                      CustomElevatedButton(
+                        elevation: 0,
+                        padding: EdgeInsets.zero,
+                        backgroundColor: AllColors.transparent,
+                        maximumSize: const Size(35, 35),
+                        minimumSize: const Size(35, 35),
                         onPressed: () {
                           Navigator.pushNamed(
                             context,
                             '/bets',
                           );
                         },
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          padding: EdgeInsets.zero,
-                          backgroundColor: AllColors.transparent,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
                         child: const Icon(
                           size: 22,
                           Icons.arrow_back,
@@ -322,7 +322,7 @@ class _BetDetailsContainer extends StatelessWidget {
                       Text(
                         '${betDetails.status}',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           color: AllColors.statusBet[betDetails.status],
                         ),
                       ),
@@ -331,7 +331,7 @@ class _BetDetailsContainer extends StatelessWidget {
                           Text(
                             '${betDetails.duration} dia(s)',
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               color: AllColors.white,
                             ),
                           ),
@@ -396,8 +396,10 @@ class _BetDetailsContainer extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  Wrap(
+                    spacing: 8.0, // Espaço horizontal entre os botões
+                    runSpacing: 8.0, // Espaço vertical entre as linhas
+                    alignment: WrapAlignment.center, // Alinhamento horizontal
                     children: [
                       OutlinedButton(
                         onPressed: () {
@@ -565,7 +567,7 @@ class _TodayHighlightContainer extends StatelessWidget {
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.02),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Column(
                     children: [
@@ -601,7 +603,10 @@ class _TodayHighlightContainer extends StatelessWidget {
                 children: [
                   // Somente exibe o botão se o usuário for um participante e não tiver registrado treino ainda
                   if (betInProgress! && !userTrained && participantId != null)
-                    ElevatedButton(
+                    CustomElevatedButton(
+                      fontSize: 12,
+                      labelText: 'Lançar Treino',
+                      backgroundColor: AllColors.gold,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -613,15 +618,6 @@ class _TodayHighlightContainer extends StatelessWidget {
                           ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: AllColors.gold),
-                      child: const Text(
-                        'Lançar Treino',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AllColors.text,
-                        ),
-                      ),
                     ),
                   if (!trainingReleasesIsEmpty)
                     OutlinedButton(
@@ -632,12 +628,15 @@ class _TodayHighlightContainer extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AllColors.gold),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: const Text(
                         'Ver Treinos',
-                        style: TextStyle(fontSize: 14, color: AllColors.gold),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AllColors.gold,
+                        ),
                       ),
                     ),
                 ],
@@ -648,7 +647,7 @@ class _TodayHighlightContainer extends StatelessWidget {
                   Text(
                     'Dias de Treino',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       color: AllColors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -709,7 +708,7 @@ class _OtherDaysList extends StatelessWidget {
                     Text(
                       day['name'],
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: AllColors.white,
                       ),
                     ),
@@ -717,14 +716,17 @@ class _OtherDaysList extends StatelessWidget {
                       DateFormat('dd/MM/yyyy')
                           .format(DateTime.parse(day['day'])),
                       style:
-                          const TextStyle(fontSize: 16, color: AllColors.gold),
+                          const TextStyle(fontSize: 14, color: AllColors.gold),
                     )
                   ],
                 ),
                 subtitle: isFuture
                     ? const Text(
                         'Status: Em breve',
-                        style: TextStyle(color: AllColors.softWhite),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AllColors.softWhite,
+                        ),
                       )
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -5,7 +5,7 @@ import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart
 import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
 
 class CustomTextField extends StatefulWidget {
-  final String hint;
+  final String? hint;
   final String label;
   final String? suffix;
   final bool isNumeric;
@@ -17,6 +17,7 @@ class CustomTextField extends StatefulWidget {
   final Widget? suffixIcon;
   final TextStyle? hintStyle;
   final Color selectionColor;
+  final double? labelTextSize;
   final ValueNotifier<bool> enabled;
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
@@ -25,13 +26,14 @@ class CustomTextField extends StatefulWidget {
 
   CustomTextField({
     super.key,
+    this.hint,
     this.style,
     this.suffix,
     this.hintStyle,
     this.validator,
     this.prefixIcon,
     this.suffixIcon,
-    required this.hint,
+    this.labelTextSize,
     required this.label,
     this.isNumeric = false,
     this.isCurrency = false,
@@ -116,7 +118,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     hintText: widget.hint,
                     labelText: widget.label,
                     fillColor: AllColors.background,
-                    labelStyle: const TextStyle(color: AllColors.white),
+                    labelStyle: TextStyle(
+                      color: AllColors.white,
+                      fontSize: widget.labelTextSize ?? 14,
+                    ),
                     hintStyle: widget.hintStyle ??
                         const TextStyle(color: AllColors.softWhite),
                     prefixIcon: widget.prefixIcon,

@@ -70,6 +70,8 @@ class User {
   final int? wins;
   final int? losses;
   final int? totalFaults;
+  final int? totalTrainingDays;
+  final int? totalParticipations;
   final String? profileImagePath;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -87,6 +89,8 @@ class User {
     this.wins,
     this.losses,
     this.totalFaults,
+    this.totalTrainingDays,
+    this.totalParticipations,
     this.profileImagePath,
     this.createdAt,
     this.updatedAt,
@@ -106,6 +110,8 @@ class User {
       wins: json['wins'],
       losses: json['losses'],
       totalFaults: json['totalFaults'],
+      totalTrainingDays: json['totalTrainingDays'],
+      totalParticipations: json['totalParticipations'],
       profileImagePath: json['profileImagePath'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
@@ -142,6 +148,22 @@ class UsersService {
       );
       return 'Imagem atualizada com sucesso!';
     } catch (error) {
+      throw Exception('Erro ao atualizar imagem');
+    }
+  }
+
+  Future<String> resetPassword(
+      int userId, String oldPassword, String newPassword) async {
+    try {
+      final object = {
+        'userId': userId,
+        'oldPassword': oldPassword,
+        'newPassword': newPassword,
+      };
+
+      await _apiService.put(endpoint: '/users/change-password', data: object);
+      return 'Senha alterada com sucesso!';
+    } catch (e) {
       throw Exception('Erro ao atualizar imagem');
     }
   }

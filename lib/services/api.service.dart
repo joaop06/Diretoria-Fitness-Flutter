@@ -69,10 +69,13 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> put(
-      String endpoint, int id, Map<String, dynamic> data) async {
-    final url = Uri.parse("$baseUrl$endpoint/$id");
+  Future<Map<String, dynamic>> put({
+    int? id,
+    required String endpoint,
+    required Map<String, dynamic> data,
+  }) async {
     final accessToken = await AuthService.getAccessToken();
+    final url = Uri.parse("$baseUrl$endpoint${id != null ? '/$id' : ''}");
 
     try {
       final response = await http.put(

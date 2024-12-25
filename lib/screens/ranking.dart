@@ -114,39 +114,37 @@ class _RankingScreenState extends State<RankingScreen>
 
   // Widget para o pódio
   Widget _buildPodium(List<Ranking> podium) {
-    return Container(
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          // Degraus do pódio
-          LayoutBuilder(
-            builder: (context, constraints) {
-              double stepWidth = constraints.maxWidth /
-                  3; // Ajuste proporcional à largura disponível
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // 2º colocado - Degrau esquerdo
-                  if (podium.length > 1)
-                    _buildPodiumStep(podium[1], 2,
-                        heightMultiplier: 1.1, stepWidth: stepWidth),
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        // Degraus do pódio
+        LayoutBuilder(
+          builder: (context, constraints) {
+            double stepWidth = constraints.maxWidth /
+                3; // Ajuste proporcional à largura disponível
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // 2º colocado - Degrau esquerdo
+                if (podium.length > 1)
+                  _buildPodiumStep(podium[1], 2,
+                      heightMultiplier: 1.1, stepWidth: stepWidth),
 
-                  // 1º colocado - Degrau central
-                  if (podium.isNotEmpty)
-                    _buildPodiumStep(podium[0], 1,
-                        heightMultiplier: 1.4, stepWidth: stepWidth),
+                // 1º colocado - Degrau central
+                if (podium.isNotEmpty)
+                  _buildPodiumStep(podium[0], 1,
+                      heightMultiplier: 1.4, stepWidth: stepWidth),
 
-                  // 3º colocado - Degrau direito
-                  if (podium.length > 2)
-                    _buildPodiumStep(podium[2], 3,
-                        heightMultiplier: 0.8, stepWidth: stepWidth),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
+                // 3º colocado - Degrau direito
+                if (podium.length > 2)
+                  _buildPodiumStep(podium[2], 3,
+                      heightMultiplier: 0.8, stepWidth: stepWidth),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -208,15 +206,16 @@ class _RankingScreenState extends State<RankingScreen>
         ),
         // Informações do usuário no degrau
         Container(
-          width: stepWidth, // Ajusta a largura do degrau
+          width: stepWidth,
+          color: AllColors.backgroundPodium,
           height: (MediaQuery.of(context).size.height * 0.1) * heightMultiplier,
-          color: const Color(0xFF3E3B3A),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
-                  height: (MediaQuery.of(context).size.height * 0.01) *
-                      heightMultiplier),
+                height: (MediaQuery.of(context).size.height * 0.005) *
+                    heightMultiplier,
+              ),
               Text(
                 userInfo.name,
                 style: const TextStyle(
@@ -227,17 +226,53 @@ class _RankingScreenState extends State<RankingScreen>
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
-              Text(
-                "Vitórias: ${item.user.wins}",
-                style: const TextStyle(color: AllColors.green, fontSize: 10),
+              SizedBox(
+                height: (MediaQuery.of(context).size.height * 0.01) *
+                    heightMultiplier,
               ),
-              Text(
-                "Derrotas: ${item.user.losses}",
-                style: const TextStyle(color: AllColors.red, fontSize: 10),
-              ),
-              Text(
-                "Faltas: ${item.user.totalFaults}",
-                style: const TextStyle(color: AllColors.white, fontSize: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      const Text(
+                        "Vitórias",
+                        style: TextStyle(color: AllColors.green, fontSize: 8),
+                      ),
+                      Text(
+                        "${item.user.wins}",
+                        style: const TextStyle(
+                            color: AllColors.green, fontSize: 8),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const Text(
+                        "Derrotas",
+                        style: TextStyle(color: AllColors.red, fontSize: 8),
+                      ),
+                      Text(
+                        "${item.user.losses}",
+                        style:
+                            const TextStyle(color: AllColors.red, fontSize: 8),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const Text(
+                        "Faltas",
+                        style: TextStyle(color: AllColors.white, fontSize: 8),
+                      ),
+                      Text(
+                        "${item.user.totalFaults}",
+                        style: const TextStyle(
+                            color: AllColors.white, fontSize: 8),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

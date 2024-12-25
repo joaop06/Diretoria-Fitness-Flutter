@@ -1,16 +1,12 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:daily_training_flutter/utils/Date.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
 import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 import 'package:daily_training_flutter/widgets/DateRangePicker.dart';
-import 'package:flutter_multi_formatter/formatters/formatter_utils.dart';
 import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
-import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
-import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
 
 class NewBetScreen extends StatefulWidget {
   const NewBetScreen({super.key});
@@ -130,8 +126,8 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
                     height: MediaQuery.of(context).size.height * 0.015,
                   ),
                   CustomTextField(
-                    isNumeric: true,
                     hint: 'Ex.: 2',
+                    isNumeric: true,
                     label: 'Faltas Permitidas',
                     controller: _faultsAllowedController,
                     validator: (value) {
@@ -146,10 +142,10 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
                   ),
                   CustomTextField(
                     isCurrency: true,
-                    hint: "R\$ 30,00",
+                    // hint: "R\$ 30,00",
                     label: 'Valor da Penalidade (R\$)',
-                    hintStyle: const TextStyle(color: Colors.white30),
                     controller: _minimumPenaltyAmountController,
+                    hintStyle: const TextStyle(color: Colors.white30),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Por favor, insira um valor válido";
@@ -175,157 +171,6 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Future<void> _pickDate(
-      BuildContext context, TextEditingController controller) async {
-    final DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: Date.now(),
-      firstDate: Date.year(2000),
-      lastDate: Date.year(2100),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: AllColors.orange, // Cor do botão de seleção
-              onPrimary: Colors.white, // Cor do texto do botão
-              surface: AllColors.background, // Cor de fundo
-              onSurface: Colors.white, // Cor do texto no fundo
-            ),
-            dialogBackgroundColor: const Color(0xFF1e1c1b),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (selectedDate != null) {
-      // Formata a data selecionada no formato "dd/MM/yyyy"
-      controller.text = DateFormat('dd/MM/yyyy').format(selectedDate);
-    }
-  }
-
-  Widget _buildDateField({
-    required String hint,
-    required String label,
-    required TextEditingController controller,
-    required BuildContext context,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextFormField(
-        readOnly: true,
-        controller: controller,
-        onTap: () => _pickDate(context, controller),
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.white30),
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.white),
-          filled: true,
-          fillColor: const Color(0xFF1e1c1b),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Por favor, selecione a $label.";
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _buildMinimumPenaltyField({
-    required String label,
-    required TextEditingController controller,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          CurrencyInputFormatter(
-            leadingSymbol: 'R\$ ',
-            useSymbolPadding: true,
-            thousandSeparator: ThousandSeparator.Period,
-          ),
-        ],
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          filled: true,
-          labelText: label,
-          hintText: "R\$ 30,00",
-          labelStyle: const TextStyle(color: Colors.white),
-          hintStyle: const TextStyle(color: Colors.white30),
-          fillColor: const Color(0xFF1e1c1b),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: AllColors.orange),
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Por favor, insira $label.";
-          }
-          // Retira a máscara para validar o número
-          final unmaskedValue = toNumericString(value, allowHyphen: false);
-          if (double.tryParse(unmaskedValue) == null) {
-            return "Por favor, insira um valor válido.";
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _buildNumberField({
-    required String label,
-    required TextEditingController controller,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.white),
-          hintText: "Ex.: 2",
-          hintStyle: const TextStyle(color: Colors.white30),
-          filled: true,
-          fillColor: const Color(0xFF1e1c1b),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Color.fromARGB(255, 222, 159, 42)),
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Por favor, insira $label.";
-          }
-          if (double.tryParse(value) == null) {
-            return "Por favor, insira um número válido.";
-          }
-          return null;
-        },
       ),
     );
   }

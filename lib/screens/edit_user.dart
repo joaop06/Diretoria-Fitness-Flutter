@@ -1,15 +1,14 @@
 import 'dart:io';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/widgets/Sidebar.dart';
-import 'package:daily_training_flutter/services/auth.service.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
 import 'package:daily_training_flutter/widgets/CustomTextField.dart';
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 
 class EditUserScreen extends StatefulWidget {
   const EditUserScreen({Key? key}) : super(key: key);
@@ -295,6 +294,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
     showDialog(
       context: context,
       builder: (context) {
+        bool isRedefining = false;
         final TextEditingController oldPasswordController =
             TextEditingController();
         final TextEditingController newPasswordController =
@@ -303,72 +303,100 @@ class _EditUserScreenState extends State<EditUserScreen> {
             TextEditingController();
 
         return AlertDialog(
-          title: const Text('Redefinir Senha'),
+          backgroundColor: AllColors.background,
+          title: const Text(
+            'Redefinir Senha',
+            style: TextStyle(fontSize: 16, color: AllColors.text),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              CustomTextField(
+                labelTextSize: 12,
+                obscureText: true,
+                label: 'Senha antiga',
                 controller: oldPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Senha Antiga'),
+                style: const TextStyle(fontSize: 12, color: AllColors.text),
               ),
-              TextField(
+              CustomTextField(
+                labelTextSize: 12,
+                obscureText: true,
+                label: 'Nova Senha',
                 controller: newPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Nova Senha'),
+                style: const TextStyle(fontSize: 12, color: AllColors.text),
               ),
-              TextField(
-                controller: confirmPasswordController,
+              CustomTextField(
+                labelTextSize: 12,
                 obscureText: true,
-                decoration:
-                    const InputDecoration(labelText: 'Confirmar Nova Senha'),
+                label: 'Confirmar Nova Senha',
+                controller: confirmPasswordController,
+                style: const TextStyle(fontSize: 12, color: AllColors.text),
               ),
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (newPasswordController.text == '' ||
-                    confirmPasswordController.text == '') {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Preencha os campos corretamente',
-                        style: TextStyle(color: AllColors.red),
-                      ),
-                    ),
-                  );
-                  return;
-                } else if (newPasswordController.text !=
-                    confirmPasswordController.text) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('As senhas não coincidem')),
-                  );
-                  return;
-                }
-                try {
-                  // await AuthService.resetPassword(
-                  //   oldPassword: oldPasswordController.text,
-                  //   newPassword: newPasswordController.text,
-                  // );
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(fontSize: 12, color: AllColors.white),
+                  ),
+                ),
+                CustomElevatedButton(
+                  fontSize: 12,
+                  labelText: 'Redefinir',
+                  isLoading: isRedefining,
+                  backgroundColor: AllColors.gold,
+                  onPressed: () async {
+                    if (newPasswordController.text == '' ||
+                        confirmPasswordController.text == '') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Preencha os campos corretamente',
+                            style: TextStyle(color: AllColors.red),
+                          ),
+                        ),
+                      );
+                      return;
+                    } else if (newPasswordController.text !=
+                        confirmPasswordController.text) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('As senhas não coincidem')),
+                      );
+                      return;
+                    }
+                    try {
+                      setState(() => isRedefining = true);
+                      final UsersService usersService = UsersService();
 
-                  await UsersService.setUserData(userData!.id!);
-                  Navigator.pushNamed(context, '/edit-user');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Senha redefinida com sucesso!')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Erro ao redefinir senha')),
-                  );
-                }
-              },
-              child: const Text('Redefinir'),
+                      await usersService.resetPassword(
+                        userData!.id!,
+                        oldPasswordController.text,
+                        newPasswordController.text,
+                      );
+
+                      await UsersService.setUserData(userData!.id!);
+                      Navigator.pushNamed(context, '/edit-user');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Senha redefinida com sucesso!')),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Erro ao redefinir senha')),
+                      );
+                    } finally {
+                      setState(() => isRedefining = false);
+                    }
+                  },
+                ),
+              ],
             ),
           ],
         );
@@ -468,89 +496,195 @@ class _EditUserScreenState extends State<EditUserScreen> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.01,
                 ),
-                // Seção de imagem de perfil
-                Center(
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 61,
-                        backgroundColor: AllColors.gold,
-                        child: ValueListenableBuilder<Uint8List?>(
-                          valueListenable: newProfileImage,
-                          builder: (context, imageBytes, child) {
-                            if (imageBytes != null) {
-                              // Exibe a nova imagem carregada
-                              return CircleAvatar(
-                                radius: 60,
-                                backgroundImage: MemoryImage(imageBytes),
-                              );
-                            } else if (decodedUserImage != null) {
-                              // Exibe a imagem do perfil original
-                              return CircleAvatar(
-                                radius: 60,
-                                backgroundImage: MemoryImage(decodedUserImage),
-                              );
-                            } else {
-                              // Exibe a inicial do nome do usuário
-                              return CircleAvatar(
-                                radius: 60,
-                                backgroundColor: AllColors.background,
-                                child: Text(
-                                  (userName?.isNotEmpty == true
-                                      ? userName![0].toUpperCase()
-                                      : "?"),
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: AllColors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: ValueListenableBuilder<Uint8List?>(
-                          valueListenable: newProfileImage,
-                          builder: (context, hasNewProfileImage, child) {
-                            return InkWell(
-                              // onTap: _uploadProfileImage,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: hasNewProfileImage == null
-                                      ? AllColors.gold
-                                      : AllColors.red,
-                                ),
-                                child: IconButton(
-                                  onPressed: hasNewProfileImage == null
-                                      ? _uploadProfileImage
-                                      : () {
-                                          setState(() {
-                                            newProfileImage.value = null;
-                                          });
-                                          const skipDialog = true;
-                                          _changeEditingForFalse(skipDialog);
-                                        },
-                                  icon: Icon(
-                                    size: 16,
-                                    hasNewProfileImage == null
-                                        ? Icons.camera_alt
-                                        : Icons.close,
-                                    color: AllColors.white,
-                                  ),
+                Card(
+                  elevation: 5,
+                  shadowColor: AllColors.gold,
+                  color: AllColors.background,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(
+                      children: [
+                        // Seção de imagem de perfil
+                        Center(
+                          child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 61,
+                                backgroundColor: AllColors.gold,
+                                child: ValueListenableBuilder<Uint8List?>(
+                                  valueListenable: newProfileImage,
+                                  builder: (context, imageBytes, child) {
+                                    if (imageBytes != null) {
+                                      // Exibe a nova imagem carregada
+                                      return CircleAvatar(
+                                        radius: 60,
+                                        backgroundImage:
+                                            MemoryImage(imageBytes),
+                                      );
+                                    } else if (decodedUserImage != null) {
+                                      // Exibe a imagem do perfil original
+                                      return CircleAvatar(
+                                        radius: 60,
+                                        backgroundImage:
+                                            MemoryImage(decodedUserImage),
+                                      );
+                                    } else {
+                                      // Exibe a inicial do nome do usuário
+                                      return CircleAvatar(
+                                        radius: 60,
+                                        backgroundColor: AllColors.background,
+                                        child: Text(
+                                          (userName?.isNotEmpty == true
+                                              ? userName![0].toUpperCase()
+                                              : "?"),
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            color: AllColors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                               ),
-                            );
-                          },
+                              Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: ValueListenableBuilder<Uint8List?>(
+                                  valueListenable: newProfileImage,
+                                  builder:
+                                      (context, hasNewProfileImage, child) {
+                                    return InkWell(
+                                      // onTap: _uploadProfileImage,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: hasNewProfileImage == null
+                                              ? AllColors.gold
+                                              : AllColors.red,
+                                        ),
+                                        child: IconButton(
+                                          onPressed: hasNewProfileImage == null
+                                              ? _uploadProfileImage
+                                              : () {
+                                                  setState(() {
+                                                    newProfileImage.value =
+                                                        null;
+                                                  });
+                                                  const skipDialog = true;
+                                                  _changeEditingForFalse(
+                                                      skipDialog);
+                                                },
+                                          icon: Icon(
+                                            size: 16,
+                                            hasNewProfileImage == null
+                                                ? Icons.camera_alt
+                                                : Icons.close,
+                                            color: AllColors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.01,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                const Text(
+                                  'Vitórias',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AllColors.softWhite,
+                                  ),
+                                ),
+                                Text('${userData!.wins}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AllColors.text,
+                                    )),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                const Text(
+                                  'Derrotas',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AllColors.softWhite,
+                                  ),
+                                ),
+                                Text('${userData!.losses}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AllColors.text,
+                                    )),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                const Text(
+                                  'Faltas',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AllColors.softWhite,
+                                  ),
+                                ),
+                                Text('${userData!.totalFaults}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AllColors.text,
+                                    )),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                const Text(
+                                  'Treinos',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AllColors.softWhite,
+                                  ),
+                                ),
+                                Text('${userData!.totalTrainingDays ?? 0}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AllColors.text,
+                                    )),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                const Text(
+                                  'Participações',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AllColors.softWhite,
+                                  ),
+                                ),
+                                Text('${userData!.totalParticipations ?? 0}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AllColors.text,
+                                    )),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
                 // Campos de edição
                 CustomTextField(
@@ -620,12 +754,12 @@ class _EditUserScreenState extends State<EditUserScreen> {
                 Divider(height: MediaQuery.of(context).size.height * 0.05),
                 // Gráfico interativo
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
                       'Histórico de Peso, Altura e IMC',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 12,
                         color: AllColors.text,
                         fontWeight: FontWeight.bold,
                       ),
@@ -674,6 +808,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                     ),
                   ],
                 ),
+
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.45,

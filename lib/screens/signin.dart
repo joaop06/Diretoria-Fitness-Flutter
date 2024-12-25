@@ -66,6 +66,10 @@ class _SignInScreenState extends State<SignInScreen> {
           style: const TextStyle(color: AllColors.red),
         )),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 

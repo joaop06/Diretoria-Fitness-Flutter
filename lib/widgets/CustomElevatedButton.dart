@@ -18,6 +18,7 @@ class CustomElevatedButton extends StatelessWidget {
   final Color? foregroundColor;
   final VoidCallback? onPressed;
   final EdgeInsetsGeometry? padding;
+  final MaterialTapTargetSize? tapTargetSize;
 
   const CustomElevatedButton({
     super.key,
@@ -33,6 +34,7 @@ class CustomElevatedButton extends StatelessWidget {
     this.maximumSize,
     this.minimumSize,
     this.borderRadius,
+    this.tapTargetSize,
     this.backgroundColor,
     this.foregroundColor,
     this.isLoading = false,
@@ -50,6 +52,7 @@ class CustomElevatedButton extends StatelessWidget {
         minimumSize: minimumSize,
         elevation: elevation ?? 2.0,
         foregroundColor: foregroundColor,
+        tapTargetSize: tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
         backgroundColor: backgroundColor ?? Theme.of(context).primaryColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius ?? 8.0),
