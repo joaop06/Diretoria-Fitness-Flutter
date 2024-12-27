@@ -671,7 +671,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                                     color: AllColors.softWhite,
                                   ),
                                 ),
-                                Text('${userData!.totalParticipations ?? 0}',
+                                Text('${userData!.betsParticipated ?? 0}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AllColors.text,
@@ -808,7 +808,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
                     ),
                   ],
                 ),
-
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.45,
