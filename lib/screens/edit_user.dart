@@ -8,6 +8,7 @@ import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
 import 'package:daily_training_flutter/widgets/CustomTextField.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 
 class EditUserScreen extends StatefulWidget {
@@ -44,6 +45,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
   @override
   void initState() {
     super.initState();
+    // BackButtonInterceptor.add(backButtonInterceptor);
     _bmiController.addListener(verifyIfHasChangedUserData);
     newProfileImage.addListener(verifyIfHasChangedUserData);
     _nameController.addListener(verifyIfHasChangedUserData);
@@ -63,7 +65,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
 
   @override
   void dispose() {
-    super.dispose();
+    // BackButtonInterceptor.remove(backButtonInterceptor);
+
     _bmiController.removeListener(verifyIfHasChangedUserData);
     newProfileImage.removeListener(verifyIfHasChangedUserData);
     _nameController.removeListener(verifyIfHasChangedUserData);
@@ -81,6 +84,12 @@ class _EditUserScreenState extends State<EditUserScreen> {
     _emailController.dispose();
     _heightController.dispose();
     _weightController.dispose();
+    super.dispose();
+  }
+
+  bool backButtonInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    Navigator.pushNamed(context, '/bets');
+    return true;
   }
 
   void verifyIfHasChangedUserData() {

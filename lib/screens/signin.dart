@@ -1,9 +1,10 @@
-import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
-import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth.provider.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
+import 'package:daily_training_flutter/widgets/CustomTextField.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 
 final TextEditingController emailController = TextEditingController();
 final TextEditingController passwordController = TextEditingController();
@@ -19,6 +20,23 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isLoading = false;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // BackButtonInterceptor.add(backButtonInterceptor);
+  }
+
+  @override
+  void dispose() {
+    // BackButtonInterceptor.remove(backButtonInterceptor);
+    super.dispose();
+  }
+
+  bool backButtonInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    Navigator.pushNamed(context, '/');
+    return true;
+  }
 
   Future<void> signIn() async {
     try {

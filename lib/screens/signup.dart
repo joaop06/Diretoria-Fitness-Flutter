@@ -1,10 +1,11 @@
-import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 import 'package:daily_training_flutter/providers/users.provider.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -26,17 +27,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void initState() {
     super.initState();
+    // BackButtonInterceptor.add(backButtonInterceptor);
     _weightController.addListener(_formatWeightDynamically);
     _heightController.addListener(_formatHeightDynamically);
   }
 
   @override
   void dispose() {
+    // BackButtonInterceptor.remove(backButtonInterceptor);
     _weightController.removeListener(_formatWeightDynamically);
     _heightController.removeListener(_formatHeightDynamically);
     _weightController.dispose();
     _heightController.dispose();
     super.dispose();
+  }
+
+  bool backButtonInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    Navigator.pushNamed(context, '/');
+    return true;
   }
 
   void registerUser() async {

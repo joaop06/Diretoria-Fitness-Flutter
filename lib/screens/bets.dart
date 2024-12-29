@@ -7,6 +7,7 @@ import 'package:daily_training_flutter/services/auth.service.dart';
 import 'package:daily_training_flutter/services/bets.service.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 import 'package:daily_training_flutter/providers/participants.privider.dart';
 
@@ -29,9 +30,71 @@ class _BetsScreenState extends State<BetsScreen>
   @override
   void initState() {
     super.initState();
+    // BackButtonInterceptor.add(backButtonInterceptor);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
+  }
+
+  @override
+  void dispose() {
+    // BackButtonInterceptor.remove(backButtonInterceptor);
+    super.dispose();
+  }
+
+  bool backButtonInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    _showExitConfirmation();
+    return true;
+  }
+
+  void _showExitConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AllColors.background,
+          title: const Text(
+            'Confirmar Saída',
+            style: TextStyle(
+              fontSize: 14,
+              color: AllColors.text,
+            ),
+          ),
+          content: const Text(
+            'Tem certeza de que deseja sair?',
+            style: TextStyle(
+              fontSize: 12,
+              color: AllColors.text,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Fecha o modal
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AllColors.text,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Fecha o modal
+                await AuthService.signup(context);
+              },
+              child: const Text(
+                'Sair',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AllColors.red,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _initializeData() async {

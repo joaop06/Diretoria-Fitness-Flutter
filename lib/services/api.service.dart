@@ -4,7 +4,7 @@ import 'package:daily_training_flutter/services/auth.service.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // static const String baseUrl = 'http://localhost:3000';
+  // static const String baseUrl = 'http://192.168.100.8:3000';
   static const String baseUrl = 'https://diretoriafitness.api.fluxocar.com.br';
 
   buildHeaders(accessToken, [String type = 'json']) {

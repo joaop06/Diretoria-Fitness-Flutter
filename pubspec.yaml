@@ -49,6 +49,7 @@ dependencies:
   syncfusion_flutter_datepicker: ^28.1.33
   flutter_date_pickers: ^0.4.3
   fl_chart: ^0.69.2
+  back_button_interceptor: ^8.0.0
 
 dev_dependencies:
   flutter_test:

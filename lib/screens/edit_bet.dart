@@ -9,6 +9,7 @@ import 'package:daily_training_flutter/services/bets.service.dart';
 import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 import 'package:daily_training_flutter/widgets/DateRangePicker.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 
 class EditBetScreen extends StatefulWidget {
@@ -37,6 +38,18 @@ class _EditBetScreenState extends State<EditBetScreen> {
   void initState() {
     super.initState();
     _loadBetData();
+    // BackButtonInterceptor.add(backButtonInterceptor);
+  }
+
+  @override
+  void dispose() {
+    // BackButtonInterceptor.remove(backButtonInterceptor);
+    super.dispose();
+  }
+
+  bool backButtonInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    Navigator.pushNamed(context, '/bet-details');
+    return true;
   }
 
   Future<void> _loadBetData() async {

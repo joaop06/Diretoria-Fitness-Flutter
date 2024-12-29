@@ -9,6 +9,7 @@ import 'package:daily_training_flutter/services/bets.service.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
 import 'package:daily_training_flutter/screens/training_release.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:carousel_slider/carousel_slider.dart' as custom_carousel;
 import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 import 'package:daily_training_flutter/providers/participants.privider.dart';
@@ -42,10 +43,21 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
   @override
   void initState() {
     super.initState();
-
+    // BackButtonInterceptor.add(backButtonInterceptor);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
+  }
+
+  @override
+  void dispose() {
+    // BackButtonInterceptor.remove(backButtonInterceptor);
+    super.dispose();
+  }
+
+  bool backButtonInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    Navigator.pushNamed(context, '/bets');
+    return true;
   }
 
   Future<void> _initializeData() async {
@@ -871,7 +883,10 @@ class _ParticipantsModal {
                       child: decodedImage != null
                           ? ClipOval(
                               child: Image.memory(
+                                width: 100,
+                                height: 100,
                                 decodedImage,
+                                fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     Column(
                                   children: [
@@ -964,7 +979,10 @@ class _WinnersModal {
                           child: decodedImage != null
                               ? ClipOval(
                                   child: Image.memory(
+                                    width: 100,
+                                    height: 100,
                                     decodedImage,
+                                    fit: BoxFit.cover,
                                     errorBuilder:
                                         (context, error, stackTrace) => Column(
                                       children: [
@@ -1198,7 +1216,10 @@ class _TrainingModal {
                                         )
                                       : ClipOval(
                                           child: Image.memory(
+                                            width: 100,
+                                            height: 100,
                                             decodedUserImage,
+                                            fit: BoxFit.cover,
                                             errorBuilder:
                                                 (context, error, stackTrace) =>
                                                     Column(

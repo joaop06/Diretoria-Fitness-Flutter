@@ -1,9 +1,10 @@
 import 'dart:convert';
-import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/services/ranking.service.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:daily_training_flutter/providers/ranking.provider.dart';
 
 class RankingScreen extends StatefulWidget {
@@ -25,9 +26,22 @@ class _RankingScreenState extends State<RankingScreen>
   @override
   void initState() {
     super.initState();
+    // BackButtonInterceptor.add(backButtonInterceptor);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
+  }
+
+  @override
+  void dispose() {
+    // BackButtonInterceptor.remove(backButtonInterceptor);
+    super.dispose();
+  }
+
+  bool backButtonInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    Navigator.pushNamed(context, '/bets');
+    return true;
   }
 
   Future<void> _initializeData() async {
@@ -88,7 +102,7 @@ class _RankingScreenState extends State<RankingScreen>
           maxWidth: MediaQuery.of(context).size.width,
         ),
         color: AllColors.background,
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -155,6 +169,10 @@ class _RankingScreenState extends State<RankingScreen>
     final imagePath = item.user.profileImagePath;
     final decodedImage = imagePath != null ? base64Decode(imagePath) : null;
 
+    final spacingBetweenStatistics = SizedBox(
+      width: MediaQuery.of(context).size.width * 0.03,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -173,7 +191,10 @@ class _RankingScreenState extends State<RankingScreen>
             child: decodedImage != null
                 ? ClipOval(
                     child: Image.memory(
+                      width: 100,
+                      height: 100,
                       decodedImage,
+                      fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Column(
                         children: [
                           const Icon(
@@ -208,7 +229,8 @@ class _RankingScreenState extends State<RankingScreen>
         Container(
           width: stepWidth,
           color: AllColors.backgroundPodium,
-          height: (MediaQuery.of(context).size.height * 0.1) * heightMultiplier,
+          height:
+              (MediaQuery.of(context).size.height * 0.08) * heightMultiplier,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -231,44 +253,61 @@ class _RankingScreenState extends State<RankingScreen>
                     heightMultiplier,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Column(
                     children: [
                       const Text(
                         "Vitórias",
-                        style: TextStyle(color: AllColors.green, fontSize: 8),
+                        style: TextStyle(
+                          fontSize: 8,
+                          color: AllColors.green,
+                        ),
                       ),
                       Text(
                         "${item.user.wins}",
                         style: const TextStyle(
-                            color: AllColors.green, fontSize: 8),
+                          fontSize: 8,
+                          color: AllColors.green,
+                        ),
                       ),
                     ],
                   ),
+                  spacingBetweenStatistics,
                   Column(
                     children: [
                       const Text(
                         "Derrotas",
-                        style: TextStyle(color: AllColors.red, fontSize: 8),
+                        style: TextStyle(
+                          fontSize: 8,
+                          color: AllColors.red,
+                        ),
                       ),
                       Text(
                         "${item.user.losses}",
-                        style:
-                            const TextStyle(color: AllColors.red, fontSize: 8),
+                        style: const TextStyle(
+                          fontSize: 8,
+                          color: AllColors.red,
+                        ),
                       ),
                     ],
                   ),
+                  spacingBetweenStatistics,
                   Column(
                     children: [
                       const Text(
                         "Faltas",
-                        style: TextStyle(color: AllColors.white, fontSize: 8),
+                        style: TextStyle(
+                          fontSize: 8,
+                          color: AllColors.softWhite,
+                        ),
                       ),
                       Text(
                         "${item.user.totalFaults}",
                         style: const TextStyle(
-                            color: AllColors.white, fontSize: 8),
+                          fontSize: 8,
+                          color: AllColors.softWhite,
+                        ),
                       ),
                     ],
                   ),
@@ -284,6 +323,10 @@ class _RankingScreenState extends State<RankingScreen>
   // Card de exibição do ranking
   Widget _buildRankingCard(Ranking item, int rank) {
     final userInfo = item.user;
+    final spacingBetweenStatistics = SizedBox(
+      width: MediaQuery.of(context).size.width * 0.03,
+    );
+
     return Container(
       constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width * 0.005,
@@ -302,10 +345,10 @@ class _RankingScreenState extends State<RankingScreen>
                 children: [
                   Text(
                     userInfo.name,
-                    style: TextStyle(
+                    style: const TextStyle(
+                      fontSize: 12,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: MediaQuery.of(context).size.width * 0.03,
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -316,17 +359,17 @@ class _RankingScreenState extends State<RankingScreen>
                     ),
                     child: Text(
                       "${item.score} pts",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                      style: const TextStyle(
+                        fontSize: 12,
                         color: AllColors.gold,
-                        fontSize: MediaQuery.of(context).size.width * 0.035,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ],
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.02,
+                height: MediaQuery.of(context).size.height * 0.01,
               ),
               Row(
                 children: [
@@ -345,19 +388,22 @@ class _RankingScreenState extends State<RankingScreen>
                   ),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Flexible(
-                              child: _buildStat("Vitórias", userInfo.wins),
-                            ),
-                            Flexible(
-                              child: _buildStat("Derrotas", userInfo.losses),
-                            ),
-                            Flexible(
-                              child: _buildStat("Faltas", userInfo.totalFaults),
+                            _buildStat("Vitórias", userInfo.wins),
+                            spacingBetweenStatistics,
+                            _buildStat("Derrotas", userInfo.losses),
+                            spacingBetweenStatistics,
+                            _buildStat("Faltas", userInfo.totalFaults),
+                            spacingBetweenStatistics,
+                            _buildStat("Treinos", userInfo.totalTrainingDays),
+                            spacingBetweenStatistics,
+                            _buildStat(
+                              "Participações",
+                              userInfo.totalParticipations,
                             ),
                           ],
                         ),
@@ -365,7 +411,7 @@ class _RankingScreenState extends State<RankingScreen>
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -411,7 +457,10 @@ class _RankingScreenState extends State<RankingScreen>
             )
           : ClipOval(
               child: Image.memory(
+                width: 100,
+                height: 100,
                 decodedImage,
+                fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Column(
                   children: [
                     Icon(
@@ -430,28 +479,28 @@ class _RankingScreenState extends State<RankingScreen>
   Widget _buildStat(String label, int value) {
     return Center(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Center(
             child: Text(
               label,
               style: TextStyle(
+                fontSize: 10,
                 color: label == 'Vitórias'
-                    ? Colors.green.shade800
+                    ? AllColors.green
                     : label == 'Derrotas'
-                        ? Colors.red.shade800
-                        : Colors.white70,
-                fontSize: MediaQuery.of(context).size.width * 0.028,
+                        ? AllColors.red
+                        : AllColors.softWhite,
               ),
             ),
           ),
           Center(
             child: Text(
               "$value",
-              style: TextStyle(
+              style: const TextStyle(
+                fontSize: 10,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: MediaQuery.of(context).size.width * 0.022,
               ),
             ),
           ),

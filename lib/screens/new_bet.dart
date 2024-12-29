@@ -6,6 +6,7 @@ import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
 import 'package:daily_training_flutter/widgets/CustomTextField.dart';
 import 'package:daily_training_flutter/widgets/DateRangePicker.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:daily_training_flutter/widgets/CustomElevatedButton.dart';
 
 class NewBetScreen extends StatefulWidget {
@@ -25,12 +26,24 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
       TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // BackButtonInterceptor.add(backButtonInterceptor);
+  }
+
+  @override
   void dispose() {
+    // BackButtonInterceptor.remove(backButtonInterceptor);
     _initialDateController.dispose();
     _finalDateController.dispose();
     _faultsAllowedController.dispose();
     _minimumPenaltyAmountController.dispose();
     super.dispose();
+  }
+
+  bool backButtonInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    Navigator.pushNamed(context, '/bets');
+    return true;
   }
 
   String convertDate(String inputDate) {

@@ -53,6 +53,7 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
 
       // Fetch user data
       userData = await _safeGetUserData();
+      await UsersService.setUserData(userData!.id!);
 
       // Update loading state
       if (mounted) {
@@ -161,7 +162,10 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
                 )
               : ClipOval(
                   child: Image.memory(
+                    width: 100,
+                    height: 100,
                     decodedUserImage,
+                    fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Text(
                       (userName?.isNotEmpty == true
                           ? userName![0].toUpperCase()
@@ -208,19 +212,10 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
                       color: AllColors.gold, // Cor da borda
                       width: 1, // Largura da borda
                     ),
-                    image: decodedUserImage != null
-                        ? DecorationImage(
-                            fit: BoxFit.cover,
-                            image: MemoryImage(decodedUserImage),
-                          )
-                        : null,
                   ),
                   child: CircleAvatar(
                     radius: 40,
                     backgroundColor: AllColors.transparent,
-                    backgroundImage: decodedUserImage != null
-                        ? MemoryImage(decodedUserImage)
-                        : null,
                     child: decodedUserImage == null
                         ? Text(
                             (userName?.isNotEmpty == true
@@ -234,7 +229,10 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
                           )
                         : ClipOval(
                             child: Image.memory(
+                              width: 100,
+                              height: 100,
                               decodedUserImage,
+                              fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
                                   Text(
                                 (userName?.isNotEmpty == true

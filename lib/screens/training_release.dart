@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/widgets/Sidebar.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:daily_training_flutter/providers/training_release.provider.dart';
 
 class LaunchTrainingScreen extends StatefulWidget {
@@ -30,6 +31,25 @@ class _LaunchTrainingScreenState extends State<LaunchTrainingScreen> {
   final ValueNotifier<Uint8List?> _trainingImage =
       ValueNotifier<Uint8List?>(null);
   final ValueNotifier<bool> _isSubmitting = ValueNotifier<bool>(false);
+
+  @override
+  void initState() {
+    super.initState();
+    // BackButtonInterceptor.add(backButtonInterceptor);
+  }
+
+  @override
+  void dispose() {
+    // BackButtonInterceptor.remove(backButtonInterceptor);
+    _trainingTypeController.dispose();
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  bool backButtonInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    Navigator.pushNamed(context, '/bet-details');
+    return true;
+  }
 
   setMessage(String message, [bool error = false]) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -241,6 +261,9 @@ class _LaunchTrainingScreenState extends State<LaunchTrainingScreen> {
                             );
                     },
                   ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.01,
+                  ),
                   DropdownButtonFormField<String>(
                     value: null,
                     decoration: InputDecoration(
@@ -400,12 +423,5 @@ class _LaunchTrainingScreenState extends State<LaunchTrainingScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _trainingTypeController.dispose();
-    _commentController.dispose();
-    super.dispose();
   }
 }

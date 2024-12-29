@@ -5,6 +5,8 @@ class UserRanking {
   final int losses;
   final String name;
   final int totalFaults;
+  final int totalTrainingDays;
+  final int totalParticipations;
   final String? profileImagePath;
 
   UserRanking({
@@ -13,6 +15,8 @@ class UserRanking {
     required this.losses,
     this.profileImagePath,
     required this.totalFaults,
+    required this.totalTrainingDays,
+    required this.totalParticipations,
   });
 
   factory UserRanking.fromJson(Map<String, dynamic> json) {
@@ -22,26 +26,25 @@ class UserRanking {
       losses: json['losses'],
       totalFaults: json['totalFaults'],
       profileImagePath: json['profileImagePath'],
+      totalTrainingDays: json['totalTrainingDays'],
+      totalParticipations: json['totalParticipations'],
     );
   }
 }
 
 class Ranking {
-  final int id;
   final int score;
   final UserRanking user;
 
   Ranking({
-    required this.id,
     required this.user,
     required this.score,
   });
 
   factory Ranking.fromJson(Map<String, dynamic> json) {
     return Ranking(
-      id: json['id'],
-      user: UserRanking.fromJson(json['user'] as Map<String, dynamic>),
       score: json['score'],
+      user: UserRanking.fromJson(json['user'] as Map<String, dynamic>),
     );
   }
 }
