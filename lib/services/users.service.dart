@@ -77,7 +77,6 @@ class User {
   final DateTime? updatedAt;
   final Null deletedAt;
   final UserLogs? userLogs;
-  final Object? betsParticipated;
 
   User({
     this.id,
@@ -96,7 +95,6 @@ class User {
     this.updatedAt,
     this.deletedAt,
     this.userLogs,
-    this.betsParticipated,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -117,7 +115,6 @@ class User {
       updatedAt: DateTime.parse(json['updatedAt']),
       deletedAt: json['deletedAt'],
       userLogs: UserLogs.fromJson(json['userLogs']),
-      betsParticipated: json['betsParticipated'],
     );
   }
 }

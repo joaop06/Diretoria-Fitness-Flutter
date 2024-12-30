@@ -680,7 +680,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                                     color: AllColors.softWhite,
                                   ),
                                 ),
-                                Text('${userData!.betsParticipated ?? 0}',
+                                Text('${userData!.totalParticipations ?? 0}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AllColors.text,
