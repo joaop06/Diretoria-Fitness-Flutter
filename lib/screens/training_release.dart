@@ -312,12 +312,12 @@ class _LaunchTrainingScreenState extends State<LaunchTrainingScreen> {
                         ),
                       ),
                       DropdownMenuItem(
-                        value: 'Caminhada',
+                        value: 'Vôlei',
                         child: Row(
                           children: [
-                            Icon(Icons.directions_walk, color: Colors.orange),
+                            Icon(Icons.sports_volleyball, color: Colors.orange),
                             SizedBox(width: 10),
-                            Text('Caminhada'),
+                            Text('Vôlei'),
                           ],
                         ),
                       ),

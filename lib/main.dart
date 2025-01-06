@@ -14,7 +14,6 @@ import 'package:daily_training_flutter/screens/bet_details.dart';
 import 'package:daily_training_flutter/services/api.service.dart';
 import 'package:daily_training_flutter/services/bets.service.dart';
 import 'package:daily_training_flutter/services/ranking.service.dart';
-import 'package:daily_training_flutter/services/participants.service.dart';
 import 'package:daily_training_flutter/services/training_release.service.dart';
 
 import 'package:daily_training_flutter/providers/auth.provider.dart';
@@ -35,9 +34,7 @@ void main() async {
                 TrainingReleaseProvider(TrainingReleaseService(ApiService()))),
         ChangeNotifierProvider(
             create: (_) => RankingProvider(RankingService(ApiService()))),
-        ChangeNotifierProvider(
-            create: (_) =>
-                ParticipantsProvider(ParticipantsService(ApiService()))),
+        ChangeNotifierProvider(create: (_) => ParticipantsProvider()),
         ChangeNotifierProvider(
             create: (_) => BetsProvider(BetsService(ApiService()))),
       ],

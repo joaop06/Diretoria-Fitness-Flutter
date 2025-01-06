@@ -8,8 +8,9 @@ class ParticipantsProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  final ParticipantsService _participantsService;
-  ParticipantsProvider(this._participantsService);
+  final ParticipantsService participantsService;
+  ParticipantsProvider({ParticipantsService? participantsService})
+      : participantsService = participantsService ?? ParticipantsService();
 
   Future<void> create(Map<String, dynamic> participantData) async {
     _isLoading = true;
@@ -17,12 +18,45 @@ class ParticipantsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      await _participantsService.create(participantData);
+      await participantsService.create(participantData);
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<List<dynamic>> participantsByTrainingBet(int betId) async {
+    try {
+      final result = await participantsService.participantsByTrainingBet(betId);
+      return result;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<dynamic>> winningParticipants(int betId) async {
+    try {
+      final result = await participantsService.winningParticipants(betId);
+      return result;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future updatePenaltyPaid(
+    int participantId,
+    int trainingBetId,
+  ) async {
+    try {
+      final result = await participantsService.updatePenaltyPaid(
+        participantId,
+        trainingBetId,
+      );
+      return result;
+    } catch (e) {
+      rethrow;
     }
   }
 }

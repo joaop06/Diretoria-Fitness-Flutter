@@ -167,7 +167,8 @@ class UsersService {
 
   static setUserData(int userId) async {
     final apiService = ApiService();
-    final userData = await apiService.get('/users/$userId');
+    final userData =
+        await apiService.get<Map<String, dynamic>>('/users/$userId');
 
     final prefs = await instancePrefs();
     final userEncoded = jsonEncode(userData);

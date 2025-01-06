@@ -53,7 +53,8 @@ class BetsService {
   BetsService(this._apiService);
 
   Future<List<Bet>> getBets() async {
-    final betsData = await _apiService.get('/training-bets');
+    final betsData =
+        await _apiService.get<Map<String, dynamic>>('/training-bets');
     return (betsData["rows"] as List)
         .map((item) => Bet.fromJson(item))
         .toList();
@@ -65,7 +66,8 @@ class BetsService {
   }
 
   Future<Bet> getBetDetails(int id) async {
-    final bet = await _apiService.get('/training-bets/$id');
+    final bet =
+        await _apiService.get<Map<String, dynamic>>('/training-bets/$id');
     return Bet.fromJson(bet);
   }
 

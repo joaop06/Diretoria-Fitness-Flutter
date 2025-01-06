@@ -264,6 +264,7 @@ class _BetDetailsContainer extends StatelessWidget {
   bool betInProgress;
   bool isParticipant;
   ParticipantsProvider participantsProvider;
+  final ValueNotifier<bool> isCreatingParticipant = ValueNotifier<bool>(false);
 
   _BetDetailsContainer({
     this.participant,
@@ -415,8 +416,9 @@ class _BetDetailsContainer extends StatelessWidget {
                       OutlinedButton(
                         onPressed: () {
                           _ParticipantsModal(
+                            userId: userData.id!,
+                            betId: betDetails.id!,
                             betStatus: betDetails.status!,
-                            participants: betDetails.participants,
                           ).show(context);
                         },
                         style: OutlinedButton.styleFrom(
@@ -436,43 +438,62 @@ class _BetDetailsContainer extends StatelessWidget {
                       ),
                       if (betScheduled)
                         if (!isParticipant)
-                          ElevatedButton(
-                            onPressed: () async {
-                              try {
-                                final participantData = {
-                                  'userId': userData.id,
-                                  'trainingBetId': betDetails.id,
-                                };
-                                await participantsProvider
-                                    .create(participantData);
+                          ValueListenableBuilder<bool>(
+                            valueListenable: isCreatingParticipant,
+                            builder: (context, isLoading, child) {
+                              return CustomElevatedButton(
+                                borderRadius: 15,
+                                isLoading: isLoading,
+                                backgroundColor: AllColors.orange,
+                                onPressed: () async {
+                                  try {
+                                    isCreatingParticipant.value = true;
+                                    final participantData = {
+                                      'userId': userData.id,
+                                      'trainingBetId': betDetails.id,
+                                    };
+                                    await participantsProvider
+                                        .create(participantData);
 
-                                Navigator.pushNamed(context, '/bet-details');
-                              } catch (e) {
-                                if (e
+                                    if (participantsProvider.errorMessage !=
+                                        null) {
+                                      throw Exception(
+                                          participantsProvider.errorMessage);
+                                    } else {
+                                      Navigator.pushNamed(
+                                          context, '/bet-details');
+                                    }
+                                  } catch (e) {
+                                    final errorMessage = e
                                         .toString()
-                                        .replaceFirst('Exception: ', '') ==
-                                    'Token expirado. Faça o login novamente') {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                      'Token expirado. Faça o login novamente',
-                                      style: TextStyle(color: AllColors.red),
-                                    )),
-                                  );
-                                  Navigator.pushNamed(context, '/');
-                                }
-                              }
+                                        .replaceFirst('Exception: ', '');
+                                    const signinMessage =
+                                        'Token expirado. Faça o login novamente';
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                        errorMessage,
+                                        style: const TextStyle(
+                                            color: AllColors.red),
+                                      )),
+                                    );
+                                    if (errorMessage == signinMessage) {
+                                      Navigator.pushNamed(context, '/');
+                                    }
+                                  } finally {
+                                    isCreatingParticipant.value = false;
+                                  }
+                                },
+                                child: const Text(
+                                  'Participar',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AllColors.white,
+                                  ),
+                                ),
+                              );
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AllColors.orange,
-                            ),
-                            child: const Text(
-                              'Participar',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AllColors.white,
-                              ),
-                            ),
                           ),
                       if (betClosed)
                         OutlinedButton(
@@ -496,6 +517,7 @@ class _BetDetailsContainer extends StatelessWidget {
                         ),
                     ],
                   ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   if (participant != null &&
                       participant['declassified'] == true)
                     const Center(
@@ -835,12 +857,30 @@ class _OtherDaysList extends StatelessWidget {
 }
 
 class _ParticipantsModal {
+  int betId;
+  int userId;
   String betStatus;
+  bool? userIsWinner;
+  List<dynamic>? winners;
   List<dynamic>? participants;
+  final participantsProvider = ParticipantsProvider();
 
-  _ParticipantsModal({required this.betStatus, this.participants});
+  _ParticipantsModal({
+    required this.betId,
+    required this.userId,
+    required this.betStatus,
+  });
 
-  void show(BuildContext context) {
+  bool verifyIfUserIsWinner(List<dynamic> winners) {
+    return winners.any((participant) =>
+        participant['user'] != null && participant['user']['id'] == userId);
+  }
+
+  void show(BuildContext context) async {
+    winners = await participantsProvider.winningParticipants(betId);
+    participants = await participantsProvider.participantsByTrainingBet(betId);
+    userIsWinner = verifyIfUserIsWinner(winners!);
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AllColors.background,
@@ -848,81 +888,194 @@ class _ParticipantsModal {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
-        return participants == null || participants!.isEmpty
-            ? const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Center(
-                  child: Text(
-                    'Nenhum participante no momento',
-                    style: TextStyle(fontSize: 16, color: AllColors.text),
-                  ),
-                ),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: participants?.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final participant = participants?[index];
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            Future<void> refreshParticipants() async {
+              participants =
+                  await participantsProvider.participantsByTrainingBet(betId);
+              setModalState(() {});
+            }
 
-                  final imagePath = participant['user']['profileImagePath'];
-                  final decodedImage =
-                      imagePath != null ? base64Decode(imagePath) : null;
+            return participants == null || participants!.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Text(
+                        'Nenhum participante no momento',
+                        style: TextStyle(fontSize: 16, color: AllColors.text),
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: participants?.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final participant = participants?[index];
 
-                  var subtitleText =
-                      'Faltas: ${participant['faults']} / Aproveitamento: ${participant['utilization']}%';
-                  if (betStatus == 'Agendada') {
-                    subtitleText =
-                        'Vitórias: ${participant['user']['wins']} / Derrotas: ${participant['user']['losses']}';
-                  }
+                      final imagePath = participant['user']['profileImagePath'];
+                      final decodedImage =
+                          imagePath != null ? base64Decode(imagePath) : null;
 
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: decodedImage != null
-                          ? AllColors.transparent
-                          : AllColors.statusBet[betStatus],
-                      child: decodedImage != null
-                          ? ClipOval(
-                              child: Image.memory(
-                                width: 100,
-                                height: 100,
-                                decodedImage,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Column(
-                                  children: [
-                                    const Icon(
-                                      Icons.error,
-                                      color: AllColors.red,
+                      var subtitleText =
+                          'Faltas: ${participant['faults']} / Aproveitamento: ${participant['utilization']}%';
+                      if (betStatus == 'Agendada') {
+                        subtitleText =
+                            'Vitórias: ${participant['user']['wins']} / Derrotas: ${participant['user']['losses']}';
+                      }
+
+                      return Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Expanded(
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: decodedImage != null
+                                        ? AllColors.transparent
+                                        : AllColors.statusBet[betStatus],
+                                    child: decodedImage != null
+                                        ? ClipOval(
+                                            child: Image.memory(
+                                              width: 100,
+                                              height: 100,
+                                              decodedImage,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) =>
+                                                  const Icon(
+                                                Icons.error,
+                                                color: AllColors.red,
+                                              ),
+                                            ),
+                                          )
+                                        : Text(
+                                            participant['user']['name']
+                                                .substring(0, 1)
+                                                .toUpperCase(),
+                                            style: const TextStyle(
+                                              color: AllColors.white,
+                                            ),
+                                          ),
+                                  ),
+                                  title: Text(
+                                    participant['user']['name'],
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: AllColors.text,
                                     ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.5,
-                                    )
-                                  ],
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (participant['declassified'] == true)
+                                        Row(
+                                          children: [
+                                            const Text(
+                                              'Desclassificado',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: AllColors.red,
+                                              ),
+                                            ),
+                                            if (betStatus == 'Encerrada' &&
+                                                participant['penaltyPaid'] ==
+                                                    false)
+                                              Text(
+                                                ': ${NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(participant['penaltyAmount'])}',
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: AllColors.red,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.005,
+                                      ),
+                                      Text(
+                                        subtitleText,
+                                        style: const TextStyle(
+                                            fontSize: 10,
+                                            color: AllColors.text),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            )
-                          : Text(
-                              participant['user']['name']
-                                  .substring(0, 1)
-                                  .toUpperCase(),
-                              style: const TextStyle(color: AllColors.white),
-                            ),
-                    ),
-                    title: Text(
-                      participant['user']['name'],
-                      style:
-                          const TextStyle(fontSize: 16, color: AllColors.text),
-                    ),
-                    subtitle: Text(
-                      subtitleText,
-                      style:
-                          const TextStyle(fontSize: 12, color: AllColors.text),
-                    ),
+                              if (userIsWinner == true &&
+                                  betStatus == 'Encerrada' &&
+                                  participant['declassified'] == true &&
+                                  participant['penaltyPaid'] == false)
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      try {
+                                        await participantsProvider
+                                            .updatePenaltyPaid(
+                                                participant['id'], betId);
+                                        await refreshParticipants(); // Recarrega os dados
+                                      } catch (e) {
+                                        Navigator.pop(context);
+                                        final message = e
+                                            .toString()
+                                            .replaceAll('Exception: ', '');
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                            message,
+                                            style: const TextStyle(
+                                              color: AllColors.red,
+                                            ),
+                                          )),
+                                        );
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 1,
+                                      padding: const EdgeInsets.all(5),
+                                      backgroundColor: AllColors.softBackground,
+                                    ),
+                                    child: const Row(
+                                      children: [
+                                        Text(
+                                          '\$ ',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AllColors.green,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Confirmar',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: AllColors.softWhite,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ))
+                              else if (participant['declassified'] == true &&
+                                  participant['penaltyPaid'] == true)
+                                const Icon(
+                                  Icons.check,
+                                  color: AllColors.green,
+                                )
+                            ],
+                          ),
+                        ],
+                      );
+                    },
                   );
-                },
-              );
+          },
+        );
       },
     );
   }
@@ -1040,8 +1193,8 @@ class _TrainingModal {
     'Luta': const Icon(Icons.sports_kabaddi, color: Colors.red),
     'Corrida': const Icon(Icons.directions_run, color: Colors.green),
     'Musculação': const Icon(Icons.fitness_center, color: Colors.blue),
+    'Vôlei': const Icon(Icons.sports_volleyball, color: Colors.orange),
     'Ciclismo': const Icon(Icons.directions_bike, color: Colors.purple),
-    'Caminhada': const Icon(Icons.directions_walk, color: Colors.orange),
   };
 
   void show(BuildContext context) {

@@ -19,8 +19,7 @@ class ApiService {
     return headers;
   }
 
-  // Função para buscar apostas do servidor
-  Future<Map<String, dynamic>> get(String endpoint) async {
+  Future<T> get<T>(String endpoint) async {
     final url = Uri.parse("$baseUrl$endpoint");
     final accessToken = await AuthService.getAccessToken();
 
@@ -28,7 +27,14 @@ class ApiService {
       final response = await http.get(url, headers: buildHeaders(accessToken));
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        final decodedResponse = json.decode(response.body);
+
+        // Valida se o tipo retornado é compatível com o esperado
+        if (decodedResponse is T) {
+          return decodedResponse;
+        } else {
+          throw Exception("Tipo de resposta inesperado. Esperado: $T");
+        }
       } else {
         if (response.statusCode == 401 &&
             json.decode(response.body)['message'] != 'Credenciais inválidas') {

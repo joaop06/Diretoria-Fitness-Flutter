@@ -55,7 +55,7 @@ class RankingService {
   RankingService(this._apiService);
 
   Future<List<Ranking>> getRanking() async {
-    final response = await _apiService.get('/ranking');
+    final response = await _apiService.get<Map<String, dynamic>>('/ranking');
 
     return (response["result"] as List)
         .map((item) => Ranking.fromJson(item))
