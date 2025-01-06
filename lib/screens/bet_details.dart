@@ -1408,6 +1408,25 @@ class _TrainingModal {
                             SizedBox(
                               height: MediaQuery.of(context).size.height * 0.01,
                             ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (training['comment'] != null ||
+                                    training['comment'] != '')
+                                  Text(
+                                    'Comentário: ${training['comment']}',
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      decorationThickness: 1,
+                                      color: AllColors.text,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.01,
+                            ),
                             Padding(
                               padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
                               child: Row(
