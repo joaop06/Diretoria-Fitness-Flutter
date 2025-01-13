@@ -1,0 +1,10 @@
+^D:\GITHUB\DIRETORIA-FITNESS-FLUTTER\BUILD\WINDOWS\X64\CMAKEFILES\C93B0C7C4C3EB1283BE66319260088B5\INSTALL_FORCE.RULE
+setlocal
+cd .
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

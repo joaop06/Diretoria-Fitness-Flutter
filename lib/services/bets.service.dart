@@ -1,4 +1,6 @@
 import 'package:daily_training_flutter/services/api.service.dart';
+import 'package:daily_training_flutter/services/bet_day.service.dart';
+import 'package:daily_training_flutter/services/participants.service.dart';
 
 class Bet {
   final int? id;
@@ -11,8 +13,8 @@ class Bet {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final Null deletedAt;
-  final List<dynamic>? betDays;
-  final List? participants;
+  final List<BetDay>? betDays;
+  final List<Participants>? participants;
 
   Bet({
     this.id,
@@ -30,20 +32,36 @@ class Bet {
   });
 
   factory Bet.fromJson(Map<String, dynamic> json) {
-    return Bet(
-      id: json['id'],
-      duration: json['duration'],
-      initialDate: DateTime.parse(json['initialDate']),
-      finalDate: DateTime.parse(json['finalDate']),
-      faultsAllowed: json['faultsAllowed'],
-      minimumPenaltyAmount: json['minimumPenaltyAmount'],
-      status: json['status'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      deletedAt: json['deletedAt'],
-      betDays: json['betDays'],
-      participants: json['participants'],
-    );
+    try {
+      return Bet(
+        id: json['id'],
+        duration: json['duration'],
+        initialDate: DateTime.parse(json['initialDate']),
+        finalDate: DateTime.parse(json['finalDate']),
+        faultsAllowed: json['faultsAllowed'],
+        minimumPenaltyAmount: json['minimumPenaltyAmount'],
+        status: json['status'],
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'])
+            : null,
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'])
+            : null,
+        deletedAt: json['deletedAt'],
+        betDays: json['betDays'] != null
+            ? (json['betDays'] as List)
+                .map((item) => BetDay.fromJson(item))
+                .toList()
+            : null,
+        participants: json['participants'] != null
+            ? (json['participants'] as List)
+                .map((item) => Participants.fromJson(item))
+                .toList()
+            : null,
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 
@@ -55,7 +73,7 @@ class BetsService {
   Future<List<Bet>> getBets() async {
     final betsData =
         await _apiService.get<Map<String, dynamic>>('/training-bets');
-    return (betsData["rows"] as List)
+    return (betsData['rows'] as List)
         .map((item) => Bet.fromJson(item))
         .toList();
   }

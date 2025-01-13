@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/GitHub/DailyTraining-Frontend/windows/flutter"
+    "cmake.sourceDirectory": "D:/GitHub/DailyTraining-Frontend/windows/flutter",
+    "cmake.ignoreCMakeListsMissing": true
 }

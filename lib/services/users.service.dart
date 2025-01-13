@@ -1,7 +1,6 @@
 import 'dart:convert';
-
-import 'package:daily_training_flutter/services/api.service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daily_training_flutter/services/api.service.dart';
 
 class Log {
   final int? id;
@@ -23,15 +22,23 @@ class Log {
   });
 
   factory Log.fromJson(Map<String, dynamic> json) {
-    return Log(
-      id: json['id'],
-      userId: json['userId'],
-      fieldName: json['fieldName'],
-      value: double.parse(json['value']),
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      deletedAt: json['deletedAt'],
-    );
+    try {
+      return Log(
+        id: json['id'],
+        userId: json['userId'],
+        fieldName: json['fieldName'],
+        value: double.parse(json['value']),
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'])
+            : null,
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'])
+            : null,
+        deletedAt: json['deletedAt'],
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 
@@ -47,16 +54,21 @@ class UserLogs {
   });
 
   factory UserLogs.fromJson(Map<String, dynamic> json) {
-    return UserLogs(
-      bmiLogs:
-          (json['bmiLogs'] as List).map((item) => Log.fromJson(item)).toList(),
-      heightLogs: (json['heightLogs'] as List)
-          .map((item) => Log.fromJson(item))
-          .toList(),
-      weightLogs: (json['weightLogs'] as List)
-          .map((item) => Log.fromJson(item))
-          .toList(),
-    );
+    try {
+      return UserLogs(
+        bmiLogs: (json['bmiLogs'] as List)
+            .map((item) => Log.fromJson(item))
+            .toList(),
+        heightLogs: (json['heightLogs'] as List)
+            .map((item) => Log.fromJson(item))
+            .toList(),
+        weightLogs: (json['weightLogs'] as List)
+            .map((item) => Log.fromJson(item))
+            .toList(),
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 
@@ -98,24 +110,34 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      weight: json['weight'],
-      height: json['height'],
-      bmi: json['bmi'],
-      wins: json['wins'],
-      losses: json['losses'],
-      totalFaults: json['totalFaults'],
-      totalTrainingDays: json['totalTrainingDays'],
-      totalParticipations: json['totalParticipations'],
-      profileImagePath: json['profileImagePath'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      deletedAt: json['deletedAt'],
-      userLogs: UserLogs.fromJson(json['userLogs']),
-    );
+    try {
+      return User(
+        id: json['id'] as int?,
+        wins: json['wins'] as int?,
+        bmi: json['bmi']?.toDouble(),
+        name: json['name'] as String?,
+        losses: json['losses'] as int?,
+        email: json['email'] as String?,
+        weight: json['weight']?.toDouble(),
+        height: json['height']?.toDouble(),
+        totalFaults: json['totalFaults'] as int?,
+        totalTrainingDays: json['totalTrainingDays'] as int?,
+        profileImagePath: json['profileImagePath'] as String?,
+        totalParticipations: json['totalParticipations'] as int?,
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'])
+            : null,
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'])
+            : null,
+        deletedAt: json['deletedAt'],
+        userLogs: json['userLogs'] != null
+            ? UserLogs.fromJson(json['userLogs'])
+            : null,
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 

@@ -20,15 +20,19 @@ class UserRanking {
   });
 
   factory UserRanking.fromJson(Map<String, dynamic> json) {
-    return UserRanking(
-      name: json['name'],
-      wins: json['wins'],
-      losses: json['losses'],
-      totalFaults: json['totalFaults'],
-      profileImagePath: json['profileImagePath'],
-      totalTrainingDays: json['totalTrainingDays'],
-      totalParticipations: json['totalParticipations'],
-    );
+    try {
+      return UserRanking(
+        name: json['name'],
+        wins: json['wins'],
+        losses: json['losses'],
+        totalFaults: json['totalFaults'],
+        profileImagePath: json['profileImagePath'],
+        totalTrainingDays: json['totalTrainingDays'],
+        totalParticipations: json['totalParticipations'],
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 
@@ -42,10 +46,14 @@ class Ranking {
   });
 
   factory Ranking.fromJson(Map<String, dynamic> json) {
-    return Ranking(
-      score: json['score'],
-      user: UserRanking.fromJson(json['user'] as Map<String, dynamic>),
-    );
+    try {
+      return Ranking(
+        score: json['score'],
+        user: UserRanking.fromJson(json['user'] as Map<String, dynamic>),
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 
@@ -57,7 +65,7 @@ class RankingService {
   Future<List<Ranking>> getRanking() async {
     final response = await _apiService.get<Map<String, dynamic>>('/ranking');
 
-    return (response["result"] as List)
+    return (response['result'] as List)
         .map((item) => Ranking.fromJson(item))
         .toList();
   }

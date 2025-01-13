@@ -27,7 +27,7 @@ class ParticipantsProvider with ChangeNotifier {
     }
   }
 
-  Future<List<dynamic>> participantsByTrainingBet(int betId) async {
+  Future<List<Participants>> participantsByTrainingBet(int betId) async {
     try {
       final result = await participantsService.participantsByTrainingBet(betId);
       return result;
@@ -36,7 +36,7 @@ class ParticipantsProvider with ChangeNotifier {
     }
   }
 
-  Future<List<dynamic>> winningParticipants(int betId) async {
+  Future<List<Participants>> winningParticipants(int betId) async {
     try {
       final result = await participantsService.winningParticipants(betId);
       return result;

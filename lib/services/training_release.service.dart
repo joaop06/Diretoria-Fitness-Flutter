@@ -28,17 +28,25 @@ class TrainingRelease {
   });
 
   factory TrainingRelease.fromJson(Map<String, dynamic> json) {
-    return TrainingRelease(
-      id: json['id'],
-      trainingType: json['trainingType'],
-      comment: json['comment'],
-      imagePath: json['imagePath'],
-      participant: json['participant'],
-      betDay: json['betDay'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      deletedAt: json['deletedAt'],
-    );
+    try {
+      return TrainingRelease(
+        id: json['id'],
+        trainingType: json['trainingType'],
+        comment: json['comment'],
+        imagePath: json['imagePath'],
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'])
+            : null,
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'])
+            : null,
+        deletedAt: json['deletedAt'],
+        participant: Participants.fromJson(json['participant']),
+        betDay: json['betDay'] != null ? BetDay.fromJson(json['betDay']) : null,
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 

@@ -93,9 +93,15 @@ class _NewBetScreenScreenState extends State<NewBetScreen> {
           // Exibe o erro
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(
-                    betsProvider.errorMessage ?? 'Erro ao criar aposta',
-                    style: const TextStyle(color: Colors.red))),
+              content: Text(
+                betsProvider.errorMessage ?? 'Erro ao criar aposta',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           );
         }
 

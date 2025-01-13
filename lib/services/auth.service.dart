@@ -1,7 +1,5 @@
-import 'dart:convert';
-import 'package:flutter/material.dart';
-
 import 'api.service.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
 
@@ -44,7 +42,7 @@ class AuthService {
     if (response.containsKey("accessToken")) {
       try {
         final prefs = await instancePrefs();
-        await prefs.setString("accessToken", response["accessToken"]);
+        await prefs.setString("accessToken", response['accessToken']);
 
         await UsersService.setUserData(response['user']['id']);
       } catch (e) {

@@ -1,0 +1,10 @@
+^D:\GITHUB\DIRETORIA-FITNESS-FLUTTER\BUILD\WINDOWS\X64\CMAKEFILES\C93B0C7C4C3EB1283BE66319260088B5\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/GitHub/Diretoria-Fitness-Flutter/windows -BD:/GitHub/Diretoria-Fitness-Flutter/build/windows/x64 --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/GitHub/Diretoria-Fitness-Flutter/build/windows/x64/daily_training_flutter.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

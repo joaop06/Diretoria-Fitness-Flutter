@@ -7,12 +7,12 @@ class BetDay {
   final String? day;
   final String? name;
   final int? totalFaults;
-  final int? utilization;
+  final double? utilization;
   final Bet? trainingBet;
-  final TrainingRelease? trainingReleases;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final Null deletedAt;
+  final List<TrainingRelease>? trainingReleases;
 
   BetDay({
     this.id,
@@ -28,18 +28,31 @@ class BetDay {
   });
 
   factory BetDay.fromJson(Map<String, dynamic> json) {
-    return BetDay(
-      id: json['id'],
-      day: json['day'],
-      name: json['name'],
-      totalFaults: json['totalFaults'],
-      utilization: json['utilization'],
-      trainingBet: json['trainingBet'],
-      trainingReleases: json['trainingReleases'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      deletedAt: json['deletedAt'],
-    );
+    try {
+      return BetDay(
+        id: json['id'],
+        day: json['day'],
+        name: json['name'],
+        totalFaults: json['totalFaults'],
+        utilization: json['utilization'],
+        trainingBet: json['trainingBet'],
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'])
+            : null,
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'])
+            : null,
+        deletedAt: json['deletedAt'],
+        trainingReleases: json['trainingReleases'] != null ||
+                (json['trainingReleases'] as List).isNotEmpty
+            ? (json['trainingReleases'] as List)
+                .map((item) => TrainingRelease.fromJson(item))
+                .toList()
+            : null,
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 

@@ -1,13 +1,16 @@
 import 'dart:convert';
+import 'package:daily_training_flutter/services/participants.service.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:collection/collection.dart';
 import 'package:daily_training_flutter/utils/AllColors.dart';
 import 'package:daily_training_flutter/widgets/Sidebar.dart';
 import 'package:daily_training_flutter/services/auth.service.dart';
 import 'package:daily_training_flutter/services/bets.service.dart';
 import 'package:daily_training_flutter/services/users.service.dart';
 import 'package:daily_training_flutter/providers/bets.provider.dart';
+import 'package:daily_training_flutter/services/bet_day.service.dart';
 import 'package:daily_training_flutter/screens/training_release.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:carousel_slider/carousel_slider.dart' as custom_carousel;
@@ -75,7 +78,9 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
       final betsProvider = Provider.of<BetsProvider>(context, listen: false);
 
       await betsProvider.getBetDetails(betId);
-      betDetails = betsProvider.bets[0];
+      betDetails = betsProvider.bets.isEmpty
+          ? throw Exception('Aposta não encontrada')
+          : betsProvider.bets[0];
 
       // Update loading state
       if (mounted) {
@@ -111,18 +116,17 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
   }
 
   bool isUserParticipant() {
-    return betDetails!.participants!.any((participant) =>
-        participant['user']['id'] == int.parse('${userData?.id}'));
+    return betDetails!.participants!
+        .any((participant) => participant.user?.id == userData?.id);
   }
 
   bool hasUserTrainedToday() {
-    final todayBetDay = betDetails?.betDays?.firstWhere(
-      (day) => DateTime.parse(day['day']).day == currentDate.day,
-      orElse: () => null,
+    final todayBetDay = betDetails?.betDays?.firstWhereOrNull(
+      (day) => DateTime.parse(day.day!).day == currentDate.day,
     );
     if (todayBetDay == null) return false;
-    return todayBetDay['trainingReleases'].any((release) =>
-        release['participant']['user']['id'] == int.parse('${userData?.id}'));
+    return todayBetDay.trainingReleases!.any((release) =>
+        release.participant!.user!.id == int.parse('${userData?.id}'));
   }
 
   @override
@@ -143,19 +147,16 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
     }
 
     // Identifica o dia atual
-    final todayBetDay = betDetails?.betDays?.firstWhere(
-      (day) => day['day'] == DateFormat('yyyy-MM-dd').format(currentDate),
-      orElse: () => null,
+    BetDay? todayBetDay = betDetails?.betDays?.firstWhereOrNull(
+      (day) => day.day == DateFormat('yyyy-MM-dd').format(currentDate),
     );
 
-    final participant = betDetails?.participants?.firstWhere(
-      (participant) =>
-          participant['user']['id'] == int.parse('${userData?.id}'),
-      orElse: () => null,
+    Participants? participant = betDetails?.participants?.firstWhereOrNull(
+      (participant) => participant.user?.id == userData?.id,
     );
 
     return Sidebar(
-      title: 'Detalhes da Aposta ${betDetails?.id}',
+      title: 'Detalhes da Aposta ${betDetails?.id ?? ""}',
       actions: [
         if (betDetails?.status == 'Agendada')
           IconButton(
@@ -185,9 +186,9 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                       Center(
                         child: Column(
                           children: [
-                            const Text(
-                              'Detalhes da aposta não encontrados',
-                              style: TextStyle(
+                            Text(
+                              'Detalhes da aposta $betId não encontrados',
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: AllColors.white,
                                 fontWeight: FontWeight.bold,
@@ -204,7 +205,7 @@ class _BetDetailsScreenState extends State<BetDetailsScreen>
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AllColors.orange,
+                                backgroundColor: AllColors.gold,
                               ),
                               child: const Text(
                                 'Ir para Apostas',
@@ -259,18 +260,18 @@ class _BetDetailsContainer extends StatelessWidget {
   User userData;
   Bet betDetails;
   bool betClosed;
-  final participant;
   bool betScheduled;
   bool betInProgress;
   bool isParticipant;
+  Participants? participant;
   ParticipantsProvider participantsProvider;
   final ValueNotifier<bool> isCreatingParticipant = ValueNotifier<bool>(false);
 
   _BetDetailsContainer({
-    this.participant,
     required this.userData,
     required this.betClosed,
     required this.betDetails,
+    required this.participant,
     required this.betScheduled,
     required this.betInProgress,
     required this.isParticipant,
@@ -518,8 +519,7 @@ class _BetDetailsContainer extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                  if (participant != null &&
-                      participant['declassified'] == true)
+                  if (participant != null && participant!.declassified == true)
                     const Center(
                       child: Text(
                         'Desclassificado por limite de faltas',
@@ -543,9 +543,9 @@ class _BetDetailsContainer extends StatelessWidget {
 class _TodayHighlightContainer extends StatelessWidget {
   int betId;
   bool userTrained;
-  final participant;
   final betInProgress;
-  Map<String, dynamic> todayBetDay;
+  BetDay todayBetDay;
+  Participants? participant;
 
   _TodayHighlightContainer({
     this.participant,
@@ -557,11 +557,8 @@ class _TodayHighlightContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final participantId =
-        participant == null ? participant : participant!['id'];
-
-    final trainingReleasesIsEmpty =
-        (todayBetDay['trainingReleases'] as List<dynamic>).isEmpty;
+    final participantId = participant?.id;
+    final trainingReleasesIsEmpty = todayBetDay.trainingReleases?.isEmpty;
 
     return Center(
       child: Container(
@@ -581,7 +578,7 @@ class _TodayHighlightContainer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Hoje: ${todayBetDay['name']}',
+                    'Hoje: ${todayBetDay.name}',
                     style: const TextStyle(
                       fontSize: 14,
                       color: AllColors.gold,
@@ -590,7 +587,7 @@ class _TodayHighlightContainer extends StatelessWidget {
                   ),
                   Text(
                     DateFormat('dd/MM/yyyy')
-                        .format(DateTime.parse(todayBetDay['day'])),
+                        .format(DateTime.parse(todayBetDay.day!)),
                     style: const TextStyle(
                       fontSize: 14,
                       color: AllColors.text,
@@ -610,7 +607,7 @@ class _TodayHighlightContainer extends StatelessWidget {
                         style: TextStyle(fontSize: 12, color: AllColors.text),
                       ),
                       Text(
-                        '${todayBetDay['trainingReleases'].length}',
+                        '${todayBetDay.trainingReleases?.length}',
                         style: const TextStyle(
                             fontSize: 14, color: AllColors.text),
                       ),
@@ -623,7 +620,7 @@ class _TodayHighlightContainer extends StatelessWidget {
                         style: TextStyle(fontSize: 12, color: AllColors.text),
                       ),
                       Text(
-                        '${todayBetDay['utilization']}%',
+                        '${todayBetDay.utilization}%',
                         style: const TextStyle(
                             fontSize: 14, color: AllColors.text),
                       ),
@@ -646,18 +643,19 @@ class _TodayHighlightContainer extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => LaunchTrainingScreen(
-                              betDayId: todayBetDay['id'],
+                              betDayId: todayBetDay.id!,
                               participantId: participantId,
                             ),
                           ),
                         );
                       },
                     ),
-                  if (!trainingReleasesIsEmpty)
+                  if (!trainingReleasesIsEmpty!)
                     OutlinedButton(
                       onPressed: () => _TrainingModal(
                         betId: betId,
-                        trainingReleases: todayBetDay['trainingReleases'],
+                        betDay: todayBetDay,
+                        trainingReleases: todayBetDay.trainingReleases!,
                       ).show(context),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AllColors.gold),
@@ -699,8 +697,8 @@ class _TodayHighlightContainer extends StatelessWidget {
 class _OtherDaysList extends StatelessWidget {
   int betId;
   final currentDate;
-  List<dynamic> betDays;
-  Map<String, dynamic>? todayBetDay;
+  BetDay? todayBetDay;
+  List<BetDay?> betDays;
 
   _OtherDaysList({
     this.todayBetDay,
@@ -727,10 +725,10 @@ class _OtherDaysList extends StatelessWidget {
             if (index == todayIndex) return const SizedBox.shrink();
 
             final day = betDays[index];
-            final dayDate = DateTime.parse(day['day']);
+            final dayDate = DateTime.parse(day!.day!);
             final isFuture = dayDate.isAfter(currentDate);
             final trainingReleasesIsEmpty =
-                (day['trainingReleases'] as List<dynamic>).isEmpty;
+                (day.trainingReleases as List<dynamic>).isEmpty;
 
             return Card(
               color: AllColors.card,
@@ -740,15 +738,14 @@ class _OtherDaysList extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      day['name'],
+                      day.name!,
                       style: const TextStyle(
                         fontSize: 14,
                         color: AllColors.white,
                       ),
                     ),
                     Text(
-                      DateFormat('dd/MM/yyyy')
-                          .format(DateTime.parse(day['day'])),
+                      DateFormat('dd/MM/yyyy').format(DateTime.parse(day.day!)),
                       style:
                           const TextStyle(fontSize: 14, color: AllColors.gold),
                     )
@@ -775,7 +772,7 @@ class _OtherDaysList extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    'Faltas: ${day['totalFaults']}',
+                                    'Faltas: ${day.totalFaults}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AllColors.softWhite,
@@ -786,7 +783,7 @@ class _OtherDaysList extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    'Treinos: ${day['trainingReleases'].length}',
+                                    'Treinos: ${day.trainingReleases?.length}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AllColors.softWhite,
@@ -808,7 +805,7 @@ class _OtherDaysList extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    'Aproveitamento: ${day['utilization']}%',
+                                    'Aproveitamento: ${day.utilization}%',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AllColors.softWhite,
@@ -831,9 +828,10 @@ class _OtherDaysList extends StatelessWidget {
                                 onPressed: trainingReleasesIsEmpty
                                     ? null
                                     : () => _TrainingModal(
+                                          betDay: day,
                                           betId: betId,
                                           trainingReleases:
-                                              day['trainingReleases'],
+                                              day.trainingReleases!,
                                         ).show(context),
                               ),
                               Text(
@@ -861,8 +859,8 @@ class _ParticipantsModal {
   int userId;
   String betStatus;
   bool? userIsWinner;
-  List<dynamic>? winners;
-  List<dynamic>? participants;
+  List<Participants>? winners;
+  List<Participants>? participants;
   final participantsProvider = ParticipantsProvider();
 
   _ParticipantsModal({
@@ -873,7 +871,7 @@ class _ParticipantsModal {
 
   bool verifyIfUserIsWinner(List<dynamic> winners) {
     return winners.any((participant) =>
-        participant['user'] != null && participant['user']['id'] == userId);
+        participant.user != null && participant.user.id == userId);
   }
 
   void show(BuildContext context) async {
@@ -912,17 +910,18 @@ class _ParticipantsModal {
                     itemBuilder: (BuildContext context, int index) {
                       final participant = participants?[index];
 
-                      final imagePath = participant['user']['profileImagePath'];
+                      final imagePath = participant?.user?.profileImagePath;
                       final decodedImage =
                           imagePath != null ? base64Decode(imagePath) : null;
 
                       var subtitleText =
-                          'Faltas: ${participant['faults']} / Aproveitamento: ${participant['utilization']}%';
+                          'Faltas: ${participant?.faults} / Aproveitamento: ${participant?.utilization}%';
                       if (betStatus == 'Agendada') {
                         subtitleText =
-                            'Vitórias: ${participant['user']['wins']} / Derrotas: ${participant['user']['losses']}';
+                            'Vitórias: ${participant?.user?.wins} / Derrotas: ${participant?.user?.losses}';
                       }
 
+                      const sizeProfileImage = 100.0;
                       return Column(
                         children: [
                           Row(
@@ -931,38 +930,45 @@ class _ParticipantsModal {
                               Expanded(
                                 child: ListTile(
                                   leading: CircleAvatar(
-                                    backgroundColor: decodedImage != null
-                                        ? AllColors.transparent
-                                        : AllColors.statusBet[betStatus],
-                                    child: decodedImage != null
-                                        ? ClipOval(
-                                            child: Image.memory(
-                                              width: 100,
-                                              height: 100,
-                                              decodedImage,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (
-                                                context,
-                                                error,
-                                                stackTrace,
-                                              ) =>
-                                                  const Icon(
-                                                Icons.error,
-                                                color: AllColors.red,
+                                      radius: sizeProfileImage * 0.26,
+                                      backgroundColor:
+                                          participant?.user?.id == userId
+                                              ? AllColors.gold
+                                              : AllColors.transparent,
+                                      child: CircleAvatar(
+                                        radius: sizeProfileImage * 0.24,
+                                        backgroundColor: decodedImage != null
+                                            ? AllColors.background
+                                            : AllColors.statusBet[betStatus],
+                                        child: decodedImage != null
+                                            ? ClipOval(
+                                                child: Image.memory(
+                                                  width: 100,
+                                                  height: 100,
+                                                  decodedImage,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) =>
+                                                      const Icon(
+                                                    Icons.error,
+                                                    color: AllColors.red,
+                                                  ),
+                                                ),
+                                              )
+                                            : Text(
+                                                participant!.user!.name!
+                                                    .substring(0, 1)
+                                                    .toUpperCase(),
+                                                style: const TextStyle(
+                                                  color: AllColors.white,
+                                                ),
                                               ),
-                                            ),
-                                          )
-                                        : Text(
-                                            participant['user']['name']
-                                                .substring(0, 1)
-                                                .toUpperCase(),
-                                            style: const TextStyle(
-                                              color: AllColors.white,
-                                            ),
-                                          ),
-                                  ),
+                                      )),
                                   title: Text(
-                                    participant['user']['name'],
+                                    participant!.user!.name!,
                                     style: const TextStyle(
                                       fontSize: 14,
                                       color: AllColors.text,
@@ -972,7 +978,7 @@ class _ParticipantsModal {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      if (participant['declassified'] == true)
+                                      if (participant.declassified == true)
                                         Row(
                                           children: [
                                             const Text(
@@ -983,10 +989,10 @@ class _ParticipantsModal {
                                               ),
                                             ),
                                             if (betStatus == 'Encerrada' &&
-                                                participant['penaltyPaid'] ==
+                                                participant.penaltyPaid ==
                                                     false)
                                               Text(
-                                                ': ${NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(participant['penaltyAmount'])}',
+                                                ': ${NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(participant.penaltyAmount)}',
                                                 style: const TextStyle(
                                                   fontSize: 10,
                                                   color: AllColors.red,
@@ -1011,14 +1017,14 @@ class _ParticipantsModal {
                               ),
                               if (userIsWinner == true &&
                                   betStatus == 'Encerrada' &&
-                                  participant['declassified'] == true &&
-                                  participant['penaltyPaid'] == false)
+                                  participant.declassified == true &&
+                                  participant.penaltyPaid == false)
                                 ElevatedButton(
                                     onPressed: () async {
                                       try {
                                         await participantsProvider
                                             .updatePenaltyPaid(
-                                                participant['id'], betId);
+                                                participant.id!, betId);
                                         await refreshParticipants(); // Recarrega os dados
                                       } catch (e) {
                                         Navigator.pop(context);
@@ -1062,8 +1068,8 @@ class _ParticipantsModal {
                                         ),
                                       ],
                                     ))
-                              else if (participant['declassified'] == true &&
-                                  participant['penaltyPaid'] == true)
+                              else if (participant.declassified == true &&
+                                  participant.penaltyPaid == true)
                                 const Icon(
                                   Icons.check,
                                   color: AllColors.green,
@@ -1083,13 +1089,13 @@ class _ParticipantsModal {
 
 class _WinnersModal {
   String betStatus;
-  List<dynamic>? participants;
+  List<Participants>? participants;
 
   _WinnersModal({required this.betStatus, this.participants});
 
   void show(BuildContext context) {
     final winners =
-        participants?.where((p) => p['declassified'] == false).toList();
+        participants?.where((p) => p.declassified == false).toList();
 
     showModalBottomSheet(
       context: context,
@@ -1098,23 +1104,23 @@ class _WinnersModal {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
-        return participants == null || participants!.isEmpty
+        return winners == null || winners.isEmpty
             ? const Padding(
                 padding: EdgeInsets.all(16.0),
                 child: Center(
                   child: Text(
-                    'Nenhum participante no momento',
+                    'Não houve ganhadores',
                     style: TextStyle(fontSize: 16, color: AllColors.text),
                   ),
                 ),
               )
             : ListView.builder(
                 padding: const EdgeInsets.all(16.0),
-                itemCount: winners?.length,
+                itemCount: winners.length,
                 itemBuilder: (BuildContext context, int index) {
-                  final participant = winners?[index];
+                  final participant = winners[index];
 
-                  final imagePath = participant['user']['profileImagePath'];
+                  final imagePath = participant.user?.profileImagePath;
                   final decodedImage =
                       imagePath != null ? base64Decode(imagePath) : null;
 
@@ -1154,7 +1160,7 @@ class _WinnersModal {
                                   ),
                                 )
                               : Text(
-                                  participant['user']['name']
+                                  participant.user!.name!
                                       .substring(0, 1)
                                       .toUpperCase(),
                                   style:
@@ -1164,12 +1170,12 @@ class _WinnersModal {
                       ],
                     ),
                     title: Text(
-                      participant['user']['name'],
+                      participant.user!.name!,
                       style:
                           const TextStyle(fontSize: 16, color: AllColors.text),
                     ),
                     subtitle: Text(
-                      'Aproveitamento: ${participant['utilization']} / Faltas: ${participant['faults']}',
+                      'Aproveitamento: ${participant.utilization} / Faltas: ${participant.faults}',
                       style:
                           const TextStyle(fontSize: 12, color: AllColors.text),
                     ),
@@ -1183,9 +1189,13 @@ class _WinnersModal {
 
 class _TrainingModal {
   int betId;
+  BetDay betDay;
   List trainingReleases;
 
-  _TrainingModal({required this.trainingReleases, required this.betId});
+  _TrainingModal(
+      {required this.trainingReleases,
+      required this.betId,
+      required this.betDay});
 
   final mapTrainingIcons = {
     'Natação': const Icon(Icons.pool, color: Colors.teal),
@@ -1261,14 +1271,14 @@ class _TrainingModal {
                     itemCount: trainingReleases.length,
                     itemBuilder: (context, index, realIndex) {
                       final training = trainingReleases[index];
-                      final participant = training['participant'];
+                      final participant = training.participant;
 
-                      final user = participant['user'];
-                      final decodedUserImage = user['profileImagePath'] != null
-                          ? base64Decode(user['profileImagePath'])
+                      final user = participant.user;
+                      final decodedUserImage = user.profileImagePath != null
+                          ? base64Decode(user.profileImagePath)
                           : null;
 
-                      final imagePath = training['imagePath'];
+                      final imagePath = training.imagePath;
                       final decodedTrainingImage =
                           imagePath != null ? base64Decode(imagePath) : null;
 
@@ -1331,13 +1341,13 @@ class _TrainingModal {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                mapTrainingIcons[training['trainingType']]!,
+                                mapTrainingIcons[training.trainingType]!,
                                 SizedBox(
                                   width:
                                       MediaQuery.of(context).size.width * 0.015,
                                 ),
                                 Text(
-                                  '${training['trainingType']}',
+                                  '${training.trainingType}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -1395,7 +1405,7 @@ class _TrainingModal {
                                       MediaQuery.of(context).size.width * 0.01,
                                 ),
                                 Text(
-                                  '${user['name']} na Aposta $betId:',
+                                  '${user.name} na Aposta $betId:',
                                   style: const TextStyle(
                                     fontSize: 12,
                                     decorationThickness: 1,
@@ -1411,10 +1421,10 @@ class _TrainingModal {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                if (training['comment'] != null ||
-                                    training['comment'] != '')
+                                if (training.comment != null ||
+                                    training.comment != '')
                                   Text(
-                                    'Comentário: ${training['comment']}',
+                                    'Comentário: ${training.comment}',
                                     style: const TextStyle(
                                       fontSize: 10,
                                       decorationThickness: 1,
@@ -1444,7 +1454,7 @@ class _TrainingModal {
                                         ),
                                       ),
                                       Text(
-                                        '${participant['faults']}',
+                                        '${participant.faults}',
                                         style: const TextStyle(
                                           fontSize: 10,
                                           color: AllColors.text,
@@ -1462,7 +1472,7 @@ class _TrainingModal {
                                         ),
                                       ),
                                       Text(
-                                        '${participant['utilization']}%',
+                                        '${participant.utilization}%',
                                         style: const TextStyle(
                                           fontSize: 10,
                                           color: AllColors.text,
@@ -1477,7 +1487,7 @@ class _TrainingModal {
                               height:
                                   MediaQuery.of(context).size.height * 0.015,
                             ),
-                            if (participant['declassified'])
+                            if (participant.declassified)
                               const Text(
                                 'Desclassificado por faltas',
                                 style: TextStyle(

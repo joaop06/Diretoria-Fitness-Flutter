@@ -178,8 +178,7 @@ class _RankingScreenState extends State<RankingScreen>
       children: [
         // Avatar do usuário com borda colorida
         CircleAvatar(
-          radius: stepWidth *
-              0.3, // Ajusta o tamanho do avatar de acordo com a largura disponível
+          radius: stepWidth * 0.3,
           backgroundColor: rank == 1
               ? const Color.fromARGB(255, 255, 215, 0) // Ouro
               : rank == 2
