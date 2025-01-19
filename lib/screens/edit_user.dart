@@ -693,7 +693,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
                 // Campos de edição
                 CustomTextField(
@@ -703,12 +702,51 @@ class _EditUserScreenState extends State<EditUserScreen> {
                   enabled: _isEditingTextField,
                   style: const TextStyle(color: AllColors.white, fontSize: 12),
                 ),
-                CustomTextField(
-                  label: 'Email',
-                  hint: _emailController.text,
-                  controller: _emailController,
-                  enabled: _isEditingTextField,
-                  style: const TextStyle(color: AllColors.white, fontSize: 12),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      child: CustomTextField(
+                        label: 'E-mail',
+                        hint: _emailController.text,
+                        controller: _emailController,
+                        enabled: _isEditingTextField,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AllColors.white,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      child: Column(
+                        children: [
+                          if (userData?.isVerified == true)
+                            const Icon(
+                              Icons.verified,
+                              color: AllColors.green,
+                            )
+                          else
+                            IconButton(
+                              onPressed: () => Navigator.pushNamed(
+                                  context, '/verification-code',
+                                  arguments: {
+                                    'userId': userData!.id,
+                                    'email': userData!.email,
+                                    'redirectRoute': '/edit-user',
+                                    'resendCodeWhenStarting': true,
+                                  }),
+                              icon: const Icon(
+                                Icons.error_outline,
+                                color: AllColors.red,
+                              ),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
                 const SizedBox(height: 10),
                 Row(

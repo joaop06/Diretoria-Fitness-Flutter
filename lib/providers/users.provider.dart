@@ -12,13 +12,15 @@ class UsersProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   // Função para registrar o usuário
-  Future<void> registerUser(Map<String, dynamic> userData) async {
+  Future<Map<String, dynamic>?> registerUser(
+    Map<String, dynamic> userData,
+  ) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      await _usersService.registerUser(userData);
+      return await _usersService.registerUser(userData);
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {

@@ -34,7 +34,7 @@ class AuthService {
   }
 
   Future<void> signin(String email, String password) async {
-    final response = await _apiService.post("/auth/login", {
+    final response = await _apiService.post("/auth/login", data: {
       "email": email,
       "password": password,
     });
@@ -50,6 +50,17 @@ class AuthService {
       }
     } else {
       throw Exception("Token de acesso não encontrado");
+    }
+  }
+
+  Future verifyVerificationCode(int userId, int code) async {
+    try {
+      return await _apiService.post("/auth/validate-verification-code", data: {
+        "userId": userId,
+        "code": code,
+      });
+    } catch (e) {
+      rethrow;
     }
   }
 }

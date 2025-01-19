@@ -58,7 +58,7 @@ class ParticipantsService {
   }) : apiService = apiService ?? ApiService();
 
   Future<String> create(Map<String, dynamic> participantData) async {
-    await apiService.post('/participants', participantData);
+    await apiService.post('/participants', data: participantData);
     return 'Participante cadastrado com sucesso!';
   }
 

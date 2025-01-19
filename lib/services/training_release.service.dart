@@ -65,7 +65,7 @@ class TrainingReleaseService {
     try {
       // Inserção do registro do treino
       final trainingResponse =
-          await _apiService.post(endpoint, trainingRelease);
+          await _apiService.post(endpoint, data: trainingRelease);
 
       trainingId = trainingResponse['id'];
     } catch (e) {

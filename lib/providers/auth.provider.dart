@@ -23,4 +23,19 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future verifyVerificationCode(int userId, int code) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      return await _authService.verifyVerificationCode(userId, code);
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

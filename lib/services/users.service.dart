@@ -81,6 +81,7 @@ class User {
   final double? height;
   final int? wins;
   final int? losses;
+  final bool? isVerified;
   final int? totalFaults;
   final int? totalTrainingDays;
   final int? totalParticipations;
@@ -99,6 +100,7 @@ class User {
     this.bmi,
     this.wins,
     this.losses,
+    this.isVerified,
     this.totalFaults,
     this.totalTrainingDays,
     this.totalParticipations,
@@ -120,6 +122,7 @@ class User {
         email: json['email'] as String?,
         weight: json['weight']?.toDouble(),
         height: json['height']?.toDouble(),
+        isVerified: json['isVerified'] as bool?,
         totalFaults: json['totalFaults'] as int?,
         totalTrainingDays: json['totalTrainingDays'] as int?,
         profileImagePath: json['profileImagePath'] as String?,
@@ -149,9 +152,9 @@ class UsersService {
   }
 
   // Função para realizar o cadastro do usuário
-  Future<String> registerUser(Map<String, dynamic> userData) async {
-    await _apiService.post('/users', userData);
-    return 'Cadastro realizado com sucesso!';
+  Future<Map<String, dynamic>> registerUser(
+      Map<String, dynamic> userData) async {
+    return await _apiService.post('/users', data: userData);
   }
 
   Future<String> update(int userId, Map<String, dynamic> object) async {

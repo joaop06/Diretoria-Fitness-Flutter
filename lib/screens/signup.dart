@@ -72,7 +72,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           userData['height'] = double.parse(_heightController.text);
         }
 
-        await usersProvider.registerUser(userData);
+        final result = await usersProvider.registerUser(userData);
 
         if (usersProvider.errorMessage != null) {
           throw Exception(
@@ -88,8 +88,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
           )),
         );
 
-        // Redireciona para a tela de login
-        Navigator.pushReplacementNamed(context, '/');
+        // Redireciona para validar o Código de Verificação
+        Navigator.pushNamed(
+          context,
+          '/verification-code',
+          arguments: {
+            'email': _emailController.text,
+            'userId': result!['user']['id']
+          },
+        );
       }
     } catch (e) {
       if (e.toString().replaceFirst('Exception: ', '') ==
@@ -148,13 +155,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 CustomTextField(
-                  label: "Nome",
-                  hint: "João Borges",
-                  controller: _nameController,
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Nome é obrigatório'
-                      : null,
-                ),
+                    label: "Nome",
+                    hint: "João Borges",
+                    controller: _nameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Nome é obrigatório';
+                      }
+                      return null;
+                    }),
                 CustomTextField(
                   label: "E-mail",
                   hint: "joaoborges@gmail.com",

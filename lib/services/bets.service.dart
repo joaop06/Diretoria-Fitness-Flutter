@@ -79,7 +79,7 @@ class BetsService {
   }
 
   Future<String> create(Map<String, dynamic> betData) async {
-    await _apiService.post('/training-bets', betData);
+    await _apiService.post('/training-bets', data: betData);
     return 'Aposta criada com sucesso!';
   }
 

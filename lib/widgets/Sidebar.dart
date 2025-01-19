@@ -213,39 +213,44 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
                       width: 1, // Largura da borda
                     ),
                   ),
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundColor: AllColors.transparent,
-                    child: decodedUserImage == null
-                        ? Text(
-                            (userName?.isNotEmpty == true
-                                ? userName![0].toUpperCase()
-                                : "?"),
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: AllColors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        : ClipOval(
-                            child: Image.memory(
-                              width: 100,
-                              height: 100,
-                              decodedUserImage,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Text(
-                                (userName?.isNotEmpty == true
-                                    ? userName![0].toUpperCase()
-                                    : "?"),
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  color: AllColors.white,
-                                  fontWeight: FontWeight.bold,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/edit-user');
+                    },
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: AllColors.transparent,
+                      child: decodedUserImage == null
+                          ? Text(
+                              (userName?.isNotEmpty == true
+                                  ? userName![0].toUpperCase()
+                                  : "?"),
+                              style: const TextStyle(
+                                fontSize: 20,
+                                color: AllColors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : ClipOval(
+                              child: Image.memory(
+                                width: 100,
+                                height: 100,
+                                decodedUserImage,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Text(
+                                  (userName?.isNotEmpty == true
+                                      ? userName![0].toUpperCase()
+                                      : "?"),
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: AllColors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                    ),
                   ),
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),
@@ -271,7 +276,7 @@ class _SidebarState extends State<Sidebar> with AutomaticKeepAliveClientMixin {
           const Divider(color: AllColors.softBlack, thickness: 1),
           _buildListTile(
             icon: Icons.edit,
-            title: "Editar Dados",
+            title: "Perfil",
             onTap: () {
               Navigator.pushNamed(context, '/edit-user');
             },

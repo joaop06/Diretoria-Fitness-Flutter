@@ -4,8 +4,8 @@ import 'package:daily_training_flutter/services/auth.service.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // static const String baseUrl = 'http://192.168.100.18:3000';
-  static const String baseUrl = 'https://diretoriafitness.api.fluxocar.com.br';
+  static const String baseUrl = 'http://192.168.100.18:3000';
+  // static const String baseUrl = 'https://diretoriafitness.api.fluxocar.com.br';
 
   buildHeaders(accessToken, [String type = 'json']) {
     final headers = {
@@ -48,15 +48,15 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> post(
-      String endpoint, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> post(String endpoint,
+      {Map<String, dynamic>? data}) async {
     final url = Uri.parse("$baseUrl$endpoint");
     final accessToken = await AuthService.getAccessToken();
 
     try {
       final response = await http.post(
         url,
-        body: jsonEncode(data),
+        body: jsonEncode(data ?? {}),
         headers: buildHeaders(accessToken),
       );
 
@@ -71,6 +71,7 @@ class ApiService {
         throw Exception(error['message'] ?? error['error']);
       }
     } catch (e) {
+      print(e);
       rethrow;
     }
   }
